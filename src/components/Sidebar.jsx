@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { BarChart3, UserPlus, LayoutDashboard, Users, AlertCircle, Ban, X, Bell, User, Clock, FileText, List } from 'lucide-react';
+import { BarChart3, UserPlus, LayoutDashboard, Users, AlertCircle, Ban, Clock, FileText, List } from 'lucide-react';
 import Badge from './Badge';
 import './Sidebar.css';
 
@@ -49,27 +49,16 @@ const Sidebar = ({ isOpen, onClose, currentPage }) => {
         {/* Logo Section */}
         <div className="sidebar-header">
           <div className="sidebar-logo">
-            <div className="sidebar-logo-icon">EP</div>
+            <img src="/icons/ELLPATRON.png" alt="Ell Patron Logo" className="sidebar-logo-image" />
             <div className="sidebar-logo-text">
               <span className="sidebar-logo-name">ELL PATRON</span>
-              <span className="sidebar-logo-subtitle">SaaS Premium</span>
+              <span className="sidebar-logo-subtitle">aptronsaas premium</span>
             </div>
-          </div>
-          
-          {/* Top Actions */}
-          <div className="sidebar-actions">
-            <button className="sidebar-action-btn" aria-label="Notificações">
-              <Bell size={18} />
-              <Badge variant="red" count={3} className="sidebar-action-badge" />
-            </button>
-            <button className="sidebar-action-btn" aria-label="Perfil">
-              <User size={18} />
-            </button>
           </div>
           
           {/* Close button for mobile */}
           <button className="sidebar-close" onClick={onClose} aria-label="Fechar menu">
-            <X size={20} />
+            ✕
           </button>
         </div>
 
