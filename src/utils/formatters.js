@@ -218,16 +218,32 @@ export const truncateText = (text, maxLength = 50) => {
 export const formatAddress = (address) => {
   if (!address) return '';
   
+  // Handle different address structures
+  const street = address.street || address.endereco || address.logradouro || '';
+  const number = address.number || address.numero || '';
+  const complement = address.complement || address.complemento || '';
+  const neighborhood = address.neighborhood || address.bairro || '';
+  const city = address.city || address.cidade || address.localidade || '';
+  const state = address.state || address.estado || address.uf || '';
+  const cep = address.cep || '';
+
   const parts = [
-    address.street,
-    address.number,
-    address.complement,
-    address.neighborhood,
-    address.city,
-    address.state
+    street,
+    number,
+    complement,
+    neighborhood,
+    city,
+    state
   ].filter(Boolean);
 
-  return parts.join(', ');
+  const formattedAddress = parts.join(', ');
+  
+  // Add CEP if available
+  if (cep) {
+    return formattedAddress ? `${formattedAddress} - CEP: ${cep}` : `CEP: ${cep}`;
+  }
+
+  return formattedAddress;
 };
 
 /**

@@ -472,8 +472,8 @@ Data: ____/____/________
               />
               {showClientSuggestions && formData.nome.length > 0 && (
                 <div className="client-suggestions">
-                  {clients
-                    .filter(client => 
+                  {clientsList
+                    .filter(client =>
                       client.name.toLowerCase().includes(formData.nome.toLowerCase())
                     )
                     .slice(0, 5)
@@ -487,7 +487,7 @@ Data: ____/____/________
                         <div className="client-suggestion-cpf">{client.cpf || ''}</div>
                       </div>
                     ))}
-                  {clients.filter(client => 
+                  {clientsList.filter(client =>
                     client.name.toLowerCase().includes(formData.nome.toLowerCase())
                   ).length === 0 && (
                     <div className="client-suggestion-empty">

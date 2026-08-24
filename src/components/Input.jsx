@@ -15,6 +15,7 @@ const Input = ({
   disabled = false,
   required = false,
   fullWidth = false,
+  maxLength,
   className = '',
   ...props
 }) => {
@@ -61,6 +62,11 @@ const Input = ({
           onBlur={onBlur}
           onFocus={onFocus}
           disabled={disabled}
+          maxLength={maxLength}
+          autoComplete="off"
+          autoCorrect="off"
+          autoCapitalize="off"
+          spellCheck="false"
           {...props}
         />
       </div>

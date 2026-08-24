@@ -65,7 +65,14 @@ const AdicionarCliente = ({ onPageChange }) => {
 
   const handleCEPChange = async (value) => {
     const cleaned = value.replace(/\D/g, '');
-    handleInputChange('cep', cleaned);
+    
+    // Format CEP as 00000-000
+    let formatted = cleaned;
+    if (cleaned.length > 5) {
+      formatted = `${cleaned.slice(0, 5)}-${cleaned.slice(5, 8)}`;
+    }
+    
+    handleInputChange('cep', formatted);
     
     // Buscar endereço via ViaCEP quando CEP tiver 8 dígitos
     if (cleaned.length === 8) {
