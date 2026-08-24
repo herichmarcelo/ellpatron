@@ -62,12 +62,22 @@ export default defineConfig({
   build: {
     rollupOptions: {
       output: {
-        manualChunks: {
-          'react-vendor': ['react', 'react-dom', 'react-router-dom'],
-          'charts-vendor': ['recharts'],
-          'firebase-vendor': ['firebase'],
-          'query-vendor': ['@tanstack/react-query'],
-          'icons-vendor': ['lucide-react']
+        manualChunks: (id) => {
+          if (id.includes('react') || id.includes('react-dom') || id.includes('react-router-dom')) {
+            return 'react-vendor';
+          }
+          if (id.includes('recharts')) {
+            return 'charts-vendor';
+          }
+          if (id.includes('@supabase')) {
+            return 'supabase-vendor';
+          }
+          if (id.includes('@tanstack/react-query')) {
+            return 'query-vendor';
+          }
+          if (id.includes('lucide-react')) {
+            return 'icons-vendor';
+          }
         }
       }
     },
