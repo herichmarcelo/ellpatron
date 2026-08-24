@@ -49,9 +49,9 @@ const Sidebar = ({ isOpen, onClose, currentPage }) => {
         {/* Logo Section */}
         <div className="sidebar-header">
           <div className="sidebar-logo">
-            <div className="sidebar-logo-icon">EC</div>
+            <div className="sidebar-logo-icon">EP</div>
             <div className="sidebar-logo-text">
-              <span className="sidebar-logo-name">EASIERCONTROL</span>
+              <span className="sidebar-logo-name">ELL PATRON</span>
               <span className="sidebar-logo-subtitle">SaaS Premium</span>
             </div>
           </div>

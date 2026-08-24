@@ -288,7 +288,7 @@ Data: ${new Date().toLocaleDateString('pt-BR')}
 
 PARTES:
 
-CONTRATANTE: EasierControl
+CONTRATANTE: Ell Patron
 CONTRATADO: ${contract.nome}
 CPF: ${contract.cpf}
 
@@ -353,7 +353,7 @@ Data: ____/____/________
 
             <div className="contract-section">
               <h3>PARTES:</h3>
-              <p><strong>CONTRATANTE:</strong> EasierControl</p>
+              <p><strong>CONTRATANTE:</strong> Ell Patron</p>
               <p><strong>CONTRATADO:</strong> {generatedContract.client_name}</p>
               <p><strong>CPF:</strong> {generatedContract.client_cpf}</p>
             </div>

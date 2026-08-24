@@ -140,7 +140,7 @@ Data: ${new Date(selectedContract.created_at).toLocaleDateString('pt-BR')}
 
 PARTES:
 
-CONTRATANTE: EasierControl
+CONTRATANTE: Ell Patron
 CONTRATADO: ${selectedContract.client_name}
 CPF: ${selectedContract.client_cpf}
 

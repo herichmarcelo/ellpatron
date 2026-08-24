@@ -1,4 +1,4 @@
-# EasierControl - Sistema de Gestão Financeira Premium
+# Ell Patron - Sistema de Gestão Financeira Premium
 
 Sistema completo de gerenciamento financeiro e controle de empréstimos com tema luxuoso preto e dourado, desenvolvido com React, Firebase e otimizações avançadas de performance.
 

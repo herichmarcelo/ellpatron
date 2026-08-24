@@ -40,7 +40,7 @@ function AppContent() {
       atrasados: 'Atrasados',
       'lista-negra': 'Lista Negra',
     };
-    return titles[pageId] || 'EasierControl';
+    return titles[pageId] || 'Ell Patron';
   };
 
   if (loading) {
