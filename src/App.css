@@ -1,0 +1,37 @@
+.app {
+  display: flex;
+  min-height: 100vh;
+  background: var(--bg-primary);
+}
+
+.app-main {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  transition: margin-left var(--transition-normal);
+  background: linear-gradient(180deg, var(--bg-primary) 0%, var(--bg-secondary) 100%);
+  margin-left: 260px;
+}
+
+.app-main--sidebar-open {
+  margin-left: 260px;
+}
+
+.app-content {
+  flex: 1;
+  padding: var(--spacing-lg);
+  overflow-y: auto;
+  overflow-x: hidden;
+}
+
+/* Responsive adjustments */
+@media (max-width: 1023px) {
+  .app-main {
+    margin-left: 0;
+  }
+  
+  .app-main--sidebar-open {
+    margin-left: 0;
+  }
+}

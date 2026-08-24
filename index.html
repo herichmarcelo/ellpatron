@@ -1,0 +1,78 @@
+<!doctype html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
+    <meta name="description" content="Sistema de gerenciamento financeiro premium e controle de empréstimos com juros compostos" />
+    <meta name="theme-color" content="#0a0a0a" />
+    <meta name="msapplication-TileColor" content="#0a0a0a" />
+    <meta name="msapplication-config" content="/browserconfig.xml" />
+    
+    <!-- SEO Meta Tags -->
+    <meta name="keywords" content="gestão financeira, empréstimos, juros compostos, controle financeiro, investimentos" />
+    <meta name="author" content="EasierControl" />
+    <meta name="robots" content="index, follow" />
+    
+    <!-- Open Graph / Facebook -->
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content="https://easiercontrol.com/" />
+    <meta property="og:title" content="EasierControl - Gestão Financeira Premium" />
+    <meta property="og:description" content="Sistema de gerenciamento financeiro premium e controle de empréstimos" />
+    <meta property="og:image" content="/og-image.png" />
+    
+    <!-- Twitter -->
+    <meta property="twitter:card" content="summary_large_image" />
+    <meta property="twitter:url" content="https://easiercontrol.com/" />
+    <meta property="twitter:title" content="EasierControl - Gestão Financeira Premium" />
+    <meta property="twitter:description" content="Sistema de gerenciamento financeiro premium e controle de empréstimos" />
+    <meta property="twitter:image" content="/og-image.png" />
+    
+    <!-- PWA Meta Tags for iOS -->
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+    <meta name="apple-mobile-web-app-title" content="EasierControl" />
+    <link rel="apple-touch-icon" sizes="180x180" href="/icons/icon-180x180.png" />
+    <link rel="apple-touch-icon" sizes="192x192" href="/icons/icon-192x192.png" />
+    <link rel="apple-touch-startup-image" href="/splash.png" />
+    
+    <!-- PWA Meta Tags for Android -->
+    <meta name="mobile-web-app-capable" content="yes" />
+    <meta name="application-name" content="EasierControl" />
+    <meta name="mobile-web-app-title" content="EasierControl" />
+    
+    <!-- PWA Manifest -->
+    <link rel="manifest" href="/manifest.json" />
+    
+    <!-- Canonical URL -->
+    <link rel="canonical" href="https://easiercontrol.com/" />
+    
+    <!-- Preconnect for performance -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    
+    <!-- Premium Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600;700;800&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+    
+    <!-- DNS Prefetch -->
+    <link rel="dns-prefetch" href="https://firebase.googleapis.com" />
+    <link rel="dns-prefetch" href="https://firestore.googleapis.com" />
+    
+    <title>EasierControl - Gestão Financeira Premium</title>
+  </head>
+  <body>
+    <div id="root"></div>
+    <script>
+      // Force Portuguese locale for date inputs
+      if (navigator.language !== 'pt-BR') {
+        Object.defineProperty(navigator, 'language', {
+          get: function() { return 'pt-BR'; }
+        });
+        Object.defineProperty(navigator, 'languages', {
+          get: function() { return ['pt-BR', 'pt', 'en-US']; }
+        });
+      }
+    </script>
+    <script type="module" src="/src/main.jsx"></script>
+  </body>
+</html>

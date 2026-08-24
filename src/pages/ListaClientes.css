@@ -1,0 +1,357 @@
+.lista-clientes {
+  padding: var(--spacing-lg);
+  max-width: 1400px;
+  margin: 0 auto;
+}
+
+.lista-clientes-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: var(--spacing-lg);
+  flex-wrap: wrap;
+  gap: var(--spacing-md);
+}
+
+.lista-clientes-title {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-md);
+}
+
+.lista-clientes-title h2 {
+  font-size: 24px;
+  font-weight: 600;
+  color: var(--gold-primary);
+  margin: 0;
+}
+
+.lista-clientes-controls {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-md);
+  margin-bottom: var(--spacing-lg);
+  flex-wrap: wrap;
+}
+
+.lista-clientes-search {
+  flex: 1;
+  min-width: 200px;
+}
+
+.lista-clientes-filters {
+  flex: 0 0 auto;
+}
+
+.lista-clientes-filter-select {
+  padding: var(--spacing-md);
+  background-color: var(--background-input);
+  border: 1px solid var(--border-dark);
+  border-radius: var(--border-radius-md);
+  color: var(--text-primary);
+  font-size: 14px;
+  min-width: 150px;
+  cursor: pointer;
+  transition: all var(--transition-normal);
+}
+
+.lista-clientes-filter-select:focus {
+  border-color: var(--gold-secondary);
+  box-shadow: 0 0 0 2px rgba(212, 175, 55, 0.2);
+  outline: none;
+}
+
+.lista-clientes-content {
+  min-height: 400px;
+}
+
+.lista-clientes-grid {
+  display: grid;
+  gap: var(--spacing-md);
+}
+
+.lista-clientes-grid--list {
+  grid-template-columns: 1fr;
+}
+
+.lista-clientes-grid--grid {
+  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+}
+
+.lista-clientes-card {
+  transition: all var(--transition-normal);
+}
+
+.lista-clientes-card:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-gold);
+}
+
+.lista-clientes-card-header {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-md);
+  margin-bottom: var(--spacing-md);
+  padding-bottom: var(--spacing-md);
+  border-bottom: 1px solid var(--border-dark);
+}
+
+.lista-clientes-avatar {
+  width: 48px;
+  height: 48px;
+  border-radius: var(--border-radius-full);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 600;
+  font-size: 16px;
+  color: white;
+  flex-shrink: 0;
+  background: linear-gradient(135deg, var(--gold-primary) 0%, var(--gold-secondary) 100%);
+}
+
+.lista-clientes-info {
+  flex: 1;
+  min-width: 0;
+}
+
+.lista-clientes-name {
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--text-primary);
+  margin: 0 0 var(--spacing-xs) 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.lista-clientes-meta {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-xs);
+}
+
+.lista-clientes-details {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-sm);
+  margin-bottom: var(--spacing-md);
+}
+
+.lista-clientes-detail {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-sm);
+  color: var(--text-tertiary);
+  font-size: 14px;
+}
+
+.lista-clientes-detail-icon {
+  flex-shrink: 0;
+  color: var(--gold-secondary);
+}
+
+.lista-clientes-detail-text {
+  flex: 1;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.lista-clientes-actions {
+  display: flex;
+  gap: var(--spacing-sm);
+  flex-wrap: wrap;
+}
+
+.lista-clientes-actions button {
+  flex: 1;
+  min-width: 80px;
+}
+
+.lista-clientes-empty {
+  text-align: center;
+  padding: var(--spacing-xl);
+  color: var(--text-tertiary);
+}
+
+.lista-clientes-empty p {
+  margin: 0;
+  font-size: 16px;
+}
+
+/* Responsive adjustments */
+@media (max-width: 1024px) {
+  .lista-clientes {
+    padding: var(--spacing-md);
+  }
+  
+  .lista-clientes-header {
+    flex-direction: column;
+    align-items: stretch;
+  }
+  
+  .lista-clientes-title {
+    justify-content: space-between;
+  }
+  
+  .lista-clientes-grid--grid {
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  }
+}
+
+@media (max-width: 768px) {
+  .lista-clientes {
+    padding: var(--spacing-sm);
+  }
+  
+  .lista-clientes-controls {
+    flex-direction: column;
+    align-items: stretch;
+  }
+  
+  .lista-clientes-filter-select {
+    width: 100%;
+  }
+  
+  .lista-clientes-grid--grid {
+    grid-template-columns: 1fr;
+  }
+  
+  .lista-clientes-card-header {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+  
+  .lista-clientes-avatar {
+    width: 40px;
+    height: 40px;
+    font-size: 14px;
+  }
+  
+  .lista-clientes-actions {
+    flex-direction: column;
+  }
+  
+  .lista-clientes-actions button {
+    width: 100%;
+  }
+}
+
+@media (max-width: 480px) {
+  .lista-clientes-title h2 {
+    font-size: 20px;
+  }
+  
+  .lista-clientes-detail {
+    font-size: 13px;
+  }
+  
+  .lista-clientes-detail-icon {
+    width: 14px;
+    height: 14px;
+  }
+}
+
+/* Modal Styles */
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.7);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+}
+
+.modal-content {
+  background: var(--bg-primary);
+  border-radius: var(--border-radius-lg);
+  max-width: 800px;
+  width: 90%;
+  max-height: 80vh;
+  overflow-y: auto;
+  padding: var(--spacing-lg);
+}
+
+.modal-content--large {
+  max-width: 1000px;
+}
+
+.modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: var(--spacing-lg);
+  padding-bottom: var(--spacing-md);
+  border-bottom: 1px solid var(--border-dark);
+}
+
+.modal-header h2 {
+  margin: 0;
+  font-size: 24px;
+  color: var(--text-primary);
+}
+
+.modal-body {
+  padding: var(--spacing-md) 0;
+}
+
+.contracts-list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-md);
+}
+
+.contract-item {
+  padding: var(--spacing-md);
+}
+
+.contract-info {
+  margin-bottom: var(--spacing-md);
+}
+
+.contract-info h4 {
+  margin: 0 0 var(--spacing-sm) 0;
+  color: var(--text-primary);
+}
+
+.contract-info p {
+  margin: var(--spacing-xs) 0;
+  color: var(--text-secondary);
+  font-size: 14px;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .lista-clientes-grid--card {
+    grid-template-columns: 1fr;
+  }
+
+  .lista-clientes-actions {
+    flex-wrap: wrap;
+  }
+
+  .lista-clientes-actions button {
+    flex: 1;
+    min-width: 120px;
+  }
+
+  .modal-content {
+    width: 95%;
+    max-height: 90vh;
+  }
+
+  .payment-form-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .payments-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: var(--spacing-sm);
+  }
+}

@@ -1,0 +1,238 @@
+.historico {
+  padding: var(--spacing-lg);
+  max-width: 1400px;
+  margin: 0 auto;
+}
+
+.historico-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: var(--spacing-lg);
+  flex-wrap: wrap;
+  gap: var(--spacing-md);
+}
+
+.historico-header h2 {
+  font-size: 24px;
+  font-weight: 600;
+  color: var(--gold-primary);
+  margin: 0;
+}
+
+.historico-actions {
+  display: flex;
+  gap: var(--spacing-sm);
+  flex-wrap: wrap;
+}
+
+.historico-controls {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: var(--spacing-lg);
+  flex-wrap: wrap;
+  gap: var(--spacing-md);
+}
+
+.historico-filters,
+.historico-chart-type {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-sm);
+  flex-wrap: wrap;
+}
+
+.historico-filter-label {
+  font-size: 14px;
+  color: var(--text-tertiary);
+  font-weight: 500;
+}
+
+.historico-summary {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: var(--spacing-md);
+  margin-bottom: var(--spacing-lg);
+}
+
+.historico-summary-card {
+  background: linear-gradient(135deg, rgba(212, 175, 55, 0.1) 0%, rgba(212, 175, 55, 0.05) 100%);
+  border: 1px solid var(--gold-secondary);
+}
+
+.historico-summary-card--expense {
+  background: linear-gradient(135deg, rgba(244, 67, 54, 0.1) 0%, rgba(244, 67, 54, 0.05) 100%);
+  border-color: var(--status-error);
+}
+
+.historico-summary-card--profit {
+  background: linear-gradient(135deg, rgba(76, 175, 80, 0.1) 0%, rgba(76, 175, 80, 0.05) 100%);
+  border-color: var(--status-success);
+}
+
+.historico-summary-content {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-md);
+}
+
+.historico-summary-icon {
+  color: var(--gold-primary);
+  flex-shrink: 0;
+}
+
+.historico-summary-card--expense .historico-summary-icon {
+  color: var(--status-error);
+}
+
+.historico-summary-card--profit .historico-summary-icon {
+  color: var(--status-success);
+}
+
+.historico-summary-label {
+  display: block;
+  font-size: 12px;
+  color: var(--text-tertiary);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-bottom: 2px;
+}
+
+.historico-summary-value {
+  display: block;
+  font-size: 24px;
+  font-weight: 700;
+  color: var(--gold-primary);
+  line-height: 1.2;
+}
+
+.historico-summary-card--expense .historico-summary-value {
+  color: var(--status-error);
+}
+
+.historico-summary-card--profit .historico-summary-value {
+  color: var(--status-success);
+}
+
+.historico-chart-card {
+  margin-bottom: var(--spacing-lg);
+}
+
+.historico-chart-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: var(--spacing-md);
+}
+
+.historico-chart-header h3 {
+  font-size: 18px;
+  font-weight: 600;
+  color: var(--gold-primary);
+  margin: 0;
+}
+
+.historico-chart-container {
+  min-height: 300px;
+}
+
+.historico-pie-charts {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+  gap: var(--spacing-lg);
+}
+
+.historico-pie-card h3 {
+  font-size: 18px;
+  font-weight: 600;
+  color: var(--gold-primary);
+  margin: 0 0 var(--spacing-md) 0;
+  text-align: center;
+}
+
+.historico-pie-container {
+  min-height: 250px;
+}
+
+/* Responsive adjustments */
+@media (max-width: 1024px) {
+  .historico {
+    padding: var(--spacing-md);
+  }
+  
+  .historico-header {
+    flex-direction: column;
+    align-items: stretch;
+  }
+  
+  .historico-actions {
+    justify-content: stretch;
+  }
+  
+  .historico-actions button {
+    flex: 1;
+  }
+  
+  .historico-controls {
+    flex-direction: column;
+    align-items: stretch;
+  }
+  
+  .historico-filters,
+  .historico-chart-type {
+    justify-content: center;
+  }
+  
+  .historico-summary {
+    grid-template-columns: 1fr;
+  }
+  
+  .historico-pie-charts {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 768px) {
+  .historico {
+    padding: var(--spacing-sm);
+  }
+  
+  .historico-header h2 {
+    font-size: 20px;
+  }
+  
+  .historico-summary-value {
+    font-size: 20px;
+  }
+  
+  .historico-chart-container {
+    min-height: 250px;
+  }
+  
+  .historico-pie-container {
+    min-height: 200px;
+  }
+}
+
+@media (max-width: 480px) {
+  .historico-filters,
+  .historico-chart-type {
+    flex-direction: column;
+    align-items: stretch;
+  }
+  
+  .historico-filters button,
+  .historico-chart-type button {
+    width: 100%;
+  }
+  
+  .historico-summary-value {
+    font-size: 18px;
+  }
+  
+  .historico-summary-icon {
+    width: 20px;
+    height: 20px;
+  }
+}

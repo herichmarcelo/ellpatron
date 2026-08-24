@@ -1,0 +1,403 @@
+.gerar-contrato {
+  padding: var(--spacing-lg);
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.gerar-contrato-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: var(--spacing-lg);
+  flex-wrap: wrap;
+  gap: var(--spacing-md);
+}
+
+.gerar-contrato-title {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-sm);
+}
+
+.gerar-contrato-title h2 {
+  font-size: 24px;
+  font-weight: 600;
+  color: var(--gold-primary);
+  margin: 0;
+}
+
+.gerar-contrato-actions {
+  display: flex;
+  gap: var(--spacing-sm);
+}
+
+.gerar-contrato-content {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-lg);
+}
+
+.gerar-contrato-section {
+  border: 1px solid var(--border-dark);
+  transition: all var(--transition-normal);
+}
+
+.gerar-contrato-section:hover {
+  border-color: var(--border-gold);
+  box-shadow: var(--shadow-gold);
+}
+
+.gerar-contrato-section-header {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-sm);
+  margin-bottom: var(--spacing-lg);
+  padding-bottom: var(--spacing-md);
+  border-bottom: 1px solid var(--border-dark);
+  color: var(--gold-primary);
+}
+
+.gerar-contrato-section-header h3 {
+  font-size: 18px;
+  font-weight: 600;
+  margin: 0;
+}
+
+.gerar-contrato-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: var(--spacing-md);
+}
+
+.calculation-results {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-sm);
+}
+
+.calculation-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: var(--spacing-sm) 0;
+  border-bottom: 1px solid var(--border-dark);
+}
+
+.calculation-row:last-child {
+  border-bottom: none;
+}
+
+.calculation-label {
+  font-size: 14px;
+  color: var(--text-secondary);
+}
+
+.calculation-value {
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.calculation-row--highlight {
+  background: linear-gradient(135deg, rgba(212, 175, 55, 0.1) 0%, rgba(212, 175, 55, 0.05) 100%);
+  padding: var(--spacing-md);
+  border-radius: var(--border-radius-md);
+  margin: var(--spacing-sm) 0;
+}
+
+.calculation-row--penalty {
+  color: var(--danger);
+}
+
+.calculation-row--penalty .calculation-value {
+  color: var(--danger);
+}
+
+.calculation-row--total {
+  background: linear-gradient(135deg, rgba(212, 175, 55, 0.2) 0%, rgba(212, 175, 55, 0.1) 100%);
+  padding: var(--spacing-md);
+  border-radius: var(--border-radius-md);
+  margin: var(--spacing-sm) 0;
+  border: 1px solid var(--gold-secondary);
+}
+
+.calculation-row--total .calculation-value {
+  color: var(--gold-primary);
+  font-size: 18px;
+}
+
+.simulation-inputs {
+  margin-bottom: var(--spacing-lg);
+}
+
+.simulation-results {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-sm);
+  padding: var(--spacing-lg);
+  background: linear-gradient(135deg, rgba(244, 67, 54, 0.05) 0%, rgba(244, 67, 54, 0.02) 100%);
+  border: 1px solid var(--danger);
+  border-radius: var(--border-radius-md);
+}
+
+.gerar-contrato-actions {
+  display: flex;
+  gap: var(--spacing-md);
+  justify-content: flex-end;
+  padding: var(--spacing-lg);
+  background: linear-gradient(135deg, rgba(212, 175, 55, 0.1) 0%, rgba(212, 175, 55, 0.05) 100%);
+  border: 1px solid var(--gold-secondary);
+  border-radius: var(--border-radius-lg);
+  position: sticky;
+  bottom: var(--spacing-lg);
+  z-index: 10;
+}
+
+.gerar-contrato-actions button {
+  min-width: 150px;
+}
+
+.gerar-contrato-footer {
+  display: flex;
+  justify-content: center;
+  padding: var(--spacing-lg);
+}
+
+/* Contract Document Styles */
+.contract-document {
+  background: white;
+  color: #333;
+  padding: var(--spacing-xl);
+  max-width: 800px;
+  margin: 0 auto;
+  border: 2px solid var(--gold-secondary);
+}
+
+.contract-content {
+  font-family: 'Times New Roman', serif;
+  line-height: 1.6;
+}
+
+.contract-title {
+  text-align: center;
+  font-size: 24px;
+  font-weight: bold;
+  margin-bottom: var(--spacing-lg);
+  text-transform: uppercase;
+}
+
+.contract-info {
+  text-align: center;
+  margin-bottom: var(--spacing-xl);
+  padding-bottom: var(--spacing-md);
+  border-bottom: 2px solid #333;
+}
+
+.contract-info p {
+  margin: var(--spacing-xs) 0;
+}
+
+.contract-section {
+  margin-bottom: var(--spacing-xl);
+}
+
+.contract-section h3 {
+  font-size: 18px;
+  font-weight: bold;
+  margin-bottom: var(--spacing-md);
+  text-transform: uppercase;
+}
+
+.contract-clause {
+  margin-bottom: var(--spacing-lg);
+}
+
+.contract-clause h4 {
+  font-size: 16px;
+  font-weight: bold;
+  margin-bottom: var(--spacing-sm);
+}
+
+.contract-clause ul {
+  margin-left: var(--spacing-lg);
+  margin-top: var(--spacing-sm);
+}
+
+.contract-clause li {
+  margin-bottom: var(--spacing-xs);
+}
+
+.contract-signatures {
+  margin-top: var(--spacing-2xl);
+  padding-top: var(--spacing-xl);
+  border-top: 2px solid #333;
+}
+
+.signature-line {
+  margin-bottom: var(--spacing-lg);
+}
+
+.signature-line p {
+  margin: var(--spacing-xs) 0;
+  font-style: italic;
+}
+
+.signature-date {
+  text-align: center;
+  margin-top: var(--spacing-lg);
+}
+
+/* Calculation Summary */
+.calculation-summary {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-sm);
+  padding: var(--spacing-md);
+  background: var(--bg-secondary);
+  border-radius: var(--border-radius-md);
+}
+
+.calculation-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: var(--spacing-sm) 0;
+  border-bottom: 1px solid var(--border-dark);
+}
+
+.calculation-row:last-child {
+  border-bottom: none;
+}
+
+.calculation-row--highlight {
+  background: var(--gold-secondary);
+  padding: var(--spacing-sm) var(--spacing-md);
+  border-radius: var(--border-radius-sm);
+  font-weight: 600;
+  margin: var(--spacing-sm) 0;
+}
+
+.calculation-row--total {
+  font-weight: 700;
+  font-size: 1.1em;
+  color: var(--gold-primary);
+  padding: var(--spacing-md) 0;
+  border-top: 2px solid var(--gold-primary);
+  margin-top: var(--spacing-sm);
+}
+
+.calculation-label {
+  color: var(--text-secondary);
+  font-size: 14px;
+}
+
+.calculation-value {
+  color: var(--text-primary);
+  font-weight: 500;
+}
+
+/* Client Suggestions */
+.client-suggestions {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  right: 0;
+  background: var(--bg-secondary);
+  border: 1px solid var(--border-dark);
+  border-radius: var(--border-radius-md);
+  box-shadow: var(--shadow-lg);
+  z-index: 1000;
+  max-height: 200px;
+  overflow-y: auto;
+  margin-top: 4px;
+}
+
+.client-suggestion-item {
+  padding: var(--spacing-sm) var(--spacing-md);
+  cursor: pointer;
+  border-bottom: 1px solid var(--border-dark);
+  transition: background var(--transition-normal);
+}
+
+.client-suggestion-item:hover {
+  background: var(--gold-secondary);
+}
+
+.client-suggestion-item:last-child {
+  border-bottom: none;
+}
+
+.client-suggestion-name {
+  font-weight: 500;
+  color: var(--text-primary);
+}
+
+.client-suggestion-cpf {
+  font-size: 12px;
+  color: var(--text-secondary);
+  margin-top: 2px;
+}
+
+.client-suggestion-empty {
+  padding: var(--spacing-sm) var(--spacing-md);
+  color: var(--text-secondary);
+  font-size: 14px;
+  text-align: center;
+}
+
+/* Responsive adjustments */
+@media (max-width: 1024px) {
+  .gerar-contrato {
+    padding: var(--spacing-md);
+  }
+  
+  .gerar-contrato-header {
+    flex-direction: column;
+    align-items: stretch;
+  }
+  
+  .gerar-contrato-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 768px) {
+  .gerar-contrato {
+    padding: var(--spacing-sm);
+  }
+  
+  .gerar-contrato-title h2 {
+    font-size: 20px;
+  }
+  
+  .gerar-contrato-actions {
+    flex-direction: column;
+    position: static;
+  }
+  
+  .gerar-contrato-actions button {
+    width: 100%;
+  }
+
+  .contract-document {
+    padding: var(--spacing-md);
+  }
+}
+
+@media print {
+  .gerar-contrato-header,
+  .gerar-contrato-actions,
+  .gerar-contrato-footer {
+    display: none;
+  }
+
+  .contract-document {
+    border: none;
+    padding: 0;
+  }
+
+  .gerar-contrato {
+    padding: 0;
+    max-width: none;
+  }
+}
