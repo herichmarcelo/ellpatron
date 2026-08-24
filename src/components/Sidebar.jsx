@@ -42,7 +42,7 @@ const Sidebar = ({ isOpen, onClose, currentPage }) => {
 
   return (
     <>
-      {/* Overlay for mobile */}
+      {/* Overlay for mobile - closes sidebar when clicked */}
       {isOpen && <div className="sidebar-overlay" onClick={onClose} />}
       
       <aside className={`sidebar ${isOpen ? 'sidebar--open' : ''}`}>
@@ -50,16 +50,7 @@ const Sidebar = ({ isOpen, onClose, currentPage }) => {
         <div className="sidebar-header">
           <div className="sidebar-logo">
             <img src="/icons/ELLPATRON.png" alt="Ell Patron Logo" className="sidebar-logo-image" />
-            <div className="sidebar-logo-text">
-              <span className="sidebar-logo-name">ELL PATRON</span>
-              <span className="sidebar-logo-subtitle">aptronsaas premium</span>
-            </div>
           </div>
-          
-          {/* Close button for mobile */}
-          <button className="sidebar-close" onClick={onClose} aria-label="Fechar menu">
-            ✕
-          </button>
         </div>
 
         {/* Date Display */}
