@@ -163,7 +163,7 @@
   opacity: 0.8;
 }
 
-/* 2. C6 SALDOS (2x2 Grid de Cartões) */
+/* 2. C6 SALDOS & MÉTRICAS (Cards com Layout Anti-Colisão & Valor em Branco Puro) */
 .c6-saldos-grid {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
@@ -171,100 +171,161 @@
 }
 
 .c6-balance-card {
-  background: #18191e;
-  border: 1px solid rgba(255, 255, 255, 0.07);
+  background: #16171c;
+  border: 1px solid rgba(255, 255, 255, 0.08);
   border-radius: 16px;
   padding: 16px 18px;
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: 12px;
   cursor: pointer;
   transition: transform 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
-  position: relative;
-  overflow: hidden;
+  min-width: 0;
 }
 
 .c6-balance-card:hover {
   transform: translateY(-2px);
-  border-color: rgba(212, 175, 55, 0.3);
-  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.5);
+  box-shadow: 0 6px 24px rgba(0, 0, 0, 0.6);
 }
 
-.c6-balance-card--main {
-  background: linear-gradient(135deg, #181a20 0%, #131417 100%);
-  border-color: rgba(16, 185, 129, 0.25);
-}
+.c6-balance-card--green:hover { border-color: rgba(16, 185, 129, 0.4); }
+.c6-balance-card--blue:hover { border-color: rgba(59, 130, 246, 0.4); }
+.c6-balance-card--red:hover { border-color: rgba(239, 68, 68, 0.4); }
+.c6-balance-card--gold:hover { border-color: rgba(212, 175, 55, 0.4); }
 
-.c6-balance-card--risk {
-  border-color: rgba(239, 68, 68, 0.2);
-}
-
-.c6-card-top {
+/* Card Header: Ícone sutil + Título em cinza */
+.c6-card-header {
   display: flex;
   align-items: center;
   gap: 8px;
+  min-width: 0;
 }
 
-.c6-dot {
-  width: 8px;
-  height: 8px;
-  border-radius: 50%;
+.c6-icon-wrapper {
+  width: 26px;
+  height: 26px;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   flex-shrink: 0;
 }
 
-.c6-dot--green { background-color: #10b981; box-shadow: 0 0 8px rgba(16, 185, 129, 0.6); }
-.c6-dot--blue { background-color: #3b82f6; box-shadow: 0 0 8px rgba(59, 130, 246, 0.6); }
-.c6-dot--red { background-color: #ef4444; box-shadow: 0 0 8px rgba(239, 68, 68, 0.6); }
-.c6-dot--gold { background-color: #d4af37; box-shadow: 0 0 8px rgba(212, 175, 55, 0.6); }
+.c6-icon-wrapper--green {
+  background: rgba(16, 185, 129, 0.15);
+  color: #10b981;
+}
 
-.c6-card-label {
-  font-size: 12px;
-  color: #8e8e93;
+.c6-icon-wrapper--blue {
+  background: rgba(59, 130, 246, 0.15);
+  color: #3b82f6;
+}
+
+.c6-icon-wrapper--red {
+  background: rgba(239, 68, 68, 0.15);
+  color: #ef4444;
+}
+
+.c6-icon-wrapper--gold {
+  background: rgba(212, 175, 55, 0.15);
+  color: #f5d77f;
+}
+
+.c6-card-title {
+  font-size: 13px;
+  color: #a1a1aa;
   font-weight: 500;
-  letter-spacing: 0.2px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* Card Body: Valor em Branco Puro de Alto Contraste */
+.c6-card-body {
+  margin: 0;
+  min-width: 0;
 }
 
 .c6-card-value {
+  color: #ffffff;
   font-size: 24px;
   font-weight: 800;
   line-height: 1.1;
   letter-spacing: -0.5px;
   font-variant-numeric: tabular-nums;
-  margin: 2px 0 6px 0;
+  margin: 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
-.c6-card-bottom {
+/* Card Footer: Totalmente Isolado com Flexbox e space-between */
+.c6-card-footer {
   display: flex;
   align-items: center;
-  justify-content: space-between;
+  justify-content: space-between; /* GARANTE ZERO SOBREPOSIÇÃO */
+  gap: 6px;
   margin-top: auto;
-  padding-top: 4px;
+  border-top: 1px solid rgba(255, 255, 255, 0.06);
+  padding-top: 10px;
+  min-width: 0;
 }
 
-.c6-badge-pill {
+/* Badges estilo Pill com borda sutil */
+.c6-badge {
   font-size: 11px;
   font-weight: 600;
-  padding: 2px 8px;
-  border-radius: 12px;
-  background: #202227;
+  padding: 3px 8px;
+  border-radius: 100px;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+.c6-badge--green {
+  color: #10b981;
+  background: rgba(16, 185, 129, 0.12);
+  border: 1px solid rgba(16, 185, 129, 0.25);
+}
+
+.c6-badge--blue {
+  color: #3b82f6;
+  background: rgba(59, 130, 246, 0.12);
+  border: 1px solid rgba(59, 130, 246, 0.25);
+}
+
+.c6-badge--red {
+  color: #ef4444;
+  background: rgba(239, 68, 68, 0.12);
+  border: 1px solid rgba(239, 68, 68, 0.25);
+}
+
+.c6-badge--gold {
+  color: #f5d77f;
+  background: rgba(212, 175, 55, 0.12);
+  border: 1px solid rgba(212, 175, 55, 0.25);
+}
+
+.c6-badge--muted {
   color: #8e8e93;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.08);
 }
 
-.c6-badge-pill--green { background: rgba(16, 185, 129, 0.15); color: #10b981; }
-.c6-badge-pill--blue { background: rgba(59, 130, 246, 0.15); color: #3b82f6; }
-.c6-badge-pill--red { background: rgba(239, 68, 68, 0.15); color: #ef4444; }
-.c6-badge-pill--gold { background: rgba(212, 175, 55, 0.15); color: #f5d77f; }
-.c6-badge-pill--muted { background: rgba(255, 255, 255, 0.05); color: #636366; }
-
-.c6-card-link {
+/* Link de Ação Limpo */
+.c6-action-link {
+  color: #8e8e93;
   font-size: 11px;
-  color: #636366;
   font-weight: 500;
+  display: flex;
+  align-items: center;
+  gap: 3px;
+  white-space: nowrap;
   transition: color 0.2s ease;
+  flex-shrink: 0;
 }
 
-.c6-balance-card:hover .c6-card-link {
-  color: #d4af37;
+.c6-balance-card:hover .c6-action-link {
+  color: #ffffff;
 }
 
 /* 3. C6 QUICK ACTIONS (Ações Rápidas em 4 Colunas) */
@@ -279,7 +340,7 @@
   flex-direction: column;
   align-items: center;
   gap: 8px;
-  background: #18191e;
+  background: #16171c;
   border: 1px solid rgba(255, 255, 255, 0.06);
   border-radius: 16px;
   padding: 16px 8px;
@@ -290,7 +351,7 @@
 
 .c6-action-item:hover {
   transform: translateY(-2px);
-  background: #22242a;
+  background: #202228;
   border-color: rgba(212, 175, 55, 0.3);
 }
 
@@ -335,7 +396,7 @@
 
 /* 4. C6 SAÚDE FINANCEIRA / INVEST */
 .c6-health-card {
-  background: #18191e;
+  background: #16171c;
   border: 1px solid rgba(255, 255, 255, 0.07);
   border-radius: 16px;
   padding: 16px 20px;
@@ -507,7 +568,7 @@
 }
 
 .c6-transaction-item {
-  background: #18191e;
+  background: #16171c;
   border: 1px solid rgba(255, 255, 255, 0.05);
   border-radius: 14px;
   padding: 12px 16px;
@@ -602,7 +663,7 @@
 
 /* EMPTY STATE */
 .c6-empty-state {
-  background: #18191e;
+  background: #16171c;
   border: 1px dashed rgba(212, 175, 55, 0.3);
   border-radius: 16px;
   padding: 32px 20px;
@@ -674,8 +735,32 @@
     gap: 10px;
   }
 
+  .c6-balance-card {
+    padding: 14px 12px;
+    gap: 10px;
+  }
+
+  .c6-card-title {
+    font-size: 12px;
+  }
+
   .c6-card-value {
     font-size: 18px;
+  }
+
+  .c6-card-footer {
+    padding-top: 8px;
+    gap: 4px;
+  }
+
+  .c6-badge {
+    font-size: 10px;
+    padding: 2px 6px;
+  }
+
+  .c6-action-link {
+    font-size: 10px;
+    gap: 2px;
   }
 
   .c6-quick-actions {
@@ -708,9 +793,9 @@
   }
 }
 
-@media (max-width: 420px) {
+@media (max-width: 380px) {
   .c6-card-value {
-    font-size: 16px;
+    font-size: 15px;
   }
 
   .c6-month-text {
@@ -720,5 +805,9 @@
 
   .c6-greeting {
     font-size: 13px;
+  }
+
+  .c6-action-link span {
+    display: none;
   }
 }

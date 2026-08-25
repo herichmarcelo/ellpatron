@@ -9,6 +9,9 @@ import {
   UserPlus, 
   AlertTriangle, 
   TrendingUp, 
+  Wallet,
+  DollarSign,
+  ArrowRight,
   ArrowUpRight,
   ShieldCheck,
   Sparkles
@@ -66,6 +69,10 @@ const Dashboard = () => {
   // Lucro líquido / Receita Real do mês (Esperado - Atrasado)
   const netRevenue = Math.max(0, expectedRevenue - overdueValue);
   const activeContracts = contracts.filter(c => c.status === 'open').length;
+
+  // Formatação gramatical correta
+  const activeContractsLabel = activeContracts === 1 ? '1 contrato ativo' : `${activeContracts} contratos ativos`;
+  const overdueContractsLabel = overdueContractsCount === 1 ? '1 em atraso' : `${overdueContractsCount} em atraso`;
 
   // Calcula porcentagem para a barra de saúde
   const healthyPercentage = expectedRevenue > 0 ? Number(((netRevenue / expectedRevenue) * 100).toFixed(1)) : 100;
@@ -128,7 +135,7 @@ const Dashboard = () => {
         </div>
       </div>
 
-      {/* C6 SALDOS SECTION (Grid 2x2 com visual de cartões bancários C6) */}
+      {/* C6 SALDOS SECTION (Grid 2x2 com visual de cartões bancários de alta legibilidade) */}
       <div className="c6-section-header">
         <h3 className="c6-section-title">Saldos & Métricas</h3>
         <button 
@@ -141,66 +148,90 @@ const Dashboard = () => {
 
       <div className="c6-saldos-grid">
         {/* Card 1: Receita Real (Em Caixa) */}
-        <div className="c6-balance-card c6-balance-card--main" onClick={() => navigate('/historico')}>
-          <div className="c6-card-top">
-            <span className="c6-dot c6-dot--green"></span>
-            <span className="c6-card-label">Receita Real (Lucro)</span>
+        <div className="c6-balance-card c6-balance-card--green" onClick={() => navigate('/historico')}>
+          <div className="c6-card-header">
+            <div className="c6-icon-wrapper c6-icon-wrapper--green">
+              <Wallet size={15} />
+            </div>
+            <span className="c6-card-title">Receita Real (Lucro)</span>
           </div>
-          <div className="c6-card-value text-green">
-            {renderValue(netRevenue)}
+          
+          <div className="c6-card-body">
+            <h3 className="c6-card-value">{renderValue(netRevenue)}</h3>
           </div>
-          <div className="c6-card-bottom">
-            <span className="c6-badge-pill c6-badge-pill--green">Em Caixa</span>
-            <span className="c6-card-link">Ver detalhes &rsaquo;</span>
+          
+          <div className="c6-card-footer">
+            <span className="c6-badge c6-badge--green">Em Caixa</span>
+            <span className="c6-action-link">
+              Detalhes <ArrowRight size={12} />
+            </span>
           </div>
         </div>
 
         {/* Card 2: Faturamento Esperado */}
-        <div className="c6-balance-card" onClick={() => navigate('/historico-contratos')}>
-          <div className="c6-card-top">
-            <span className="c6-dot c6-dot--blue"></span>
-            <span className="c6-card-label">Faturamento Esperado</span>
+        <div className="c6-balance-card c6-balance-card--blue" onClick={() => navigate('/historico-contratos')}>
+          <div className="c6-card-header">
+            <div className="c6-icon-wrapper c6-icon-wrapper--blue">
+              <TrendingUp size={15} />
+            </div>
+            <span className="c6-card-title">Faturamento Esperado</span>
           </div>
-          <div className="c6-card-value text-blue">
-            {renderValue(expectedRevenue)}
+          
+          <div className="c6-card-body">
+            <h3 className="c6-card-value">{renderValue(expectedRevenue)}</h3>
           </div>
-          <div className="c6-card-bottom">
-            <span className="c6-badge-pill c6-badge-pill--blue">Total do Mês</span>
-            <span className="c6-card-link">Projeção &rsaquo;</span>
+          
+          <div className="c6-card-footer">
+            <span className="c6-badge c6-badge--blue">Total do Mês</span>
+            <span className="c6-action-link">
+              Projeção <ArrowRight size={12} />
+            </span>
           </div>
         </div>
 
         {/* Card 3: Risco / Atrasos */}
-        <div className="c6-balance-card c6-balance-card--risk" onClick={() => navigate('/atrasados')}>
-          <div className="c6-card-top">
-            <span className="c6-dot c6-dot--red"></span>
-            <span className="c6-card-label">Risco / Atrasos</span>
+        <div className="c6-balance-card c6-balance-card--red" onClick={() => navigate('/atrasados')}>
+          <div className="c6-card-header">
+            <div className="c6-icon-wrapper c6-icon-wrapper--red">
+              <AlertTriangle size={15} />
+            </div>
+            <span className="c6-card-title">Risco / Atrasos</span>
           </div>
-          <div className={`c6-card-value ${overdueValue > 0 ? 'text-red' : 'text-muted'}`}>
-            {renderValue(overdueValue)}
+          
+          <div className="c6-card-body">
+            <h3 className="c6-card-value">{renderValue(overdueValue)}</h3>
           </div>
-          <div className="c6-card-bottom">
-            <span className={`c6-badge-pill ${overdueContractsCount > 0 ? 'c6-badge-pill--red' : 'c6-badge-pill--muted'}`}>
-              {overdueContractsCount} em atraso
+          
+          <div className="c6-card-footer">
+            <span className={`c6-badge ${overdueContractsCount > 0 ? 'c6-badge--red' : 'c6-badge--muted'}`}>
+              {overdueContractsLabel}
             </span>
-            <span className="c6-card-link">Cobrar &rsaquo;</span>
+            <span className="c6-action-link">
+              Cobrar <ArrowRight size={12} />
+            </span>
           </div>
         </div>
 
         {/* Card 4: Total na Rua (Capital) */}
-        <div className="c6-balance-card" onClick={() => navigate('/historico-contratos')}>
-          <div className="c6-card-top">
-            <span className="c6-dot c6-dot--gold"></span>
-            <span className="c6-card-label">Total na Rua (Investido)</span>
+        <div className="c6-balance-card c6-balance-card--gold" onClick={() => navigate('/historico-contratos')}>
+          <div className="c6-card-header">
+            <div className="c6-icon-wrapper c6-icon-wrapper--gold">
+              <DollarSign size={15} />
+            </div>
+            <span className="c6-card-title">Total na Rua</span>
           </div>
-          <div className="c6-card-value text-gold">
-            {renderValue(totalInvested)}
+          
+          <div className="c6-card-body">
+            <h3 className="c6-card-value">{renderValue(totalInvested)}</h3>
           </div>
-          <div className="c6-card-bottom">
-            <span className="c6-badge-pill c6-badge-pill--gold">
-              {activeContracts} contratos ativos
+          
+          <div className="c6-card-footer">
+            <span className="c6-badge c6-badge--gold">
+              {activeContractsLabel}
             </span>
-            <span className="c6-card-link">Carteira &rsaquo;</span>
+            <span className="c6-action-link">
+              Carteira <ArrowRight size={12} />
+            </span>
           </div>
         </div>
       </div>
