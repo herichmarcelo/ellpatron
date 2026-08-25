@@ -1,5 +1,5 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { formatPhone, formatDate, getInitials, stringToColor } from '../utils/formatters';
+import { formatPhone, formatDate, stringToColor } from '../utils/formatters';
 import { getClients, getBlacklist, createClient, updateClient as updateClientApi, deleteClient as deleteClientApi } from '../supabase/services';
 
 // Query keys

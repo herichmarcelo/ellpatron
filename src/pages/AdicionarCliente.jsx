@@ -1,31 +1,23 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { User, Phone, MapPin, FileText, Save, X } from 'lucide-react';
+import { User, MapPin, Save, X } from 'lucide-react';
 import Card from '../components/Card';
 import Button from '../components/Button';
 import Input from '../components/Input';
-import DatePicker from '../components/DatePicker';
 import { useAddClient } from '../hooks/useClients';
 import { formatCPF, formatPhone } from '../utils/formatters';
 import { validateCPF, validatePhone, validateEmail, validateRequired } from '../utils/validators';
 import './AdicionarCliente.css';
 
-const AdicionarCliente = ({ onPageChange }) => {
+const AdicionarCliente = () => {
   const navigate = useNavigate();
   const { mutate: addClient, isPending } = useAddClient();
-  
-  useEffect(() => {
-    if (onPageChange) onPageChange('adicionar-cliente');
-  }, [onPageChange]);
 
   const [formData, setFormData] = useState({
-    // Personal Information
     nome: '',
     cpf: '',
     telefone: '',
     email: '',
-    
-    // Address
     cep: '',
     endereco: '',
     numero: '',
@@ -38,13 +30,13 @@ const AdicionarCliente = ({ onPageChange }) => {
   const [errors, setErrors] = useState({});
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const handleInputChange = (field, value) => {
+  const handleInputChange = (field, e) => {
+    const value = e?.target?.value !== undefined ? e.target.value : e;
     setFormData(prev => ({
       ...prev,
       [field]: value
     }));
     
-    // Clear error when user starts typing
     if (errors[field]) {
       setErrors(prev => ({
         ...prev,
@@ -53,20 +45,22 @@ const AdicionarCliente = ({ onPageChange }) => {
     }
   };
 
-  const handlePhoneChange = (value) => {
+  const handlePhoneChange = (e) => {
+    const value = e?.target?.value !== undefined ? e.target.value : e;
     const formatted = formatPhone(value);
     handleInputChange('telefone', formatted);
   };
 
-  const handleCPFChange = (value) => {
+  const handleCPFChange = (e) => {
+    const value = e?.target?.value !== undefined ? e.target.value : e;
     const formatted = formatCPF(value);
     handleInputChange('cpf', formatted);
   };
 
-  const handleCEPChange = async (value) => {
-    const cleaned = value.replace(/\D/g, '');
+  const handleCEPChange = async (e) => {
+    const value = e?.target?.value !== undefined ? e.target.value : e;
+    const cleaned = (value || '').replace(/\D/g, '');
     
-    // Format CEP as 00000-000
     let formatted = cleaned;
     if (cleaned.length > 5) {
       formatted = `${cleaned.slice(0, 5)}-${cleaned.slice(5, 8)}`;
@@ -93,10 +87,6 @@ const AdicionarCliente = ({ onPageChange }) => {
         console.error('Erro ao buscar CEP:', error);
       }
     }
-  };
-
-  const handleCurrencyChange = (value) => {
-    // Removido - não usado mais
   };
 
   const validateForm = () => {
@@ -148,14 +138,12 @@ const AdicionarCliente = ({ onPageChange }) => {
 
       addClient(clientData, {
         onSuccess: () => {
-          // Clear form
           setFormData({
             nome: '', cpf: '', telefone: '', email: '',
             cep: '', endereco: '', numero: '', complemento: '',
             bairro: '', cidade: '', estado: ''
           });
           setIsSubmitting(false);
-          // Navigate to client list
           navigate('/lista-clientes');
         },
         onError: (error) => {
@@ -195,7 +183,7 @@ const AdicionarCliente = ({ onPageChange }) => {
               label="Nome Completo *"
               placeholder="Digite o nome completo"
               value={formData.nome}
-              onChange={(value) => handleInputChange('nome', value)}
+              onChange={(e) => handleInputChange('nome', e.target.value)}
               error={errors.nome}
               fullWidth
               required
@@ -226,7 +214,7 @@ const AdicionarCliente = ({ onPageChange }) => {
               type="email"
               placeholder="email@exemplo.com"
               value={formData.email}
-              onChange={(value) => handleInputChange('email', value)}
+              onChange={(e) => handleInputChange('email', e.target.value)}
               fullWidth
             />
           </div>
@@ -252,7 +240,7 @@ const AdicionarCliente = ({ onPageChange }) => {
               label="Rua"
               placeholder="Nome da rua"
               value={formData.endereco}
-              onChange={(value) => handleInputChange('endereco', value)}
+              onChange={(e) => handleInputChange('endereco', e.target.value)}
               fullWidth
             />
 
@@ -260,7 +248,7 @@ const AdicionarCliente = ({ onPageChange }) => {
               label="Número"
               placeholder="123"
               value={formData.numero}
-              onChange={(value) => handleInputChange('numero', value)}
+              onChange={(e) => handleInputChange('numero', e.target.value)}
               fullWidth
             />
 
@@ -268,7 +256,7 @@ const AdicionarCliente = ({ onPageChange }) => {
               label="Complemento"
               placeholder="Apto, bloco, etc."
               value={formData.complemento}
-              onChange={(value) => handleInputChange('complemento', value)}
+              onChange={(e) => handleInputChange('complemento', e.target.value)}
               fullWidth
             />
 
@@ -276,7 +264,7 @@ const AdicionarCliente = ({ onPageChange }) => {
               label="Bairro"
               placeholder="Nome do bairro"
               value={formData.bairro}
-              onChange={(value) => handleInputChange('bairro', value)}
+              onChange={(e) => handleInputChange('bairro', e.target.value)}
               fullWidth
             />
 
@@ -284,7 +272,7 @@ const AdicionarCliente = ({ onPageChange }) => {
               label="Cidade"
               placeholder="Nome da cidade"
               value={formData.cidade}
-              onChange={(value) => handleInputChange('cidade', value)}
+              onChange={(e) => handleInputChange('cidade', e.target.value)}
               fullWidth
             />
 
@@ -292,7 +280,7 @@ const AdicionarCliente = ({ onPageChange }) => {
               label="Estado"
               placeholder="UF"
               value={formData.estado}
-              onChange={(value) => handleInputChange('estado', value)}
+              onChange={(e) => handleInputChange('estado', e.target.value)}
               fullWidth
             />
           </div>

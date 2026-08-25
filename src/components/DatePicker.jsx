@@ -2,6 +2,36 @@ import React, { useState, useRef, useEffect } from 'react';
 import { Calendar, ChevronLeft, ChevronRight } from 'lucide-react';
 import './DatePicker.css';
 
+const formatDateToInput = (date) => {
+  if (!date) return '';
+  const dateObj = typeof date === 'string' ? new Date(date) : date;
+  if (isNaN(dateObj.getTime())) return '';
+  
+  const day = String(dateObj.getDate()).padStart(2, '0');
+  const month = String(dateObj.getMonth() + 1).padStart(2, '0');
+  const year = dateObj.getFullYear();
+  
+  return `${day}/${month}/${year}`;
+};
+
+const parseInputToDate = (input) => {
+  if (!input) return null;
+  
+  const parts = input.split('/');
+  if (parts.length !== 3) return null;
+  
+  const day = parseInt(parts[0], 10);
+  const month = parseInt(parts[1], 10) - 1;
+  const year = parseInt(parts[2], 10);
+  
+  if (isNaN(day) || isNaN(month) || isNaN(year)) return null;
+  
+  const date = new Date(year, month, day);
+  if (isNaN(date.getTime())) return null;
+  
+  return date;
+};
+
 const DatePicker = ({ 
   value, 
   onChange, 
@@ -16,16 +46,14 @@ const DatePicker = ({
 }) => {
   const [isOpen, setIsOpen] = useState(false);
   const [currentMonth, setCurrentMonth] = useState(new Date());
-  const [inputValue, setInputValue] = useState('');
+  const [prevValue, setPrevValue] = useState(value);
+  const [inputValue, setInputValue] = useState(() => formatDateToInput(value));
   const pickerRef = useRef(null);
 
-  useEffect(() => {
-    if (value) {
-      setInputValue(formatDateToInput(value));
-    } else {
-      setInputValue('');
-    }
-  }, [value]);
+  if (prevValue !== value) {
+    setPrevValue(value);
+    setInputValue(formatDateToInput(value));
+  }
 
   useEffect(() => {
     const handleClickOutside = (event) => {
@@ -40,42 +68,11 @@ const DatePicker = ({
     };
   }, []);
 
-  const formatDateToInput = (date) => {
-    if (!date) return '';
-    const dateObj = typeof date === 'string' ? new Date(date) : date;
-    if (isNaN(dateObj.getTime())) return '';
-    
-    const day = String(dateObj.getDate()).padStart(2, '0');
-    const month = String(dateObj.getMonth() + 1).padStart(2, '0');
-    const year = dateObj.getFullYear();
-    
-    return `${day}/${month}/${year}`;
-  };
-
-  const parseInputToDate = (input) => {
-    if (!input) return null;
-    
-    const parts = input.split('/');
-    if (parts.length !== 3) return null;
-    
-    const day = parseInt(parts[0], 10);
-    const month = parseInt(parts[1], 10) - 1;
-    const year = parseInt(parts[2], 10);
-    
-    if (isNaN(day) || isNaN(month) || isNaN(year)) return null;
-    
-    const date = new Date(year, month, day);
-    if (isNaN(date.getTime())) return null;
-    
-    return date;
-  };
-
   const handleInputChange = (e) => {
-    const value = e.target.value;
-    setInputValue(value);
+    const rawVal = e.target.value;
     
     // Auto-format as user types
-    const cleaned = value.replace(/\D/g, '');
+    const cleaned = rawVal.replace(/\D/g, '');
     let formatted = '';
     
     if (cleaned.length > 0) {
@@ -147,22 +144,19 @@ const DatePicker = ({
     const days = [];
     const weekDays = ['Dom', 'Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb'];
     
-    // Week day headers
     const weekHeaders = weekDays.map(day => (
       <div key={day} className="datepicker-weekday">
         {day}
       </div>
     ));
     
-    // Empty cells for days before first day of month
     for (let i = 0; i < firstDay; i++) {
       days.push(<div key={`empty-${i}`} className="datepicker-day datepicker-day--empty" />);
     }
     
-    // Days of the month
     for (let day = 1; day <= daysInMonth; day++) {
       const date = new Date(year, month, day);
-      const disabled = isDateDisabled(date);
+      const disabledDate = isDateDisabled(date);
       const today = isToday(date);
       const selected = isSelected(date);
       
@@ -170,9 +164,9 @@ const DatePicker = ({
         <button
           key={day}
           type="button"
-          className={`datepicker-day ${disabled ? 'datepicker-day--disabled' : ''} ${today ? 'datepicker-day--today' : ''} ${selected ? 'datepicker-day--selected' : ''}`}
-          onClick={() => !disabled && handleDateSelect(date)}
-          disabled={disabled}
+          className={`datepicker-day ${disabledDate ? 'datepicker-day--disabled' : ''} ${today ? 'datepicker-day--today' : ''} ${selected ? 'datepicker-day--selected' : ''}`}
+          onClick={() => !disabledDate && handleDateSelect(date)}
+          disabled={disabledDate}
         >
           {day}
         </button>

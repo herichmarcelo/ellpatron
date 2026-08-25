@@ -3,55 +3,41 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  background: var(--bg-primary);
+  background: radial-gradient(circle at 50% 30%, rgba(212, 175, 55, 0.08) 0%, var(--bg-primary) 70%);
   padding: var(--spacing-md);
 }
 
 .login-container {
   width: 100%;
-  max-width: 420px;
+  max-width: 440px;
+}
+
+.login-card {
+  background: linear-gradient(135deg, var(--bg-card) 0%, var(--bg-secondary) 100%);
+  border: 1px solid var(--border-gold);
+  border-radius: var(--border-radius-2xl);
+  box-shadow: var(--shadow-premium);
+  padding: var(--spacing-2xl);
+  backdrop-filter: blur(12px);
 }
 
 .login-header {
   display: flex;
+  flex-direction: column;
   justify-content: center;
   align-items: center;
   width: 100%;
-  margin-bottom: 30px;
+  margin-bottom: var(--spacing-xl);
 }
 
 .login-logo {
   display: block;
   width: 100%;
-  max-width: 280px;
+  max-width: 240px;
   height: auto;
-  max-height: 150px;
+  max-height: 130px;
   object-fit: contain;
-}
-.login-card {
-  background: var(--bg-card);
-  border: var(--border-gold);
-  box-shadow: var(--shadow-gold);
-}
-
-.login-header {
-  text-align: center;
-  margin-bottom: var(--spacing-xl);
-  padding-top: var(--spacing-md);
-}
-
-.login-title {
-  font-size: 32px;
-  font-weight: 700;
-  color: var(--gold-primary);
-  margin: 0 0 var(--spacing-sm) 0;
-  letter-spacing: -0.5px;
-}
-
-.login-subtitle {
-  font-size: 14px;
-  color: var(--text-muted);
-  margin: 0;
+  filter: drop-shadow(0 4px 16px rgba(212, 175, 55, 0.2));
 }
 
 .login-form {
@@ -65,31 +51,31 @@
   align-items: center;
   gap: var(--spacing-sm);
   padding: var(--spacing-md);
-  background: rgba(255, 71, 87, 0.1);
-  border: 1px solid var(--danger);
+  background: rgba(239, 68, 68, 0.1);
+  border: 1px solid var(--status-error);
   border-radius: var(--border-radius-md);
-  color: var(--danger);
+  color: var(--status-error);
   font-size: 14px;
 }
 
 .login-footer {
   margin-top: var(--spacing-xl);
-  padding-bottom: var(--spacing-md);
   text-align: center;
 }
 
 .login-footer-text {
   font-size: 12px;
-  color: var(--text-muted);
+  color: var(--text-tertiary);
   margin: 0;
+  letter-spacing: 0.5px;
 }
 
 @media (max-width: 480px) {
-  .login-container {
-    max-width: 100%;
+  .login-card {
+    padding: var(--spacing-lg);
   }
 
-  .login-title {
-    font-size: 28px;
+  .login-logo {
+    max-width: 200px;
   }
 }

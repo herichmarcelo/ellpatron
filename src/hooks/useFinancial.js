@@ -1,6 +1,6 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { calculateFinancialSummary, calculateOverdueAmount, checkOverdueStatus } from '../utils/calculations';
-import { formatCurrency, formatDate } from '../utils/formatters';
+import { formatCurrency } from '../utils/formatters';
 import { getLoans, createLoan as createLoanApi, updateLoan as updateLoanApi, markInstallmentPaid as markInstallmentPaidApi } from '../supabase/services.js';
 
 // Query keys
@@ -10,7 +10,7 @@ export const loanKeys = {
 
 // Fetch loans
 export const useLoans = () => {
-  const { data: loans = [], isLoading, error } = useQuery({
+  const { data: loans = [], isLoading: loading, error } = useQuery({
     queryKey: loanKeys.all,
     queryFn: async () => {
       const result = await getLoans();
@@ -27,7 +27,7 @@ export const useLoans = () => {
 
   const getOverdueLoans = () => {
     return loans.filter(loan => {
-      return loan.installments.some(installment => {
+      return (loan.installments || []).some(installment => {
         const { isOverdue } = checkOverdueStatus(new Date(installment.dueDate));
         return isOverdue && !installment.paid;
       });
@@ -39,7 +39,7 @@ export const useLoans = () => {
     today.setHours(0, 0, 0, 0);
     
     return loans.filter(loan => {
-      return loan.installments.some(installment => {
+      return (loan.installments || []).some(installment => {
         const dueDate = new Date(installment.dueDate);
         dueDate.setHours(0, 0, 0, 0);
         return dueDate.getTime() === today.getTime() && !installment.paid;
@@ -56,7 +56,7 @@ export const useLoans = () => {
   };
 
   const calculateLoanOverdue = (loan) => {
-    const unpaidInstallments = loan.installments.filter(inst => !inst.paid);
+    const unpaidInstallments = (loan.installments || []).filter(inst => !inst.paid);
     const overdueDetails = unpaidInstallments.map(installment => {
       const { isOverdue, daysOverdue } = checkOverdueStatus(new Date(installment.dueDate));
       if (isOverdue) {

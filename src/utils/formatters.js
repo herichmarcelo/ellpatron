@@ -186,6 +186,9 @@ export const formatInstallment = (current, total) => {
                    '41ª', '42ª', '43ª', '44ª', '45ª', '46ª', '47ª', '48ª', '49ª', '50ª'];
   
   const ordinalText = ordinal[current - 1] || `${current}ª`;
+  if (total) {
+    return `${ordinalText} PARCELA DE ${total}`;
+  }
   return `${ordinalText} PARCELA`;
 };
 

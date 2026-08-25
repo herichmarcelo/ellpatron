@@ -8,16 +8,26 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  margin-bottom: var(--spacing-lg);
-  flex-wrap: wrap;
   gap: var(--spacing-md);
+  margin-bottom: var(--spacing-xl);
+  padding: var(--spacing-md) var(--spacing-lg);
+  background: linear-gradient(135deg, var(--bg-tertiary) 0%, var(--bg-secondary) 100%);
+  border-radius: var(--border-radius-xl);
+  border: 1px solid var(--border-premium);
+  box-shadow: var(--shadow-sm);
+  flex-wrap: wrap;
 }
 
 .adicionar-cliente-header h2 {
-  font-size: 24px;
-  font-weight: 600;
-  color: var(--gold-primary);
+  font-family: 'Cinzel', serif;
+  font-size: 22px;
+  font-weight: 700;
+  background: var(--gold-gradient);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
   margin: 0;
+  letter-spacing: 1px;
 }
 
 .adicionar-cliente-form {
@@ -27,13 +37,15 @@
 }
 
 .adicionar-cliente-section {
-  border: 1px solid var(--border-dark);
-  transition: all var(--transition-normal);
+  background: linear-gradient(135deg, var(--bg-card) 0%, var(--bg-tertiary) 100%);
+  border: 1px solid var(--border-premium);
+  border-radius: var(--border-radius-lg);
+  padding: var(--spacing-lg);
+  transition: border-color var(--transition-normal), box-shadow var(--transition-normal);
 }
 
 .adicionar-cliente-section:hover {
   border-color: var(--border-gold);
-  box-shadow: var(--shadow-gold);
 }
 
 .adicionar-cliente-section-header {
@@ -42,28 +54,23 @@
   gap: var(--spacing-sm);
   margin-bottom: var(--spacing-lg);
   padding-bottom: var(--spacing-md);
-  border-bottom: 1px solid var(--border-dark);
+  border-bottom: 1px solid var(--border-premium);
   color: var(--gold-primary);
 }
 
 .adicionar-cliente-section-header h3 {
-  font-size: 18px;
-  font-weight: 600;
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--text-primary);
   margin: 0;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
 }
 
 .adicionar-cliente-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-  gap: var(--spacing-md);
-}
-
-.adicionar-cliente-grid--2 {
-  grid-template-columns: repeat(2, 1fr);
-}
-
-.adicionar-cliente-grid--3 {
-  grid-template-columns: repeat(3, 1fr);
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: var(--spacing-lg);
 }
 
 .adicionar-cliente-actions {
@@ -71,60 +78,53 @@
   gap: var(--spacing-md);
   justify-content: flex-end;
   padding: var(--spacing-lg);
-  background: linear-gradient(135deg, rgba(212, 175, 55, 0.1) 0%, rgba(212, 175, 55, 0.05) 100%);
-  border: 1px solid var(--gold-secondary);
-  border-radius: var(--border-radius-lg);
+  background: linear-gradient(135deg, var(--bg-tertiary) 0%, var(--bg-secondary) 100%);
+  border: 1px solid var(--border-premium);
+  border-radius: var(--border-radius-xl);
   position: sticky;
   bottom: var(--spacing-lg);
   z-index: 10;
+  backdrop-filter: blur(10px);
 }
 
 .adicionar-cliente-actions button {
-  min-width: 150px;
+  min-width: 160px;
 }
 
-/* Responsive adjustments */
-@media (max-width: 1024px) {
-  .adicionar-cliente {
-    padding: var(--spacing-md);
-  }
-  
-  .adicionar-cliente-header {
-    flex-direction: column;
-    align-items: stretch;
-  }
-  
-  .adicionar-cliente-grid {
-    grid-template-columns: 1fr;
-  }
+.adicionar-cliente-error {
+  padding: var(--spacing-md);
+  background: rgba(239, 68, 68, 0.1);
+  border: 1px solid var(--status-error);
+  border-radius: var(--border-radius-md);
+  color: var(--status-error);
+  font-size: 14px;
 }
 
+/* RESPONSIVIDADE MOBILE-FIRST */
 @media (max-width: 768px) {
   .adicionar-cliente {
     padding: var(--spacing-sm);
   }
-  
+
+  .adicionar-cliente-header {
+    padding: var(--spacing-sm);
+    margin-bottom: var(--spacing-md);
+  }
+
   .adicionar-cliente-header h2 {
-    font-size: 20px;
+    font-size: 18px;
   }
-  
-  .adicionar-cliente-section-header {
-    flex-direction: column;
-    align-items: flex-start;
+
+  .adicionar-cliente-grid {
+    grid-template-columns: 1fr;
   }
-  
+
   .adicionar-cliente-actions {
     flex-direction: column;
     position: static;
   }
-  
+
   .adicionar-cliente-actions button {
     width: 100%;
-  }
-}
-
-@media (max-width: 480px) {
-  .adicionar-cliente-section-header h3 {
-    font-size: 16px;
   }
 }

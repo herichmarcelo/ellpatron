@@ -3,30 +3,8 @@ import { Menu, Bell, User, Search, Sparkles } from 'lucide-react';
 import Badge from './Badge';
 import './Header.css';
 
-const Header = ({ onMenuClick, title, showDateSelector = false, selectedDate, onDateChange }) => {
+const Header = ({ onMenuClick, title }) => {
   const [notifications] = useState(3);
-
-  const handlePrevDay = () => {
-    if (onDateChange && selectedDate) {
-      const newDate = new Date(selectedDate);
-      newDate.setDate(newDate.getDate() - 1);
-      onDateChange(newDate);
-    }
-  };
-
-  const handleNextDay = () => {
-    if (onDateChange && selectedDate) {
-      const newDate = new Date(selectedDate);
-      newDate.setDate(newDate.getDate() + 1);
-      onDateChange(newDate);
-    }
-  };
-
-  const handleToday = () => {
-    if (onDateChange) {
-      onDateChange(new Date());
-    }
-  };
 
   return (
     <header className="header">

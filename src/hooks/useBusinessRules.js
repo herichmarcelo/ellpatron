@@ -1,6 +1,5 @@
 import { useEffect } from 'react';
 import { checkAndUpdateLoanStatus } from '../supabase/services';
-import { calculateOverdueAmount, calculateCommission } from '../utils/calculations';
 
 /**
  * Hook to automatically update loan status based on due dates

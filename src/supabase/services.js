@@ -337,7 +337,6 @@ export const checkAndUpdateLoanStatus = async (loanId) => {
     let newStatus = loan.status;
 
     // Check if any installment is overdue
-    const today = new Date();
     let hasOverdue = false;
     let daysOverdue = 0;
 

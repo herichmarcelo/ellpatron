@@ -8,24 +8,116 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  margin-bottom: var(--spacing-lg);
-  flex-wrap: wrap;
   gap: var(--spacing-md);
+  margin-bottom: var(--spacing-xl);
+  padding: var(--spacing-md) var(--spacing-lg);
+  background: linear-gradient(135deg, var(--bg-tertiary) 0%, var(--bg-secondary) 100%);
+  border-radius: var(--border-radius-xl);
+  border: 1px solid var(--border-premium);
+  box-shadow: var(--shadow-sm);
+  flex-wrap: wrap;
 }
 
 .historico-contratos-title {
   display: flex;
   align-items: center;
-  gap: var(--spacing-sm);
+  gap: var(--spacing-md);
 }
 
 .historico-contratos-title h2 {
-  font-size: 24px;
-  font-weight: 600;
-  color: var(--gold-primary);
+  font-family: 'Cinzel', serif;
+  font-size: 22px;
+  font-weight: 700;
+  background: var(--gold-gradient);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
   margin: 0;
+  letter-spacing: 1px;
 }
 
+.historico-contratos-title svg {
+  color: var(--gold-primary);
+}
+
+.historico-contratos-actions {
+  display: flex;
+  gap: var(--spacing-sm);
+  flex-wrap: wrap;
+}
+
+/* KPI CARDS */
+.historico-contratos-kpi-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: var(--spacing-md);
+  margin-bottom: var(--spacing-xl);
+}
+
+.historico-contratos-kpi-card {
+  background: linear-gradient(135deg, var(--bg-card) 0%, var(--bg-tertiary) 100%);
+  border: 1px solid var(--border-premium);
+  padding: var(--spacing-lg);
+  border-radius: var(--border-radius-lg);
+  transition: transform var(--transition-normal), box-shadow var(--transition-normal);
+}
+
+.historico-contratos-kpi-card:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-md);
+}
+
+.historico-contratos-kpi-content {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-md);
+}
+
+.historico-contratos-kpi-icon {
+  width: 44px;
+  height: 44px;
+  border-radius: var(--border-radius-lg);
+  background: linear-gradient(135deg, rgba(212, 175, 55, 0.2) 0%, rgba(212, 175, 55, 0.05) 100%);
+  color: var(--gold-primary);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.historico-contratos-kpi-icon--blue {
+  background: linear-gradient(135deg, rgba(59, 130, 246, 0.2) 0%, rgba(59, 130, 246, 0.05) 100%);
+  color: var(--status-info, #3B82F6);
+}
+
+.historico-contratos-kpi-icon--green {
+  background: linear-gradient(135deg, rgba(16, 185, 129, 0.2) 0%, rgba(16, 185, 129, 0.05) 100%);
+  color: var(--status-success, #10B981);
+}
+
+.historico-contratos-kpi-icon--red {
+  background: linear-gradient(135deg, rgba(239, 68, 68, 0.2) 0%, rgba(239, 68, 68, 0.05) 100%);
+  color: var(--status-error, #EF4444);
+}
+
+.historico-contratos-kpi-label {
+  display: block;
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--text-tertiary);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-bottom: 2px;
+}
+
+.historico-contratos-kpi-value {
+  display: block;
+  font-size: 22px;
+  font-weight: 800;
+  line-height: 1.2;
+}
+
+/* CONTROLES E FILTROS */
 .historico-contratos-controls {
   display: flex;
   gap: var(--spacing-md);
@@ -35,7 +127,7 @@
 
 .historico-contratos-search {
   flex: 1;
-  min-width: 300px;
+  min-width: 280px;
 }
 
 .historico-contratos-filters {
@@ -44,18 +136,14 @@
 
 .historico-contratos-filter-select {
   width: 100%;
-  padding: var(--spacing-sm) var(--spacing-md);
-  border: 1px solid var(--border-dark);
-  border-radius: var(--border-radius-md);
-  background: var(--bg-primary);
+  padding: var(--spacing-md);
+  border: 1px solid var(--border-premium);
+  border-radius: var(--border-radius-lg);
+  background: var(--bg-tertiary);
   color: var(--text-primary);
   font-size: 14px;
   cursor: pointer;
   transition: all var(--transition-normal);
-}
-
-.historico-contratos-filter-select:hover {
-  border-color: var(--border-gold);
 }
 
 .historico-contratos-filter-select:focus {
@@ -64,46 +152,44 @@
   box-shadow: 0 0 0 2px rgba(212, 175, 55, 0.2);
 }
 
-.historico-contratos-content {
-  margin-top: var(--spacing-lg);
-}
-
-.historico-contratos-empty {
-  text-align: center;
-  padding: var(--spacing-2xl);
-}
-
+/* TABELA DE CONTRATOS */
 .historico-contratos-table-container {
   overflow-x: auto;
+  background: linear-gradient(135deg, var(--bg-card) 0%, var(--bg-tertiary) 100%);
+  border: 1px solid var(--border-premium);
+  border-radius: var(--border-radius-lg);
+  padding: 0;
 }
 
 .historico-contratos-table {
   width: 100%;
   border-collapse: collapse;
-  min-width: 1000px;
+  min-width: 900px;
 }
 
 .historico-contratos-table thead {
-  background: linear-gradient(135deg, rgba(212, 175, 55, 0.1) 0%, rgba(212, 175, 55, 0.05) 100%);
+  background: linear-gradient(135deg, rgba(212, 175, 55, 0.15) 0%, rgba(212, 175, 55, 0.05) 100%);
 }
 
 .historico-contratos-table th {
   padding: var(--spacing-md);
   text-align: left;
-  font-weight: 600;
-  font-size: 14px;
+  font-weight: 700;
+  font-size: 13px;
   color: var(--gold-primary);
-  border-bottom: 2px solid var(--gold-secondary);
+  border-bottom: 1px solid var(--border-premium);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
   white-space: nowrap;
 }
 
 .historico-contratos-table tbody tr {
-  border-bottom: 1px solid var(--border-dark);
-  transition: background var(--transition-normal);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+  transition: background var(--transition-fast);
 }
 
 .historico-contratos-table tbody tr:hover {
-  background: linear-gradient(135deg, rgba(212, 175, 55, 0.05) 0%, rgba(212, 175, 55, 0.02) 100%);
+  background: rgba(212, 175, 55, 0.05);
 }
 
 .historico-contratos-table td {
@@ -114,23 +200,24 @@
 
 .contract-protocol {
   font-family: 'Courier New', monospace;
-  font-weight: 600;
+  font-weight: 700;
   color: var(--gold-primary);
 }
 
 .contract-client {
-  font-weight: 500;
+  font-weight: 600;
 }
 
 .contract-cpf {
   font-family: 'Courier New', monospace;
   color: var(--text-secondary);
+  font-size: 13px;
 }
 
 .contract-value,
 .contract-total {
-  font-weight: 600;
-  color: var(--gold-primary);
+  font-weight: 700;
+  color: var(--text-primary);
 }
 
 .contract-interest {
@@ -139,14 +226,7 @@
 
 .contract-date {
   color: var(--text-secondary);
-}
-
-.contract-status {
-  white-space: nowrap;
-}
-
-.contract-actions {
-  white-space: nowrap;
+  font-size: 13px;
 }
 
 .contract-actions-buttons {
@@ -154,27 +234,32 @@
   gap: var(--spacing-xs);
 }
 
-/* Modal Styles */
+/* MODAL */
 .modal-overlay {
   position: fixed;
   top: 0;
   left: 0;
   right: 0;
   bottom: 0;
-  background: rgba(0, 0, 0, 0.5);
+  background: rgba(0, 0, 0, 0.75);
+  backdrop-filter: blur(8px);
   display: flex;
   align-items: center;
   justify-content: center;
-  z-index: 1000;
+  z-index: var(--z-index-modal);
   padding: var(--spacing-lg);
 }
 
 .modal-content {
-  max-width: 600px;
+  max-width: 620px;
   width: 100%;
   max-height: 90vh;
   overflow-y: auto;
-  background: var(--bg-primary);
+  background: linear-gradient(135deg, var(--bg-card) 0%, var(--bg-secondary) 100%);
+  border: 1px solid var(--border-gold);
+  border-radius: var(--border-radius-xl);
+  padding: var(--spacing-xl);
+  box-shadow: var(--shadow-premium);
 }
 
 .modal-header {
@@ -183,103 +268,77 @@
   justify-content: space-between;
   margin-bottom: var(--spacing-lg);
   padding-bottom: var(--spacing-md);
-  border-bottom: 1px solid var(--border-dark);
+  border-bottom: 1px solid var(--border-premium);
 }
 
 .modal-header h3 {
-  font-size: 18px;
-  font-weight: 600;
-  color: var(--gold-primary);
+  font-family: 'Cinzel', serif;
+  font-size: 20px;
+  font-weight: 700;
+  background: var(--gold-gradient);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
   margin: 0;
-}
-
-.modal-body {
-  margin-bottom: var(--spacing-lg);
-}
-
-.contract-details {
-  display: flex;
-  flex-direction: column;
-  gap: var(--spacing-md);
 }
 
 .detail-row {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: var(--spacing-sm) 0;
-  border-bottom: 1px solid var(--border-dark);
-}
-
-.detail-row:last-child {
-  border-bottom: none;
+  padding: 10px 0;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
 }
 
 .detail-label {
-  font-size: 14px;
-  color: var(--text-secondary);
+  font-size: 13px;
+  color: var(--text-tertiary);
   font-weight: 500;
 }
 
 .detail-value {
   font-size: 14px;
   color: var(--text-primary);
-  font-weight: 600;
+  font-weight: 700;
 }
 
 .modal-footer {
   display: flex;
   gap: var(--spacing-md);
   justify-content: flex-end;
-  padding-top: var(--spacing-md);
-  border-top: 1px solid var(--border-dark);
+  padding-top: var(--spacing-lg);
+  border-top: 1px solid var(--border-premium);
+  margin-top: var(--spacing-lg);
 }
 
-/* Responsive adjustments */
-@media (max-width: 1024px) {
-  .historico-contratos {
-    padding: var(--spacing-md);
-  }
-  
-  .historico-contratos-header {
-    flex-direction: column;
-    align-items: stretch;
-  }
-  
-  .historico-contratos-controls {
-    flex-direction: column;
-  }
-  
-  .historico-contratos-search,
-  .historico-contratos-filters {
-    width: 100%;
-  }
-}
-
+/* RESPONSIVIDADE MOBILE-FIRST */
 @media (max-width: 768px) {
   .historico-contratos {
     padding: var(--spacing-sm);
   }
-  
-  .historico-contratos-title h2 {
-    font-size: 20px;
-  }
-  
-  .historico-contratos-table {
-    font-size: 12px;
-  }
-  
-  .historico-contratos-table th,
-  .historico-contratos-table td {
+
+  .historico-contratos-header {
     padding: var(--spacing-sm);
+    margin-bottom: var(--spacing-md);
   }
 
-  .contract-actions-buttons {
+  .historico-contratos-title h2 {
+    font-size: 18px;
+  }
+
+  .historico-contratos-kpi-grid {
+    grid-template-columns: 1fr 1fr;
+    gap: var(--spacing-sm);
+    margin-bottom: var(--spacing-md);
+  }
+
+  .historico-contratos-kpi-value {
+    font-size: 18px;
+  }
+
+  .historico-contratos-controls {
     flex-direction: column;
-  }
-
-  .modal-content {
-    margin: var(--spacing-sm);
+    gap: var(--spacing-sm);
   }
 
   .modal-footer {
@@ -288,24 +347,5 @@
 
   .modal-footer button {
     width: 100%;
-  }
-}
-
-@media print {
-  .historico-contratos-header,
-  .historico-contratos-controls,
-  .contract-actions,
-  .modal-footer {
-    display: none;
-  }
-
-  .modal-overlay {
-    position: static;
-    background: white;
-  }
-
-  .modal-content {
-    max-width: none;
-    border: none;
   }
 }

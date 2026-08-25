@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
-import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
-import { AuthProvider, useAuth } from './contexts/AuthContext';
+import { BrowserRouter as Router, Routes, Route, Navigate, useLocation } from 'react-router-dom';
+import AuthProvider from './contexts/AuthContext';
+import { useAuth } from './contexts/useAuth';
 import { QueryProvider } from './contexts/QueryContext';
 import Sidebar from './components/Sidebar';
 import Header from './components/Header';
@@ -16,10 +17,10 @@ import GerarContrato from './pages/GerarContrato';
 import HistoricoContratos from './pages/HistoricoContratos';
 import './App.css';
 
-function AppContent() {
+function AppLayout() {
   const { user, loading } = useAuth();
   const [sidebarOpen, setSidebarOpen] = useState(false);
-  const [currentPage, setCurrentPage] = useState('dashboard');
+  const location = useLocation();
 
   const handleMenuClick = () => {
     setSidebarOpen(!sidebarOpen);
@@ -28,6 +29,9 @@ function AppContent() {
   const handleSidebarClose = () => {
     setSidebarOpen(false);
   };
+
+  const rawPath = location.pathname.replace(/^\//, '') || 'dashboard';
+  const currentPage = rawPath === '' ? 'dashboard' : rawPath;
 
   const getPageTitle = (pageId) => {
     const titles = {
@@ -49,49 +53,45 @@ function AppContent() {
 
   if (!user) {
     return (
-      <Router>
-        <Routes>
-          <Route path="/login" element={<Login />} />
-          <Route path="*" element={<Navigate to="/login" replace />} />
-        </Routes>
-      </Router>
+      <Routes>
+        <Route path="/login" element={<Login />} />
+        <Route path="*" element={<Navigate to="/login" replace />} />
+      </Routes>
     );
   }
 
   return (
-    <Router>
-      <div className="app">
-        <Sidebar 
-          isOpen={sidebarOpen} 
-          onClose={handleSidebarClose}
-          currentPage={currentPage}
+    <div className="app">
+      <Sidebar 
+        isOpen={sidebarOpen} 
+        onClose={handleSidebarClose}
+        currentPage={currentPage}
+      />
+      
+      <div className={`app-main ${sidebarOpen ? 'app-main--sidebar-open' : ''}`}>
+        <Header 
+          onMenuClick={handleMenuClick}
+          title={getPageTitle(currentPage)}
         />
         
-        <div className={`app-main ${sidebarOpen ? 'app-main--sidebar-open' : ''}`}>
-          <Header 
-            onMenuClick={handleMenuClick}
-            title={getPageTitle(currentPage)}
-          />
-          
-          <main className="app-content">
-            <Routes>
-              <Route path="/" element={<Dashboard onPageChange={setCurrentPage} />} />
-              <Route path="/dashboard" element={<Dashboard onPageChange={setCurrentPage} />} />
-              <Route path="/historico" element={<Historico onPageChange={setCurrentPage} />} />
-              <Route path="/adicionar-cliente" element={<AdicionarCliente onPageChange={setCurrentPage} />} />
-              <Route path="/lista-clientes" element={<ListaClientes onPageChange={setCurrentPage} />} />
-              <Route path="/gerar-contrato" element={<GerarContrato onPageChange={setCurrentPage} />} />
-              <Route path="/historico-contratos" element={<HistoricoContratos onPageChange={setCurrentPage} />} />
-              <Route path="/atrasados" element={<Atrasados onPageChange={setCurrentPage} />} />
-              <Route path="/lista-negra" element={<ListaNegra onPageChange={setCurrentPage} />} />
-              <Route path="*" element={<Navigate to="/" replace />} />
-            </Routes>
-          </main>
-          
-          <WhatsAppButton />
-        </div>
+        <main className="app-content">
+          <Routes>
+            <Route path="/" element={<Dashboard />} />
+            <Route path="/dashboard" element={<Dashboard />} />
+            <Route path="/historico" element={<Historico />} />
+            <Route path="/adicionar-cliente" element={<AdicionarCliente />} />
+            <Route path="/lista-clientes" element={<ListaClientes />} />
+            <Route path="/gerar-contrato" element={<GerarContrato />} />
+            <Route path="/historico-contratos" element={<HistoricoContratos />} />
+            <Route path="/atrasados" element={<Atrasados />} />
+            <Route path="/lista-negra" element={<ListaNegra />} />
+            <Route path="*" element={<Navigate to="/" replace />} />
+          </Routes>
+        </main>
+        
+        <WhatsAppButton />
       </div>
-    </Router>
+    </div>
   );
 }
 
@@ -99,7 +99,9 @@ function App() {
   return (
     <QueryProvider>
       <AuthProvider>
-        <AppContent />
+        <Router>
+          <AppLayout />
+        </Router>
       </AuthProvider>
     </QueryProvider>
   );

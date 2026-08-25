@@ -1,91 +1,75 @@
 import React, { useState, useEffect } from 'react';
-import { TrendingUp, TrendingDown, AlertCircle, Users, Calendar, DollarSign, ArrowRight, Plus, Sparkles, FileText } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
+import { 
+  Eye, 
+  EyeOff, 
+  ChevronLeft, 
+  ChevronRight, 
+  Plus, 
+  UserPlus, 
+  AlertTriangle, 
+  TrendingUp, 
+  ArrowUpRight,
+  ShieldCheck,
+  Sparkles
+} from 'lucide-react';
 import Card from '../components/Card';
-import Button from '../components/Button';
-import Badge from '../components/Badge';
-import { formatCurrency, formatDate } from '../utils/formatters';
-import { getContracts } from '../supabase/services.js';
-import { getClients } from '../supabase/services.js';
+import { formatCurrency } from '../utils/formatters';
+import { getContracts, getClients } from '../supabase/services.js';
 import './Dashboard.css';
 
-const Dashboard = ({ onPageChange }) => {
-  React.useEffect(() => {
-    if (onPageChange) onPageChange('dashboard');
-  }, [onPageChange]);
-  
+const Dashboard = () => {
+  const navigate = useNavigate();
   const [selectedMonth, setSelectedMonth] = useState(new Date());
   const [contracts, setContracts] = useState([]);
   const [clients, setClients] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [isBalanceHidden, setIsBalanceHidden] = useState(false);
 
   useEffect(() => {
-    loadData();
+    let isMounted = true;
+
+    Promise.all([getContracts(), getClients()])
+      .then(([contractsResult, clientsResult]) => {
+        if (!isMounted) return;
+        if (contractsResult.success) {
+          setContracts(contractsResult.data || []);
+        }
+        if (clientsResult.success) {
+          setClients(clientsResult.data || []);
+        }
+        setLoading(false);
+      })
+      .catch((error) => {
+        console.error('Error loading dashboard data:', error);
+        if (isMounted) setLoading(false);
+      });
+
+    return () => {
+      isMounted = false;
+    };
   }, []);
 
-  const loadData = async () => {
-    try {
-      const [contractsResult, clientsResult] = await Promise.all([
-        getContracts(),
-        getClients()
-      ]);
-
-      if (contractsResult.success) {
-        setContracts(contractsResult.data || []);
-      }
-
-      if (clientsResult.success) {
-        setClients(clientsResult.data || []);
-      }
-    } catch (error) {
-      console.error('Error loading dashboard data:', error);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  // Calculate statistics
-  const totalInvested = contracts.reduce((sum, contract) => sum + (contract.principal || 0), 0);
-  const monthlyRevenue = contracts.reduce((sum, contract) => sum + (contract.monthly_installment || 0), 0);
-  const activeContracts = contracts.filter(c => c.status === 'open').length;
-  const overdueContracts = contracts.filter(c => {
+  // Lógica Financeira Aprimorada (Foco em Lucro x Risco)
+  const totalInvested = contracts.reduce((sum, contract) => sum + (Number(contract.principal) || 0), 0);
+  const expectedRevenue = contracts.reduce((sum, contract) => sum + (Number(contract.monthly_installment) || 0), 0);
+  
+  // Calcula valores e quantidades em atraso
+  const overdueContractsList = contracts.filter(c => {
     const dueDate = new Date(c.due_date);
     return dueDate < new Date() && c.status === 'open';
-  }).length;
+  });
+  
+  const overdueContractsCount = overdueContractsList.length;
+  const overdueValue = overdueContractsList.reduce((sum, c) => sum + (Number(c.monthly_installment) || Number(c.principal) || 0), 0);
+  
+  // Lucro líquido / Receita Real do mês (Esperado - Atrasado)
+  const netRevenue = Math.max(0, expectedRevenue - overdueValue);
+  const activeContracts = contracts.filter(c => c.status === 'open').length;
 
-  const financialCards = [
-    {
-      title: 'Valor Total Investido',
-      value: formatCurrency(totalInvested),
-      icon: DollarSign,
-      trend: activeContracts > 0 ? '+' + activeContracts : '0%',
-      trendUp: true,
-      color: 'gold'
-    },
-    {
-      title: 'Faturamento Mensal',
-      value: formatCurrency(monthlyRevenue),
-      icon: TrendingUp,
-      trend: '0%',
-      trendUp: true,
-      color: 'green'
-    },
-    {
-      title: 'Contratos Ativos',
-      value: activeContracts.toString(),
-      icon: FileText,
-      trend: '0%',
-      trendUp: true,
-      color: 'blue'
-    },
-    {
-      title: 'Em Atraso',
-      value: overdueContracts.toString(),
-      icon: AlertCircle,
-      trend: overdueContracts > 0 ? '!' : '0%',
-      trendUp: false,
-      color: 'red'
-    }
-  ];
+  // Calcula porcentagem para a barra de saúde
+  const healthyPercentage = expectedRevenue > 0 ? Number(((netRevenue / expectedRevenue) * 100).toFixed(1)) : 100;
+  const riskPercentage = expectedRevenue > 0 ? Number(((overdueValue / expectedRevenue) * 100).toFixed(1)) : 0;
 
   const handleMonthChange = (direction) => {
     const newMonth = new Date(selectedMonth);
@@ -93,141 +77,297 @@ const Dashboard = ({ onPageChange }) => {
     setSelectedMonth(newMonth);
   };
 
+  const renderValue = (val) => {
+    if (isBalanceHidden) return '••••••';
+    return formatCurrency(val);
+  };
+
   return (
-    <div className="dashboard">
-      {/* Month Selector */}
-      <div className="dashboard-header">
-        <Button
-          variant="ghost"
-          icon={ArrowRight}
-          iconPosition="left"
-          onClick={() => handleMonthChange(-1)}
-        >
-          ←
-        </Button>
-        <h2 className="dashboard-month">
-          {selectedMonth.toLocaleDateString('pt-BR', { month: 'long', year: 'numeric' })}
-        </h2>
-        <Button
-          variant="ghost"
-          icon={ArrowRight}
-          onClick={() => handleMonthChange(1)}
-        >
-          →
-        </Button>
+    <div className="c6-dashboard">
+      {/* C6 Top Bar: User Profile, Eye Toggle & Period Selector */}
+      <div className="c6-header">
+        <div className="c6-user-profile">
+          <div className="c6-avatar">EP</div>
+          <div className="c6-user-meta">
+            <span className="c6-greeting">Olá, Ell Patron</span>
+            <span className="c6-account-type">Gestão de Crédito</span>
+          </div>
+        </div>
+
+        <div className="c6-header-controls">
+          {/* Eye Hide/Show Balance Toggle */}
+          <button 
+            className="c6-icon-btn" 
+            onClick={() => setIsBalanceHidden(!isBalanceHidden)}
+            title={isBalanceHidden ? "Mostrar valores" : "Ocultar valores"}
+            aria-label="Toggle balance visibility"
+          >
+            {isBalanceHidden ? <EyeOff size={18} /> : <Eye size={18} />}
+          </button>
+
+          {/* C6 Month Pill */}
+          <div className="c6-month-pill">
+            <button 
+              className="c6-month-arrow" 
+              onClick={() => handleMonthChange(-1)}
+              aria-label="Mês anterior"
+            >
+              <ChevronLeft size={16} />
+            </button>
+            <span className="c6-month-text">
+              {selectedMonth.toLocaleDateString('pt-BR', { month: 'short', year: 'numeric' })}
+            </span>
+            <button 
+              className="c6-month-arrow" 
+              onClick={() => handleMonthChange(1)}
+              aria-label="Próximo mês"
+            >
+              <ChevronRight size={16} />
+            </button>
+          </div>
+        </div>
       </div>
 
-      {/* Financial Summary Cards */}
-      <div className="dashboard-grid">
-        {financialCards.map((card, index) => {
-          const Icon = card.icon;
-          return (
-            <Card key={index} className="dashboard-card">
-              <div className="dashboard-card-header">
-                <div className={`dashboard-card-icon dashboard-card-icon--${card.color}`}>
-                  <Icon size={24} />
-                </div>
-                <div className="dashboard-card-trend">
-                  <span className={card.trendUp ? 'trend-up' : 'trend-down'}>
-                    {card.trend}
-                  </span>
-                </div>
+      {/* C6 SALDOS SECTION (Grid 2x2 com visual de cartões bancários C6) */}
+      <div className="c6-section-header">
+        <h3 className="c6-section-title">Saldos & Métricas</h3>
+        <button 
+          className="c6-link-btn" 
+          onClick={() => navigate('/historico')}
+        >
+          Extrato completo <ArrowUpRight size={14} />
+        </button>
+      </div>
+
+      <div className="c6-saldos-grid">
+        {/* Card 1: Receita Real (Em Caixa) */}
+        <div className="c6-balance-card c6-balance-card--main" onClick={() => navigate('/historico')}>
+          <div className="c6-card-top">
+            <span className="c6-dot c6-dot--green"></span>
+            <span className="c6-card-label">Receita Real (Lucro)</span>
+          </div>
+          <div className="c6-card-value text-green">
+            {renderValue(netRevenue)}
+          </div>
+          <div className="c6-card-bottom">
+            <span className="c6-badge-pill c6-badge-pill--green">Em Caixa</span>
+            <span className="c6-card-link">Ver detalhes &rsaquo;</span>
+          </div>
+        </div>
+
+        {/* Card 2: Faturamento Esperado */}
+        <div className="c6-balance-card" onClick={() => navigate('/historico-contratos')}>
+          <div className="c6-card-top">
+            <span className="c6-dot c6-dot--blue"></span>
+            <span className="c6-card-label">Faturamento Esperado</span>
+          </div>
+          <div className="c6-card-value text-blue">
+            {renderValue(expectedRevenue)}
+          </div>
+          <div className="c6-card-bottom">
+            <span className="c6-badge-pill c6-badge-pill--blue">Total do Mês</span>
+            <span className="c6-card-link">Projeção &rsaquo;</span>
+          </div>
+        </div>
+
+        {/* Card 3: Risco / Atrasos */}
+        <div className="c6-balance-card c6-balance-card--risk" onClick={() => navigate('/atrasados')}>
+          <div className="c6-card-top">
+            <span className="c6-dot c6-dot--red"></span>
+            <span className="c6-card-label">Risco / Atrasos</span>
+          </div>
+          <div className={`c6-card-value ${overdueValue > 0 ? 'text-red' : 'text-muted'}`}>
+            {renderValue(overdueValue)}
+          </div>
+          <div className="c6-card-bottom">
+            <span className={`c6-badge-pill ${overdueContractsCount > 0 ? 'c6-badge-pill--red' : 'c6-badge-pill--muted'}`}>
+              {overdueContractsCount} em atraso
+            </span>
+            <span className="c6-card-link">Cobrar &rsaquo;</span>
+          </div>
+        </div>
+
+        {/* Card 4: Total na Rua (Capital) */}
+        <div className="c6-balance-card" onClick={() => navigate('/historico-contratos')}>
+          <div className="c6-card-top">
+            <span className="c6-dot c6-dot--gold"></span>
+            <span className="c6-card-label">Total na Rua (Investido)</span>
+          </div>
+          <div className="c6-card-value text-gold">
+            {renderValue(totalInvested)}
+          </div>
+          <div className="c6-card-bottom">
+            <span className="c6-badge-pill c6-badge-pill--gold">
+              {activeContracts} contratos ativos
+            </span>
+            <span className="c6-card-link">Carteira &rsaquo;</span>
+          </div>
+        </div>
+      </div>
+
+      {/* C6 AÇÕES RÁPIDAS (Quick Actions estilo C6 Bank) */}
+      <div className="c6-section-header">
+        <h3 className="c6-section-title">Ações rápidas</h3>
+      </div>
+
+      <div className="c6-quick-actions">
+        <button className="c6-action-item" onClick={() => navigate('/gerar-contrato')}>
+          <div className="c6-action-icon c6-action-icon--gold">
+            <Plus size={20} />
+          </div>
+          <span className="c6-action-text">Novo Contrato</span>
+        </button>
+
+        <button className="c6-action-item" onClick={() => navigate('/adicionar-cliente')}>
+          <div className="c6-action-icon">
+            <UserPlus size={20} />
+          </div>
+          <span className="c6-action-text">Novo Cliente</span>
+        </button>
+
+        <button className="c6-action-item" onClick={() => navigate('/atrasados')}>
+          <div className="c6-action-icon c6-action-icon--red">
+            <AlertTriangle size={20} />
+          </div>
+          <span className="c6-action-text">Cobranças</span>
+        </button>
+
+        <button className="c6-action-item" onClick={() => navigate('/historico')}>
+          <div className="c6-action-icon c6-action-icon--green">
+            <TrendingUp size={20} />
+          </div>
+          <span className="c6-action-text">Relatórios</span>
+        </button>
+      </div>
+
+      {/* C6 SAÚDE FINANCEIRA / RENTABILIDADE (Banner C6 Invest) */}
+      {!loading && contracts.length > 0 && (
+        <div className="c6-health-card">
+          <div className="c6-health-header">
+            <div className="c6-health-title-group">
+              <ShieldCheck size={18} className="c6-health-icon" />
+              <div>
+                <span className="c6-health-title">Saúde da Carteira</span>
+                <span className="c6-health-subtitle">Índice de adimplência do mês</span>
               </div>
-              <h3 className="dashboard-card-title">{card.title}</h3>
-              <p className="dashboard-card-value">{card.value}</p>
-            </Card>
-          );
-        })}
+            </div>
+            <div className="c6-health-score">
+              <span className="c6-score-number">{healthyPercentage}%</span>
+              <span className="c6-score-tag">Saudável</span>
+            </div>
+          </div>
+
+          <div className="c6-health-progress-bar">
+            <div 
+              className="c6-health-bar-fill c6-health-bar-fill--good" 
+              style={{ width: `${healthyPercentage}%` }}
+            ></div>
+            <div 
+              className="c6-health-bar-fill c6-health-bar-fill--bad" 
+              style={{ width: `${riskPercentage}%` }}
+            ></div>
+          </div>
+
+          <div className="c6-health-footer">
+            <div className="c6-health-stat">
+              <span className="c6-health-stat-label">Em dia:</span>
+              <span className="c6-health-stat-val text-green">{renderValue(netRevenue)}</span>
+            </div>
+            <div className="c6-health-stat">
+              <span className="c6-health-stat-label">Risco:</span>
+              <span className="c6-health-stat-val text-red">{renderValue(overdueValue)}</span>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* C6 BLACK CARD BANNER (DESTAQUE ELL PATRON) */}
+      <div className="c6-banner-card">
+        <div className="c6-banner-content">
+          <div className="c6-banner-tag">ELL PATRON CARBON</div>
+          <h4 className="c6-banner-title">Gerador Oficial de Contratos</h4>
+          <p className="c6-banner-desc">Emita instrumentos de mútuo com juros, multas e assinatura jurídica em PDF.</p>
+        </div>
+        <button 
+          className="c6-c7-btn"
+          onClick={() => navigate('/gerar-contrato')}
+        >
+          Criar Contrato
+        </button>
       </div>
 
-      {/* Empty State - Start Using System */}
+      {/* Empty State */}
       {!loading && clients.length === 0 && (
-        <Card className="dashboard-empty-state">
-          <div className="dashboard-empty-content">
-            <div className="dashboard-empty-icon">
-              <Sparkles size={48} />
+        <Card className="c6-empty-state">
+          <div className="c6-empty-content">
+            <div className="c6-empty-icon">
+              <Sparkles size={40} />
             </div>
-            <h3 className="dashboard-empty-title">Comece a usar o sistema</h3>
-            <p className="dashboard-empty-description">
-              Adicione seu primeiro cliente para começar a gerenciar seu sistema
+            <h3 className="c6-empty-title">Comece a operar no Ell Patron</h3>
+            <p className="c6-empty-description">
+              Cadastre seu primeiro cliente para iniciar a emissão de contratos e controle de parcelas.
             </p>
-            <Button 
-              variant="primary" 
-              className="dashboard-empty-btn"
-              icon={Plus}
+            <button 
+              className="c6-primary-btn" 
+              onClick={() => navigate('/adicionar-cliente')}
             >
-              Adicionar Primeiro Cliente
-            </Button>
+              <UserPlus size={16} /> Adicionar Primeiro Cliente
+            </button>
           </div>
         </Card>
       )}
 
-      {/* Quick Stats */}
-      <div className="dashboard-quick-stats">
-        <Card className="dashboard-stat-card">
-          <div className="dashboard-stat-content">
-            <Users size={20} className="dashboard-stat-icon" />
-            <div>
-              <p className="dashboard-stat-label">Clientes Cadastrados</p>
-              <p className="dashboard-stat-value">{clients.length}</p>
-            </div>
-          </div>
-        </Card>
-        
-        <Card className="dashboard-stat-card">
-          <div className="dashboard-stat-content">
-            <FileText size={20} className="dashboard-stat-icon dashboard-stat-icon--success" />
-            <div>
-              <p className="dashboard-stat-label">Total de Contratos</p>
-              <p className="dashboard-stat-value">{contracts.length}</p>
-            </div>
-          </div>
-        </Card>
-        
-        <Card className="dashboard-stat-card">
-          <div className="dashboard-stat-content">
-            <AlertCircle size={20} className="dashboard-stat-icon dashboard-stat-icon--alert" />
-            <div>
-              <p className="dashboard-stat-label">Em Atraso</p>
-              <p className="dashboard-stat-value">{overdueContracts}</p>
-            </div>
-          </div>
-        </Card>
-      </div>
-
-      {/* Recent Contracts */}
+      {/* C6 RECENT TRANSACTIONS / CONTRATOS */}
       {contracts.length > 0 && (
-        <Card className="dashboard-recent-section">
-          <div className="dashboard-section-header">
-            <h3>Contratos Recentes</h3>
-            <Button 
-              variant="ghost" 
-              size="small"
-              onClick={() => onPageChange && onPageChange('historico-contratos')}
+        <div className="c6-recent-section">
+          <div className="c6-section-header">
+            <h3 className="c6-section-title">Últimas Atividades</h3>
+            <button 
+              className="c6-link-btn" 
+              onClick={() => navigate('/historico-contratos')}
             >
-              Ver Todos
-            </Button>
+              Ver todos ({contracts.length}) <ArrowUpRight size={14} />
+            </button>
           </div>
-          <div className="dashboard-recent-list">
-            {contracts.slice(0, 5).map(contract => (
-              <div key={contract.id} className="dashboard-recent-item">
-                <div className="dashboard-recent-info">
-                  <p className="dashboard-recent-name">{contract.client_name}</p>
-                  <p className="dashboard-recent-details">
-                    {formatCurrency(contract.principal)} • {contract.installments}x • {formatCurrency(contract.monthly_installment)}/mês
-                  </p>
-                </div>
-                <Badge 
-                  variant={contract.status === 'open' ? 'green' : 'gray'}
-                >
-                  {contract.status === 'open' ? 'Ativo' : 'Fechado'}
-                </Badge>
-              </div>
-            ))}
-          </div>
-        </Card>
-      )}
 
+          <div className="c6-transactions-list">
+            {contracts.slice(0, 5).map(contract => {
+              const isOverdue = new Date(contract.due_date) < new Date() && contract.status === 'open';
+              const installmentsTotal = contract.installments_count || contract.installments || 1;
+              const initials = (contract.client_name || 'CL').split(' ').map(n => n[0]).slice(0, 2).join('').toUpperCase();
+
+              return (
+                <div 
+                  key={contract.id} 
+                  className={`c6-transaction-item ${isOverdue ? 'c6-transaction-item--overdue' : ''}`}
+                  onClick={() => navigate('/historico-contratos')}
+                >
+                  <div className="c6-transaction-left">
+                    <div className={`c6-tx-avatar ${isOverdue ? 'c6-tx-avatar--overdue' : ''}`}>
+                      {initials}
+                    </div>
+                    <div className="c6-tx-info">
+                      <p className="c6-tx-name">{contract.client_name}</p>
+                      <p className="c6-tx-details">
+                        {contract.protocol_number} • {installmentsTotal}x de {renderValue(contract.monthly_installment || contract.principal)}
+                      </p>
+                    </div>
+                  </div>
+
+                  <div className="c6-transaction-right">
+                    <span className={`c6-tx-amount ${isOverdue ? 'text-red' : contract.status === 'paid' ? 'text-green' : 'text-gold'}`}>
+                      {renderValue(contract.total_amount || contract.principal)}
+                    </span>
+                    <span className={`c6-status-pill ${isOverdue ? 'c6-status-pill--red' : contract.status === 'paid' ? 'c6-status-pill--green' : 'c6-status-pill--gold'}`}>
+                      {contract.status === 'paid' ? 'Quitado' : isOverdue ? 'Atrasado' : 'Em Dia'}
+                    </span>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        </div>
+      )}
     </div>
   );
 };

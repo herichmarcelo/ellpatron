@@ -8,16 +8,26 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  margin-bottom: var(--spacing-lg);
-  flex-wrap: wrap;
   gap: var(--spacing-md);
+  margin-bottom: var(--spacing-xl);
+  padding: var(--spacing-md) var(--spacing-lg);
+  background: linear-gradient(135deg, var(--bg-tertiary) 0%, var(--bg-secondary) 100%);
+  border-radius: var(--border-radius-xl);
+  border: 1px solid var(--border-premium);
+  box-shadow: var(--shadow-sm);
+  flex-wrap: wrap;
 }
 
 .historico-header h2 {
-  font-size: 24px;
-  font-weight: 600;
-  color: var(--gold-primary);
+  font-family: 'Cinzel', serif;
+  font-size: 22px;
+  font-weight: 700;
+  background: var(--gold-gradient);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
   margin: 0;
+  letter-spacing: 1px;
 }
 
 .historico-actions {
@@ -26,13 +36,18 @@
   flex-wrap: wrap;
 }
 
+/* CONTROLES E FILTROS */
 .historico-controls {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  margin-bottom: var(--spacing-lg);
+  margin-bottom: var(--spacing-xl);
   flex-wrap: wrap;
   gap: var(--spacing-md);
+  padding: var(--spacing-sm) var(--spacing-md);
+  background: var(--bg-card);
+  border: 1px solid var(--border-premium);
+  border-radius: var(--border-radius-lg);
 }
 
 .historico-filters,
@@ -44,31 +59,44 @@
 }
 
 .historico-filter-label {
-  font-size: 14px;
+  font-size: 13px;
   color: var(--text-tertiary);
-  font-weight: 500;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
 }
 
+/* KPI CARDS ANALÍTICOS */
 .historico-summary {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-  gap: var(--spacing-md);
-  margin-bottom: var(--spacing-lg);
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: var(--spacing-lg);
+  margin-bottom: var(--spacing-xl);
 }
 
 .historico-summary-card {
-  background: linear-gradient(135deg, rgba(212, 175, 55, 0.1) 0%, rgba(212, 175, 55, 0.05) 100%);
-  border: 1px solid var(--gold-secondary);
+  position: relative;
+  overflow: hidden;
+  background: linear-gradient(135deg, var(--bg-card) 0%, var(--bg-tertiary) 100%);
+  border: 1px solid var(--border-premium);
+  border-radius: var(--border-radius-lg);
+  padding: var(--spacing-lg);
+  display: flex;
+  flex-direction: column;
+  transition: transform var(--transition-normal), box-shadow var(--transition-normal);
+}
+
+.historico-summary-card:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-md);
 }
 
 .historico-summary-card--expense {
-  background: linear-gradient(135deg, rgba(244, 67, 54, 0.1) 0%, rgba(244, 67, 54, 0.05) 100%);
-  border-color: var(--status-error);
+  border-color: rgba(239, 68, 68, 0.3);
 }
 
 .historico-summary-card--profit {
-  background: linear-gradient(135deg, rgba(76, 175, 80, 0.1) 0%, rgba(76, 175, 80, 0.05) 100%);
-  border-color: var(--status-success);
+  border-color: rgba(16, 185, 129, 0.3);
 }
 
 .historico-summary-content {
@@ -78,21 +106,31 @@
 }
 
 .historico-summary-icon {
-  color: var(--gold-primary);
+  width: 48px;
+  height: 48px;
+  border-radius: var(--border-radius-lg);
+  background: linear-gradient(135deg, rgba(16, 185, 129, 0.2) 0%, rgba(16, 185, 129, 0.05) 100%);
+  color: var(--status-success, #10B981);
+  display: flex;
+  align-items: center;
+  justify-content: center;
   flex-shrink: 0;
 }
 
 .historico-summary-card--expense .historico-summary-icon {
-  color: var(--status-error);
+  background: linear-gradient(135deg, rgba(239, 68, 68, 0.2) 0%, rgba(239, 68, 68, 0.05) 100%);
+  color: var(--status-error, #EF4444);
 }
 
 .historico-summary-card--profit .historico-summary-icon {
-  color: var(--status-success);
+  background: linear-gradient(135deg, rgba(212, 175, 55, 0.2) 0%, rgba(212, 175, 55, 0.05) 100%);
+  color: var(--gold-primary);
 }
 
 .historico-summary-label {
   display: block;
-  font-size: 12px;
+  font-size: 11px;
+  font-weight: 600;
   color: var(--text-tertiary);
   text-transform: uppercase;
   letter-spacing: 0.5px;
@@ -101,22 +139,38 @@
 
 .historico-summary-value {
   display: block;
-  font-size: 24px;
-  font-weight: 700;
-  color: var(--gold-primary);
+  font-size: 26px;
+  font-weight: 800;
   line-height: 1.2;
 }
 
 .historico-summary-card--expense .historico-summary-value {
-  color: var(--status-error);
+  color: var(--status-error, #EF4444);
 }
 
 .historico-summary-card--profit .historico-summary-value {
-  color: var(--status-success);
+  color: var(--status-success, #10B981);
 }
 
+.historico-summary-value--negative {
+  color: var(--status-error, #EF4444) !important;
+}
+
+.historico-loading {
+  color: var(--gold-primary);
+  text-align: center;
+  padding: var(--spacing-xl);
+  font-size: 16px;
+  font-weight: 600;
+}
+
+/* CHART CARDS */
 .historico-chart-card {
-  margin-bottom: var(--spacing-lg);
+  background: linear-gradient(135deg, var(--bg-card) 0%, var(--bg-tertiary) 100%);
+  border: 1px solid var(--border-premium);
+  border-radius: var(--border-radius-lg);
+  padding: var(--spacing-lg);
+  margin-bottom: var(--spacing-xl);
 }
 
 .historico-chart-header {
@@ -127,112 +181,89 @@
 }
 
 .historico-chart-header h3 {
-  font-size: 18px;
-  font-weight: 600;
-  color: var(--gold-primary);
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--text-primary);
   margin: 0;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
 }
 
 .historico-chart-container {
-  min-height: 300px;
+  min-height: 320px;
 }
 
 .historico-pie-charts {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(340px, 1fr));
   gap: var(--spacing-lg);
 }
 
+.historico-pie-card {
+  background: linear-gradient(135deg, var(--bg-card) 0%, var(--bg-tertiary) 100%);
+  border: 1px solid var(--border-premium);
+  border-radius: var(--border-radius-lg);
+  padding: var(--spacing-lg);
+}
+
 .historico-pie-card h3 {
-  font-size: 18px;
-  font-weight: 600;
-  color: var(--gold-primary);
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--text-primary);
   margin: 0 0 var(--spacing-md) 0;
   text-align: center;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
 }
 
 .historico-pie-container {
-  min-height: 250px;
+  min-height: 260px;
 }
 
-/* Responsive adjustments */
-@media (max-width: 1024px) {
-  .historico {
-    padding: var(--spacing-md);
-  }
-  
-  .historico-header {
-    flex-direction: column;
-    align-items: stretch;
-  }
-  
-  .historico-actions {
-    justify-content: stretch;
-  }
-  
-  .historico-actions button {
-    flex: 1;
-  }
-  
-  .historico-controls {
-    flex-direction: column;
-    align-items: stretch;
-  }
-  
-  .historico-filters,
-  .historico-chart-type {
-    justify-content: center;
-  }
-  
-  .historico-summary {
-    grid-template-columns: 1fr;
-  }
-  
-  .historico-pie-charts {
-    grid-template-columns: 1fr;
-  }
-}
-
+/* RESPONSIVIDADE MOBILE-FIRST */
 @media (max-width: 768px) {
   .historico {
     padding: var(--spacing-sm);
   }
-  
+
+  .historico-header {
+    padding: var(--spacing-sm);
+    margin-bottom: var(--spacing-md);
+  }
+
   .historico-header h2 {
-    font-size: 20px;
+    font-size: 18px;
   }
-  
+
+  .historico-summary {
+    grid-template-columns: 1fr 1fr;
+    gap: var(--spacing-sm);
+    margin-bottom: var(--spacing-md);
+  }
+
   .historico-summary-value {
-    font-size: 20px;
+    font-size: 18px;
   }
-  
-  .historico-chart-container {
-    min-height: 250px;
+
+  .historico-controls {
+    flex-direction: column;
+    align-items: stretch;
+    gap: var(--spacing-sm);
   }
-  
-  .historico-pie-container {
-    min-height: 200px;
+
+  .historico-filters,
+  .historico-chart-type {
+    justify-content: space-between;
+  }
+
+  .historico-pie-charts {
+    grid-template-columns: 1fr;
+    gap: var(--spacing-md);
   }
 }
 
 @media (max-width: 480px) {
-  .historico-filters,
-  .historico-chart-type {
-    flex-direction: column;
-    align-items: stretch;
-  }
-  
-  .historico-filters button,
-  .historico-chart-type button {
-    width: 100%;
-  }
-  
-  .historico-summary-value {
-    font-size: 18px;
-  }
-  
-  .historico-summary-icon {
-    width: 20px;
-    height: 20px;
+  .historico-summary {
+    grid-template-columns: 1fr;
   }
 }

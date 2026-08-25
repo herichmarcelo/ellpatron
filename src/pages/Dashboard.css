@@ -1,410 +1,724 @@
-.dashboard {
+/* ==========================================================================
+   C6 BANK STYLE DASHBOARD - ELL PATRON EDITION
+   ========================================================================== */
+
+.c6-dashboard {
   padding: var(--spacing-lg);
-  max-width: 1400px;
+  max-width: 1100px;
   margin: 0 auto;
-}
-
-.dashboard-header {
   display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: var(--spacing-md);
-  margin-bottom: var(--spacing-xl);
-  padding: var(--spacing-md);
-  background: linear-gradient(135deg, var(--bg-tertiary) 0%, var(--bg-secondary) 100%);
-  border-radius: var(--border-radius-xl);
-  border: 1px solid var(--border-premium);
-}
-
-.dashboard-month {
-  font-family: 'Cinzel', serif;
-  font-size: 18px;
-  font-weight: 700;
-  background: var(--gold-gradient);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
-  margin: 0;
-  text-transform: capitalize;
-  letter-spacing: 1px;
-}
-
-.dashboard-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  flex-direction: column;
   gap: var(--spacing-lg);
-  margin-bottom: var(--spacing-xl);
 }
 
-.dashboard-card {
-  position: relative;
-  overflow: hidden;
-  background: linear-gradient(135deg, var(--bg-card) 0%, var(--bg-tertiary) 100%);
-  border: 1px solid var(--border-premium);
-}
-
-.dashboard-card::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  height: 3px;
-  background: var(--gold-gradient);
-  opacity: 0;
-  transition: opacity var(--transition-normal);
-}
-
-.dashboard-card:hover::before {
-  opacity: 1;
-}
-
-.dashboard-card-header {
+/* 1. TOP HEADER (User Profile, Eye toggle & Month pill) */
+.c6-header {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  margin-bottom: var(--spacing-md);
+  gap: var(--spacing-md);
+  padding: 12px 18px;
+  background: #16171b;
+  border: 1px solid rgba(255, 255, 255, 0.07);
+  border-radius: 18px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
 }
 
-.dashboard-card-icon {
-  width: 48px;
-  height: 48px;
-  border-radius: var(--border-radius-lg);
+.c6-user-profile {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.c6-avatar {
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #f5d77f 0%, #d4af37 100%);
+  color: #0c0d10;
+  font-weight: 800;
+  font-size: 14px;
   display: flex;
   align-items: center;
   justify-content: center;
-  background: linear-gradient(135deg, rgba(212, 175, 55, 0.15) 0%, rgba(212, 175, 55, 0.08) 100%);
-  color: var(--gold-primary);
-  box-shadow: 0 4px 12px rgba(212, 175, 55, 0.1);
+  box-shadow: 0 2px 10px rgba(212, 175, 55, 0.3);
+  flex-shrink: 0;
 }
 
-.dashboard-card-icon--gold {
-  background: var(--gold-gradient);
-  color: var(--bg-primary);
+.c6-user-meta {
+  display: flex;
+  flex-direction: column;
 }
 
-.dashboard-card-icon--green {
-  background: linear-gradient(135deg, rgba(16, 185, 129, 0.2) 0%, rgba(16, 185, 129, 0.1) 100%);
-  color: var(--status-success);
-}
-
-.dashboard-card-icon--blue {
-  background: linear-gradient(135deg, rgba(59, 130, 246, 0.2) 0%, rgba(59, 130, 246, 0.1) 100%);
-  color: var(--status-info);
-}
-
-.dashboard-card-icon--red {
-  background: linear-gradient(135deg, rgba(220, 38, 38, 0.2) 0%, rgba(220, 38, 38, 0.1) 100%);
-  color: var(--status-error);
-}
-
-.dashboard-card-trend {
-  font-size: 11px;
+.c6-greeting {
+  font-size: 15px;
   font-weight: 700;
-  padding: 4px 8px;
-  border-radius: var(--border-radius-full);
-  background-color: var(--bg-tertiary);
-  border: 1px solid var(--border-premium);
+  color: #ffffff;
+  letter-spacing: -0.2px;
 }
 
-.trend-up {
-  color: var(--status-success);
+.c6-account-type {
+  font-size: 11px;
+  color: #8e8e93;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
 }
 
-.trend-down {
-  color: var(--status-error);
+.c6-header-controls {
+  display: flex;
+  align-items: center;
+  gap: 10px;
 }
 
-.dashboard-card-title {
+.c6-icon-btn {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: #202227;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  color: #d1d1d6;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.c6-icon-btn:hover {
+  background: #2a2d34;
+  color: #ffffff;
+  border-color: rgba(212, 175, 55, 0.3);
+}
+
+.c6-month-pill {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  background: #202227;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 20px;
+  padding: 4px 6px;
+}
+
+.c6-month-arrow {
+  background: transparent;
+  border: none;
+  color: #8e8e93;
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.c6-month-arrow:hover {
+  color: #ffffff;
+  background: rgba(255, 255, 255, 0.1);
+}
+
+.c6-month-text {
   font-size: 12px;
   font-weight: 600;
-  color: var(--text-tertiary);
-  margin: 0 0 var(--spacing-xs) 0;
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
-}
-
-.dashboard-card-value {
-  font-size: 28px;
-  font-weight: 800;
-  background: var(--gold-gradient);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
-  margin: 0;
-  line-height: 1.2;
-}
-
-/* Empty State */
-.dashboard-empty-state {
-  margin-bottom: var(--spacing-xl);
-  background: linear-gradient(135deg, var(--bg-card) 0%, var(--bg-tertiary) 100%);
-  border: 1px solid var(--border-premium);
+  color: #f5f5f7;
+  text-transform: capitalize;
+  padding: 0 4px;
+  min-width: 80px;
   text-align: center;
-  padding: var(--spacing-xl);
 }
 
-.dashboard-empty-content {
+/* SECTION TITLES */
+.c6-section-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: 4px;
+}
+
+.c6-section-title {
+  font-size: 16px;
+  font-weight: 700;
+  color: #ffffff;
+  letter-spacing: -0.2px;
+  margin: 0;
+}
+
+.c6-link-btn {
+  background: none;
+  border: none;
+  color: #d4af37;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 4px 0;
+  transition: opacity 0.2s ease;
+}
+
+.c6-link-btn:hover {
+  opacity: 0.8;
+}
+
+/* 2. C6 SALDOS (2x2 Grid de Cartões) */
+.c6-saldos-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 14px;
+}
+
+.c6-balance-card {
+  background: #18191e;
+  border: 1px solid rgba(255, 255, 255, 0.07);
+  border-radius: 16px;
+  padding: 16px 18px;
   display: flex;
   flex-direction: column;
-  align-items: center;
-  gap: var(--spacing-lg);
+  gap: 8px;
+  cursor: pointer;
+  transition: transform 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
+  position: relative;
+  overflow: hidden;
 }
 
-.dashboard-empty-icon {
-  width: 80px;
-  height: 80px;
+.c6-balance-card:hover {
+  transform: translateY(-2px);
+  border-color: rgba(212, 175, 55, 0.3);
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.5);
+}
+
+.c6-balance-card--main {
+  background: linear-gradient(135deg, #181a20 0%, #131417 100%);
+  border-color: rgba(16, 185, 129, 0.25);
+}
+
+.c6-balance-card--risk {
+  border-color: rgba(239, 68, 68, 0.2);
+}
+
+.c6-card-top {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.c6-dot {
+  width: 8px;
+  height: 8px;
   border-radius: 50%;
-  background: linear-gradient(135deg, rgba(212, 175, 55, 0.1) 0%, rgba(212, 175, 55, 0.05) 100%);
+  flex-shrink: 0;
+}
+
+.c6-dot--green { background-color: #10b981; box-shadow: 0 0 8px rgba(16, 185, 129, 0.6); }
+.c6-dot--blue { background-color: #3b82f6; box-shadow: 0 0 8px rgba(59, 130, 246, 0.6); }
+.c6-dot--red { background-color: #ef4444; box-shadow: 0 0 8px rgba(239, 68, 68, 0.6); }
+.c6-dot--gold { background-color: #d4af37; box-shadow: 0 0 8px rgba(212, 175, 55, 0.6); }
+
+.c6-card-label {
+  font-size: 12px;
+  color: #8e8e93;
+  font-weight: 500;
+  letter-spacing: 0.2px;
+}
+
+.c6-card-value {
+  font-size: 24px;
+  font-weight: 800;
+  line-height: 1.1;
+  letter-spacing: -0.5px;
+  font-variant-numeric: tabular-nums;
+  margin: 2px 0 6px 0;
+}
+
+.c6-card-bottom {
   display: flex;
   align-items: center;
-  justify-content: center;
-  color: var(--gold-primary);
-  animation: pulse 2s ease-in-out infinite;
+  justify-content: space-between;
+  margin-top: auto;
+  padding-top: 4px;
 }
 
-@keyframes pulse {
-  0%, 100% { transform: scale(1); opacity: 1; }
-  50% { transform: scale(1.05); opacity: 0.8; }
-}
-
-.dashboard-empty-title {
-  font-family: 'Cinzel', serif;
-  font-size: 20px;
-  font-weight: 700;
-  background: var(--gold-gradient);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
-  margin: 0;
-}
-
-.dashboard-empty-description {
-  font-size: 14px;
-  color: var(--text-tertiary);
-  max-width: 400px;
-  margin: 0;
-  line-height: 1.6;
-}
-
-.dashboard-empty-btn {
-  padding: 14px 24px;
-  font-size: 14px;
-  font-weight: 700;
-  border-radius: var(--border-radius-xl);
-  background: var(--gold-gradient);
-  color: var(--bg-primary);
-  box-shadow: var(--shadow-gold);
-}
-
-/* Quick Stats */
-.dashboard-quick-stats {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-  gap: var(--spacing-md);
-  margin-bottom: var(--spacing-xl);
-}
-
-.dashboard-stat-card {
-  background: linear-gradient(135deg, var(--bg-card) 0%, var(--bg-tertiary) 100%);
-  border: 1px solid var(--border-premium);
-  padding: var(--spacing-lg);
-}
-
-.dashboard-stat-content {
-  display: flex;
-  align-items: center;
-  gap: var(--spacing-md);
-}
-
-.dashboard-stat-icon {
-  width: 40px;
-  height: 40px;
-  border-radius: var(--border-radius-lg);
-  background: linear-gradient(135deg, rgba(212, 175, 55, 0.15) 0%, rgba(212, 175, 55, 0.08) 100%);
-  color: var(--gold-primary);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.dashboard-stat-icon--alert {
-  background: linear-gradient(135deg, rgba(220, 38, 38, 0.15) 0%, rgba(220, 38, 38, 0.08) 100%);
-  color: var(--status-error);
-}
-
-.dashboard-stat-icon--success {
-  background: linear-gradient(135deg, rgba(16, 185, 129, 0.15) 0%, rgba(16, 185, 129, 0.08) 100%);
-  color: var(--status-success);
-}
-
-.dashboard-stat-label {
+.c6-badge-pill {
   font-size: 11px;
   font-weight: 600;
-  color: var(--text-tertiary);
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
-  margin: 0 0 4px 0;
+  padding: 2px 8px;
+  border-radius: 12px;
+  background: #202227;
+  color: #8e8e93;
 }
 
-.dashboard-stat-value {
-  font-size: 24px;
+.c6-badge-pill--green { background: rgba(16, 185, 129, 0.15); color: #10b981; }
+.c6-badge-pill--blue { background: rgba(59, 130, 246, 0.15); color: #3b82f6; }
+.c6-badge-pill--red { background: rgba(239, 68, 68, 0.15); color: #ef4444; }
+.c6-badge-pill--gold { background: rgba(212, 175, 55, 0.15); color: #f5d77f; }
+.c6-badge-pill--muted { background: rgba(255, 255, 255, 0.05); color: #636366; }
+
+.c6-card-link {
+  font-size: 11px;
+  color: #636366;
+  font-weight: 500;
+  transition: color 0.2s ease;
+}
+
+.c6-balance-card:hover .c6-card-link {
+  color: #d4af37;
+}
+
+/* 3. C6 QUICK ACTIONS (Ações Rápidas em 4 Colunas) */
+.c6-quick-actions {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 12px;
+}
+
+.c6-action-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  background: #18191e;
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  border-radius: 16px;
+  padding: 16px 8px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  width: 100%;
+}
+
+.c6-action-item:hover {
+  transform: translateY(-2px);
+  background: #22242a;
+  border-color: rgba(212, 175, 55, 0.3);
+}
+
+.c6-action-icon {
+  width: 44px;
+  height: 44px;
+  border-radius: 12px;
+  background: #202227;
+  color: #ffffff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: transform 0.2s ease;
+}
+
+.c6-action-icon--gold {
+  background: linear-gradient(135deg, rgba(212, 175, 55, 0.25) 0%, rgba(212, 175, 55, 0.1) 100%);
+  color: #f5d77f;
+}
+
+.c6-action-icon--red {
+  background: linear-gradient(135deg, rgba(239, 68, 68, 0.25) 0%, rgba(239, 68, 68, 0.1) 100%);
+  color: #ef4444;
+}
+
+.c6-action-icon--green {
+  background: linear-gradient(135deg, rgba(16, 185, 129, 0.25) 0%, rgba(16, 185, 129, 0.1) 100%);
+  color: #10b981;
+}
+
+.c6-action-item:hover .c6-action-icon {
+  transform: scale(1.05);
+}
+
+.c6-action-text {
+  font-size: 12px;
+  font-weight: 600;
+  color: #d1d1d6;
+  text-align: center;
+  white-space: nowrap;
+}
+
+/* 4. C6 SAÚDE FINANCEIRA / INVEST */
+.c6-health-card {
+  background: #18191e;
+  border: 1px solid rgba(255, 255, 255, 0.07);
+  border-radius: 16px;
+  padding: 16px 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.c6-health-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.c6-health-title-group {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.c6-health-icon {
+  color: #10b981;
+}
+
+.c6-health-title {
+  display: block;
+  font-size: 14px;
+  font-weight: 700;
+  color: #ffffff;
+}
+
+.c6-health-subtitle {
+  display: block;
+  font-size: 11px;
+  color: #8e8e93;
+}
+
+.c6-health-score {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.c6-score-number {
+  font-size: 16px;
   font-weight: 800;
-  background: var(--gold-gradient);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
-  margin: 0;
+  color: #10b981;
 }
 
-/* Commissions Card */
-.dashboard-commissions-card {
-  margin-bottom: var(--spacing-xl);
-  background: linear-gradient(135deg, var(--bg-card) 0%, var(--bg-tertiary) 100%);
-  border: 1px solid var(--border-premium);
+.c6-score-tag {
+  font-size: 11px;
+  font-weight: 600;
+  padding: 2px 6px;
+  background: rgba(16, 185, 129, 0.15);
+  color: #10b981;
+  border-radius: 8px;
 }
 
-.dashboard-commissions-content {
+.c6-health-progress-bar {
+  width: 100%;
+  height: 8px;
+  background: #202227;
+  border-radius: 4px;
+  overflow: hidden;
+  display: flex;
+}
+
+.c6-health-bar-fill--good {
+  background: linear-gradient(90deg, #10b981 0%, #059669 100%);
+  height: 100%;
+  transition: width 0.4s ease;
+}
+
+.c6-health-bar-fill--bad {
+  background: linear-gradient(90deg, #ef4444 0%, #dc2626 100%);
+  height: 100%;
+  transition: width 0.4s ease;
+}
+
+.c6-health-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 12px;
+  padding-top: 4px;
+  border-top: 1px solid rgba(255, 255, 255, 0.04);
+}
+
+.c6-health-stat {
+  display: flex;
+  gap: 6px;
+}
+
+.c6-health-stat-label {
+  color: #8e8e93;
+}
+
+.c6-health-stat-val {
+  font-weight: 700;
+}
+
+/* 5. C6 BANNER CARD (C6 Carbon Luxury Style) */
+.c6-banner-card {
+  background: linear-gradient(135deg, #202227 0%, #15161a 100%);
+  border: 1px solid rgba(212, 175, 55, 0.25);
+  border-radius: 16px;
+  padding: 18px 20px;
   display: flex;
   align-items: center;
   justify-content: space-between;
   gap: var(--spacing-md);
+  position: relative;
+  overflow: hidden;
 }
 
-.dashboard-commissions-info {
-  flex: 1;
-}
-
-.dashboard-commissions-title {
-  font-size: 14px;
-  font-weight: 600;
-  color: var(--text-secondary);
-  margin: 0 0 var(--spacing-xs) 0;
-}
-
-.dashboard-commissions-value {
-  font-size: 24px;
+.c6-banner-tag {
+  font-size: 10px;
   font-weight: 800;
-  background: var(--gold-gradient);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
+  color: #d4af37;
+  letter-spacing: 1px;
+  margin-bottom: 2px;
+}
+
+.c6-banner-title {
+  font-size: 15px;
+  font-weight: 700;
+  color: #ffffff;
+  margin: 0 0 2px 0;
+}
+
+.c6-banner-desc {
+  font-size: 12px;
+  color: #8e8e93;
   margin: 0;
+  max-width: 480px;
 }
 
-/* Recent Contracts Section */
-.dashboard-recent-section {
-  margin-top: var(--spacing-lg);
+.c6-c7-btn {
+  background: #ffd100;
+  color: #0c0d10;
+  border: none;
+  font-size: 13px;
+  font-weight: 700;
+  padding: 10px 18px;
+  border-radius: 12px;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: all 0.2s ease;
+  box-shadow: 0 4px 14px rgba(255, 209, 0, 0.25);
 }
 
-.dashboard-section-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: var(--spacing-md);
+.c6-c7-btn:hover {
+  background: #f5c200;
+  transform: translateY(-1px);
+  box-shadow: 0 6px 18px rgba(255, 209, 0, 0.35);
 }
 
-.dashboard-section-header h3 {
-  font-size: 18px;
-  font-weight: 600;
-  color: var(--text-primary);
-  margin: 0;
-}
-
-.dashboard-recent-list {
+/* 6. C6 TRANSACTIONS LIST */
+.c6-recent-section {
   display: flex;
   flex-direction: column;
-  gap: var(--spacing-sm);
+  gap: 12px;
 }
 
-.dashboard-recent-item {
+.c6-transactions-list {
   display: flex;
-  justify-content: space-between;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.c6-transaction-item {
+  background: #18191e;
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  border-radius: 14px;
+  padding: 12px 16px;
+  display: flex;
   align-items: center;
-  padding: var(--spacing-md);
-  background: var(--bg-secondary);
-  border-radius: var(--border-radius-md);
-  transition: background var(--transition-normal);
+  justify-content: space-between;
+  cursor: pointer;
+  transition: all 0.2s ease;
 }
 
-.dashboard-recent-item:hover {
-  background: var(--gold-secondary);
+.c6-transaction-item:hover {
+  background: #202228;
+  border-color: rgba(255, 255, 255, 0.12);
+  transform: translateX(2px);
 }
 
-.dashboard-recent-info {
-  flex: 1;
+.c6-transaction-item--overdue {
+  border-left: 3px solid #ef4444;
 }
 
-.dashboard-recent-name {
-  font-weight: 500;
-  color: var(--text-primary);
-  margin: 0 0 var(--spacing-xs) 0;
+.c6-transaction-left {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-width: 0;
 }
 
-.dashboard-recent-details {
+.c6-tx-avatar {
+  width: 36px;
+  height: 36px;
+  border-radius: 10px;
+  background: #242730;
+  color: #f5d77f;
+  font-weight: 700;
+  font-size: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.c6-tx-avatar--overdue {
+  background: rgba(239, 68, 68, 0.15);
+  color: #ef4444;
+}
+
+.c6-tx-info {
+  min-width: 0;
+}
+
+.c6-tx-name {
   font-size: 14px;
-  color: var(--text-secondary);
+  font-weight: 600;
+  color: #ffffff;
+  margin: 0 0 2px 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.c6-tx-details {
+  font-size: 11px;
+  color: #8e8e93;
+  margin: 0;
+  font-family: 'Inter', system-ui, sans-serif;
+}
+
+.c6-transaction-right {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 2px;
+  flex-shrink: 0;
+}
+
+.c6-tx-amount {
+  font-size: 14px;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+}
+
+.c6-status-pill {
+  font-size: 10px;
+  font-weight: 600;
+  padding: 1px 6px;
+  border-radius: 6px;
+}
+
+.c6-status-pill--green { background: rgba(16, 185, 129, 0.15); color: #10b981; }
+.c6-status-pill--gold { background: rgba(212, 175, 55, 0.15); color: #f5d77f; }
+.c6-status-pill--red { background: rgba(239, 68, 68, 0.15); color: #ef4444; }
+
+/* EMPTY STATE */
+.c6-empty-state {
+  background: #18191e;
+  border: 1px dashed rgba(212, 175, 55, 0.3);
+  border-radius: 16px;
+  padding: 32px 20px;
+  text-align: center;
+}
+
+.c6-empty-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+}
+
+.c6-empty-icon {
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  background: rgba(212, 175, 55, 0.1);
+  color: #d4af37;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.c6-empty-title {
+  font-size: 16px;
+  font-weight: 700;
+  color: #ffffff;
   margin: 0;
 }
 
-/* Responsive adjustments */
-@media (max-width: 1024px) {
-  .dashboard {
-    padding: var(--spacing-md);
+.c6-empty-description {
+  font-size: 13px;
+  color: #8e8e93;
+  max-width: 360px;
+  margin: 0;
+}
+
+.c6-primary-btn {
+  background: #ffd100;
+  color: #0c0d10;
+  border: none;
+  font-size: 13px;
+  font-weight: 700;
+  padding: 10px 20px;
+  border-radius: 12px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 4px;
+}
+
+/* ==========================================================================
+   MOBILE-FIRST BREAKPOINTS (≤ 768px e ≤ 480px)
+   ========================================================================== */
+@media (max-width: 768px) {
+  .c6-dashboard {
+    padding: 12px;
+    gap: 14px;
   }
-  
-  .dashboard-grid {
-    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
-    gap: var(--spacing-md);
+
+  .c6-header {
+    padding: 10px 14px;
   }
-  
-  .dashboard-card-value {
-    font-size: 24px;
+
+  .c6-saldos-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 10px;
+  }
+
+  .c6-card-value {
+    font-size: 18px;
+  }
+
+  .c6-quick-actions {
+    grid-template-columns: repeat(4, 1fr);
+    gap: 8px;
+  }
+
+  .c6-action-item {
+    padding: 12px 4px;
+  }
+
+  .c6-action-icon {
+    width: 38px;
+    height: 38px;
+  }
+
+  .c6-action-text {
+    font-size: 10px;
+  }
+
+  .c6-banner-card {
+    flex-direction: column;
+    align-items: flex-start;
+    padding: 16px;
+  }
+
+  .c6-c7-btn {
+    width: 100%;
+    text-align: center;
   }
 }
 
-@media (max-width: 768px) {
-  .dashboard {
-    padding: var(--spacing-sm);
-  }
-  
-  .dashboard-header {
-    padding: var(--spacing-sm);
-  }
-  
-  .dashboard-month {
+@media (max-width: 420px) {
+  .c6-card-value {
     font-size: 16px;
   }
-  
-  .dashboard-grid {
-    grid-template-columns: 1fr;
-    gap: var(--spacing-sm);
-  }
-  
-  .dashboard-quick-stats {
-    grid-template-columns: 1fr;
-  }
-  
-  .dashboard-empty-btn {
-    width: 100%;
-  }
-}
 
-@media (max-width: 480px) {
-  .dashboard-card-value {
-    font-size: 20px;
+  .c6-month-text {
+    font-size: 11px;
+    min-width: 60px;
   }
-  
-  .dashboard-card-icon {
-    width: 40px;
-    height: 40px;
-  }
-  
-  .dashboard-stat-value {
-    font-size: 20px;
-  }
-  
-  .dashboard-commissions-value {
-    font-size: 20px;
+
+  .c6-greeting {
+    font-size: 13px;
   }
 }
