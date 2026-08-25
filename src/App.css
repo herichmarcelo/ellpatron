@@ -1,7 +1,11 @@
 .app {
   display: flex;
   min-height: 100vh;
+  width: 100%;
+  max-width: 100%;
+  overflow-x: hidden;
   background: var(--bg-primary);
+  position: relative;
 }
 
 .app-main {
@@ -9,9 +13,12 @@
   display: flex;
   flex-direction: column;
   min-height: 100vh;
+  min-width: 0;
+  max-width: 100%;
   transition: margin-left var(--transition-normal);
   background: linear-gradient(180deg, var(--bg-primary) 0%, var(--bg-secondary) 100%);
   margin-left: 260px;
+  overflow-x: hidden;
 }
 
 .app-main--sidebar-open {
@@ -23,15 +30,23 @@
   padding: var(--spacing-lg);
   overflow-y: auto;
   overflow-x: hidden;
+  min-width: 0;
+  width: 100%;
+  max-width: 100%;
 }
 
 /* Responsive adjustments */
 @media (max-width: 1023px) {
   .app-main {
     margin-left: 0;
+    width: 100%;
   }
   
   .app-main--sidebar-open {
     margin-left: 0;
+  }
+  
+  .app-content {
+    padding: 0;
   }
 }

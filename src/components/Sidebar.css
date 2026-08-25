@@ -10,17 +10,20 @@
   flex-direction: column;
   z-index: var(--z-index-fixed);
   transform: translateX(-100%);
-  transition: transform var(--transition-normal);
+  visibility: hidden;
+  transition: transform var(--transition-normal), visibility var(--transition-normal);
 }
 
 .sidebar--open {
   transform: translateX(0);
+  visibility: visible;
 }
 
 /* Desktop: Sidebar always visible */
 @media (min-width: 1024px) {
   .sidebar {
     transform: translateX(0);
+    visibility: visible;
   }
 }
 
