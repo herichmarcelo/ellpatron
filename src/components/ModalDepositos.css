@@ -1,0 +1,576 @@
+/* ==========================================================
+   MODAL DE DEPÓSITOS & EXTRATO - PADRÃO C6 CARBON / DARK MODE
+   ========================================================== */
+
+.modal-depositos-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(5, 6, 8, 0.85);
+  backdrop-filter: blur(10px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1100;
+  padding: 16px;
+  animation: modalDepFadeIn 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@keyframes modalDepFadeIn {
+  from {
+    opacity: 0;
+    transform: scale(0.97);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+.modal-depositos-card {
+  background: #0e1014;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 20px;
+  width: 100%;
+  max-width: 780px;
+  max-height: 92vh;
+  box-shadow: 0 25px 60px rgba(0, 0, 0, 0.85), 0 0 35px rgba(16, 185, 129, 0.06);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+/* 1. CABEÇALHO DO MODAL */
+.modal-depositos-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 20px 24px;
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.04) 0%, rgba(255, 255, 255, 0.01) 100%);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.depositos-header-left {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.depositos-header-icon {
+  width: 44px;
+  height: 44px;
+  border-radius: 14px;
+  background: linear-gradient(135deg, rgba(16, 185, 129, 0.2) 0%, rgba(16, 185, 129, 0.05) 100%);
+  border: 1px solid rgba(16, 185, 129, 0.3);
+  color: #10b981;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.depositos-header-title {
+  font-family: 'Cinzel', serif;
+  font-size: 18px;
+  font-weight: 700;
+  color: #ffffff;
+  margin: 0;
+  letter-spacing: 0.5px;
+}
+
+.depositos-header-subtitle {
+  font-size: 12px;
+  color: #8e8e93;
+  margin: 0;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.modal-depositos-close {
+  background: transparent;
+  border: none;
+  color: #71717a;
+  cursor: pointer;
+  padding: 8px;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s;
+}
+
+.modal-depositos-close:hover {
+  color: #ffffff;
+  background: rgba(255, 255, 255, 0.08);
+}
+
+/* 2. CORPO DO MODAL */
+.modal-depositos-body {
+  padding: 20px 24px;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  flex: 1;
+}
+
+/* CARDS DE SALDO E KPIs */
+.depositos-balance-banner {
+  display: grid;
+  grid-template-columns: 1.4fr 1fr 1fr 1fr;
+  gap: 12px;
+}
+
+@media (max-width: 700px) {
+  .depositos-balance-banner {
+    grid-template-columns: 1fr 1fr;
+  }
+  .depositos-banner-main {
+    grid-column: span 2;
+  }
+}
+
+.depositos-banner-main {
+  background: linear-gradient(135deg, rgba(16, 185, 129, 0.15) 0%, rgba(6, 78, 59, 0.25) 100%);
+  border: 1px solid rgba(16, 185, 129, 0.4);
+  border-radius: 14px;
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  box-shadow: 0 4px 20px rgba(16, 185, 129, 0.12);
+}
+
+.banner-main-label {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.8px;
+  color: #10b981;
+  text-transform: uppercase;
+  margin-bottom: 4px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.banner-main-value {
+  font-size: 24px;
+  font-weight: 800;
+  color: #10b981;
+  letter-spacing: -0.5px;
+}
+
+.depositos-kpi-card {
+  background: #14161c;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 14px;
+  padding: 14px 12px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.depositos-kpi-label {
+  font-size: 10px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: #8e8e93;
+  margin-bottom: 4px;
+}
+
+.depositos-kpi-val {
+  font-size: 15px;
+  font-weight: 700;
+  color: #ffffff;
+}
+
+.text-emerald {
+  color: #10b981 !important;
+}
+
+.text-amber {
+  color: #f59e0b !important;
+}
+
+.text-gold {
+  color: #d4af37 !important;
+}
+
+/* 3. BARRA DE CONTROLES (FILTRO E AÇÕES SUPERIORES) */
+.depositos-controls-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.depositos-filter-select-box {
+  min-width: 200px;
+  max-width: 260px;
+}
+
+.depositos-custom-select .custom-select-trigger {
+  min-height: 40px;
+  padding: 8px 12px;
+  background: #14161c;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 10px;
+}
+
+.depositos-custom-select .custom-select-trigger:hover,
+.depositos-custom-select .custom-select-trigger.is-open {
+  border-color: #eab308;
+  box-shadow: 0 0 0 2px rgba(234, 179, 8, 0.2);
+}
+
+.depositos-actions-top {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.btn-deposito-novo {
+  background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  color: #050608;
+  padding: 9px 16px;
+  border-radius: 10px;
+  font-size: 13px;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  cursor: pointer;
+  box-shadow: 0 4px 14px rgba(16, 185, 129, 0.35);
+  transition: all 0.2s;
+}
+
+.btn-deposito-novo:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 6px 20px rgba(16, 185, 129, 0.5);
+  filter: brightness(1.1);
+}
+
+.btn-deposito-wpp {
+  background: linear-gradient(135deg, #25d366 0%, #128c7e 100%);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  color: #ffffff;
+  padding: 9px 16px;
+  border-radius: 10px;
+  font-size: 13px;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  cursor: pointer;
+  box-shadow: 0 4px 14px rgba(37, 211, 102, 0.35);
+  transition: all 0.2s;
+}
+
+.btn-deposito-wpp:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 6px 20px rgba(37, 211, 102, 0.5);
+  filter: brightness(1.08);
+}
+
+/* 4. FORMULÁRIO ACCORDION DE NOVO DEPÓSITO */
+.novo-deposito-panel {
+  background: #15181f;
+  border: 1px solid rgba(16, 185, 129, 0.3);
+  border-radius: 14px;
+  padding: 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  animation: panelSlideDown 0.25s ease;
+}
+
+@keyframes panelSlideDown {
+  from {
+    opacity: 0;
+    transform: translateY(-8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.novo-deposito-title {
+  font-size: 14px;
+  font-weight: 700;
+  color: #10b981;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin: 0;
+}
+
+.novo-deposito-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 12px;
+}
+
+.dep-form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.dep-form-group label {
+  font-size: 11px;
+  font-weight: 600;
+  color: #a1a1aa;
+}
+
+.dep-form-input {
+  background: #0b0d10;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 8px;
+  padding: 9px 12px;
+  color: #ffffff;
+  font-size: 13px;
+  outline: none;
+  transition: all 0.2s;
+}
+
+.dep-form-input:focus {
+  border-color: #10b981;
+  box-shadow: 0 0 0 2px rgba(16, 185, 129, 0.2);
+}
+
+.dep-form-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+  margin-top: 4px;
+}
+
+.btn-dep-cancelar {
+  background: #1f222b;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  color: #a1a1aa;
+  padding: 8px 14px;
+  border-radius: 8px;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.btn-dep-cancelar:hover {
+  background: #282c37;
+  color: #ffffff;
+}
+
+.btn-dep-salvar {
+  background: #10b981;
+  border: none;
+  color: #050608;
+  padding: 8px 16px;
+  border-radius: 8px;
+  font-size: 12px;
+  font-weight: 700;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  transition: all 0.2s;
+}
+
+.btn-dep-salvar:hover:not(:disabled) {
+  background: #059669;
+  transform: translateY(-1px);
+}
+
+.btn-dep-salvar:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* 5. LISTA DE HISTÓRICO DE MOVIMENTAÇÕES */
+.depositos-list-section {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.depositos-section-heading {
+  font-size: 12px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: #8e8e93;
+  margin: 0;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.depositos-items-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.depositos-empty-state {
+  background: #13151b;
+  border: 1px dashed rgba(255, 255, 255, 0.1);
+  border-radius: 12px;
+  padding: 30px 20px;
+  text-align: center;
+  color: #71717a;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+}
+
+.depositos-empty-state p {
+  margin: 0;
+  font-size: 13px;
+}
+
+.depositos-item-card {
+  background: #13151b;
+  border: 1px solid rgba(255, 255, 255, 0.07);
+  border-radius: 12px;
+  padding: 12px 16px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  transition: all 0.2s;
+}
+
+.depositos-item-card:hover {
+  background: #171922;
+  border-color: rgba(255, 255, 255, 0.14);
+}
+
+.depositos-item-left {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.dep-type-icon-box {
+  width: 38px;
+  height: 38px;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.dep-type-icon-box.deposit {
+  background: rgba(16, 185, 129, 0.15);
+  color: #10b981;
+  border: 1px solid rgba(16, 185, 129, 0.3);
+}
+
+.dep-type-icon-box.withdrawal {
+  background: rgba(245, 158, 11, 0.15);
+  color: #f59e0b;
+  border: 1px solid rgba(245, 158, 11, 0.3);
+}
+
+.dep-type-icon-box.interest {
+  background: rgba(212, 175, 55, 0.15);
+  color: #d4af37;
+  border: 1px solid rgba(212, 175, 55, 0.3);
+}
+
+.dep-item-meta {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.dep-item-title-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.dep-item-type-label {
+  font-size: 13px;
+  font-weight: 700;
+  color: #ffffff;
+}
+
+.dep-item-rate-badge {
+  background: rgba(212, 175, 55, 0.15);
+  border: 1px solid rgba(212, 175, 55, 0.3);
+  color: #f5d77f;
+  font-size: 10px;
+  font-weight: 700;
+  padding: 1px 6px;
+  border-radius: 4px;
+}
+
+.dep-item-notes {
+  font-size: 11px;
+  color: #8e8e93;
+}
+
+.depositos-item-right {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.dep-item-values-box {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 2px;
+}
+
+.dep-item-amount {
+  font-size: 15px;
+  font-weight: 800;
+  letter-spacing: -0.2px;
+}
+
+.dep-item-amount.deposit {
+  color: #10b981;
+}
+
+.dep-item-amount.withdrawal {
+  color: #f59e0b;
+}
+
+.dep-item-amount.interest {
+  color: #d4af37;
+}
+
+.dep-item-date {
+  font-size: 10px;
+  color: #71717a;
+}
+
+.dep-item-btn-del {
+  background: transparent;
+  border: none;
+  color: #52525b;
+  cursor: pointer;
+  padding: 6px;
+  border-radius: 6px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s;
+}
+
+.dep-item-btn-del:hover {
+  color: #ef4444;
+  background: rgba(239, 68, 68, 0.1);
+}

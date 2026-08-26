@@ -75,8 +75,9 @@ const HistoricoContratos = () => {
   const cancelledCount = contracts.filter(c => c.status === 'cancelled').length;
 
   const filteredContracts = useMemo(() => {
+    const queryStr = typeof searchQuery === 'string' ? searchQuery : (searchQuery?.target?.value || '');
+    const query = queryStr.toLowerCase().trim();
     return contracts.filter(contract => {
-      const query = searchQuery.toLowerCase().trim();
       const matchesSearch = 
         !query ||
         (contract.client_name && contract.client_name.toLowerCase().includes(query)) ||
@@ -313,7 +314,17 @@ const HistoricoContratos = () => {
             placeholder="Buscar por cliente, CPF ou protocolo..."
             icon={Search}
             value={searchQuery}
-            onChange={setSearchQuery}
+            onChange={(e) => setSearchQuery(e?.target ? e.target.value : (typeof e === 'string' ? e : ''))}
+            rightAction={searchQuery ? (
+              <button 
+                type="button"
+                onClick={() => setSearchQuery('')}
+                style={{ background: 'none', border: 'none', color: '#8e8e93', cursor: 'pointer', display: 'flex', alignItems: 'center', padding: '4px' }}
+                title="Limpar busca"
+              >
+                <X size={16} />
+              </button>
+            ) : null}
             fullWidth
           />
         </div>

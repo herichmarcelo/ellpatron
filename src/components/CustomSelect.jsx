@@ -2,7 +2,15 @@ import React, { useState, useRef, useEffect } from 'react';
 import { ChevronDown, Check } from 'lucide-react';
 import './CustomSelect.css';
 
-const CustomSelect = ({ label, options = [], value, onChange, placeholder = "Selecione..." }) => {
+const CustomSelect = ({ 
+  label, 
+  options = [], 
+  value, 
+  onChange, 
+  placeholder = "Selecione...",
+  icon: Icon,
+  className = ""
+}) => {
   const [isOpen, setIsOpen] = useState(false);
   const dropdownRef = useRef(null);
 
@@ -21,7 +29,7 @@ const CustomSelect = ({ label, options = [], value, onChange, placeholder = "Sel
   const selectedOption = options.find(opt => opt.value === value);
 
   return (
-    <div className="custom-select-wrapper" ref={dropdownRef}>
+    <div className={`custom-select-wrapper ${className}`} ref={dropdownRef}>
       {label && <label className="custom-select-label">{label}</label>}
       
       {/* Botão que abre/fecha o menu */}
@@ -36,9 +44,13 @@ const CustomSelect = ({ label, options = [], value, onChange, placeholder = "Sel
           }
         }}
       >
-        <span className={!selectedOption ? 'text-placeholder' : 'text-selected'}>
-          {selectedOption ? selectedOption.label : placeholder}
-        </span>
+        <div className="custom-select-trigger-content">
+          {Icon && <Icon size={16} className="custom-select-prefix-icon" />}
+          <span className={!selectedOption ? 'text-placeholder' : 'text-selected'}>
+            {selectedOption ? selectedOption.label : placeholder}
+          </span>
+        </div>
+        
         <ChevronDown 
           size={18} 
           className={`custom-select-icon ${isOpen ? 'rotate' : ''}`} 
@@ -69,3 +81,4 @@ const CustomSelect = ({ label, options = [], value, onChange, placeholder = "Sel
 };
 
 export default CustomSelect;
+

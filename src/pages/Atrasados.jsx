@@ -89,7 +89,9 @@ const Atrasados = () => {
     });
 
   const filteredOverdue = overdueList.filter(item => {
-    const query = searchQuery.toLowerCase();
+    const queryStr = typeof searchQuery === 'string' ? searchQuery : (searchQuery?.target?.value || '');
+    const query = queryStr.toLowerCase().trim();
+    if (!query) return true;
     return (
       (item.client_name && item.client_name.toLowerCase().includes(query)) ||
       (item.client_cpf && item.client_cpf.includes(query)) ||
@@ -219,7 +221,17 @@ const Atrasados = () => {
             icon={Search}
             placeholder="Buscar por cliente, CPF ou protocolo..."
             value={searchQuery}
-            onChange={setSearchQuery}
+            onChange={(e) => setSearchQuery(e?.target ? e.target.value : (typeof e === 'string' ? e : ''))}
+            rightAction={searchQuery ? (
+              <button 
+                type="button"
+                onClick={() => setSearchQuery('')}
+                style={{ background: 'none', border: 'none', color: '#8e8e93', cursor: 'pointer', display: 'flex', alignItems: 'center', padding: '4px' }}
+                title="Limpar busca"
+              >
+                <X size={16} />
+              </button>
+            ) : null}
             fullWidth
           />
         </div>

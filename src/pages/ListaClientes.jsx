@@ -3,7 +3,8 @@ import { useNavigate } from 'react-router-dom';
 import { 
   Users, UserPlus, Search, Edit, Eye, Phone, MapPin, Calendar, 
   FileText, Plus, Download, ShieldAlert, Ban, X, ChevronRight,
-  CheckCircle2, DollarSign, ArrowLeft, AlertCircle, ChevronDown, ChevronUp, Check
+  CheckCircle2, DollarSign, ArrowLeft, AlertCircle, ChevronDown, ChevronUp, Check,
+  PiggyBank, ArrowDownLeft, ArrowUpRight, Wallet
 } from 'lucide-react';
 import Card from '../components/Card';
 import Button from '../components/Button';
@@ -12,9 +13,11 @@ import Badge from '../components/Badge';
 import CustomSelect from '../components/CustomSelect';
 import DatePicker from '../components/DatePicker';
 import CreditScoreCard from '../components/CreditScoreCard';
+import ModalSaque from '../components/ModalSaque';
+import ModalDepositos from '../components/ModalDepositos';
 import { useClients, useAddToBlacklist, useRemoveFromBlacklist, isClientBlacklisted } from '../hooks/useClients';
 import { formatPhone, formatDate, formatCPF, getInitials, stringToColor, formatAddress, formatCurrency, getBrasiliaISODate } from '../utils/formatters';
-import { getContracts, getPayments, createPayment, updateContract } from '../supabase/services.js';
+import { getContracts, getPayments, createPayment, updateContract, getSavingsTransactions } from '../supabase/services.js';
 import { calculateCreditScore } from '../utils/scoreCalculator';
 import { calculateOverduePenalties } from '../utils/calculations';
 import { exportClientsExcel } from '../utils/exportUtils';
@@ -38,6 +41,13 @@ const ListaClientes = () => {
   const [selectedInstallment, setSelectedInstallment] = useState(null);
   const [showClientDetailsModal, setShowClientDetailsModal] = useState(false);
   const [selectedClientDetails, setSelectedClientDetails] = useState(null);
+  
+  // Estados para o Módulo de Poupança / Carteira
+  const [allSavingsTransactions, setAllSavingsTransactions] = useState([]);
+  const [showSaqueModal, setShowSaqueModal] = useState(false);
+  const [showDepositosModal, setShowDepositosModal] = useState(false);
+  const [selectedSavingsClient, setSelectedSavingsClient] = useState(null);
+
   const [newPayment, setNewPayment] = useState({
     installment_number: '',
     amount: '',
@@ -58,26 +68,61 @@ const ListaClientes = () => {
     }));
   };
 
-  // Carrega contratos e pagamentos para cálculo de Score em tempo real
+  // Carrega contratos, pagamentos e transações de poupança em tempo real
+  const fetchAllData = async (isMounted = true) => {
+    try {
+      const [contractsRes, paymentsRes, savingsRes] = await Promise.all([
+        getContracts(),
+        getPayments(),
+        getSavingsTransactions()
+      ]);
+      if (isMounted) {
+        if (contractsRes.success) setAllContracts(contractsRes.data || []);
+        if (paymentsRes.success) setAllPayments(paymentsRes.data || []);
+        if (savingsRes.success) setAllSavingsTransactions(savingsRes.data || []);
+      }
+    } catch (err) {
+      console.error('Error loading contracts/payments/savings:', err);
+    }
+  };
+
   useEffect(() => {
     let isMounted = true;
-    const fetchScoreData = async () => {
-      try {
-        const [contractsRes, paymentsRes] = await Promise.all([
-          getContracts(),
-          getPayments()
-        ]);
-        if (isMounted) {
-          if (contractsRes.success) setAllContracts(contractsRes.data || []);
-          if (paymentsRes.success) setAllPayments(paymentsRes.data || []);
-        }
-      } catch (err) {
-        console.error('Error loading contracts/payments for score:', err);
-      }
-    };
-    fetchScoreData();
+    fetchAllData(isMounted);
     return () => { isMounted = false; };
   }, []);
+
+  // Calcula o saldo atual da carteira/poupança de cada cliente
+  const getClientSavingsBalance = (clientId) => {
+    if (!clientId) return 0;
+    const clientTx = allSavingsTransactions.filter(t => (t.client_id === clientId || t.clientId === clientId));
+    let totalDeposits = 0;
+    let totalWithdrawals = 0;
+    let totalInterest = 0;
+
+    clientTx.forEach(t => {
+      const amt = Number(t.amount) || 0;
+      if (t.type === 'deposit') totalDeposits += amt;
+      else if (t.type === 'withdrawal') totalWithdrawals += amt;
+      else if (t.type === 'interest') totalInterest += amt;
+      else if (t.type === 'adjustment') {
+        if (amt >= 0) totalDeposits += amt;
+        else totalWithdrawals += Math.abs(amt);
+      }
+    });
+
+    return Math.max(0, (totalDeposits + totalInterest) - totalWithdrawals);
+  };
+
+  const handleOpenSaque = (client) => {
+    setSelectedSavingsClient(client);
+    setShowSaqueModal(true);
+  };
+
+  const handleOpenDepositos = (client) => {
+    setSelectedSavingsClient(client);
+    setShowDepositosModal(true);
+  };
 
   const getClientScore = (client) => {
     if (!client) return null;
@@ -481,22 +526,33 @@ const ListaClientes = () => {
             placeholder="Buscar por nome, telefone ou CPF..."
             icon={Search}
             value={searchQuery}
-            onChange={setSearchQuery}
+            onChange={(e) => setSearchQuery(e?.target ? e.target.value : (typeof e === 'string' ? e : ''))}
+            rightAction={searchQuery ? (
+              <button 
+                type="button"
+                onClick={() => setSearchQuery('')}
+                style={{ background: 'none', border: 'none', color: '#8e8e93', cursor: 'pointer', display: 'flex', alignItems: 'center', padding: '4px' }}
+                title="Limpar busca"
+              >
+                <X size={16} />
+              </button>
+            ) : null}
             fullWidth
           />
         </div>
         
         <div className="lista-clientes-filters">
-          <select
+          <CustomSelect
+            options={[
+              { value: 'all', label: 'Todos os status' },
+              { value: 'active', label: 'Ativos' },
+              { value: 'inactive', label: 'Inativos' },
+              { value: 'blacklisted', label: 'Lista Negra' }
+            ]}
             value={statusFilter}
-            onChange={(e) => setStatusFilter(e.target.value)}
-            className="lista-clientes-filter-select"
-          >
-            <option value="all">Todos os status</option>
-            <option value="active">Ativos</option>
-            <option value="inactive">Inativos</option>
-            <option value="blacklisted">Lista Negra</option>
-          </select>
+            onChange={setStatusFilter}
+            placeholder="Todos os status"
+          />
         </div>
       </div>
 
@@ -544,8 +600,21 @@ const ListaClientes = () => {
                     </button>
                   </div>
 
-                  {/* CORPO DO CARD (Dados) */}
+                  {/* CORPO DO CARD (Dados e Saldo) */}
                   <div className="cliente-card-body">
+                    {/* NOVO CARD DE SALDO TOTAL (POUPANÇA / CARTEIRA) */}
+                    <div className="cliente-saldo-card">
+                      <div className="cliente-saldo-topo">
+                        <span className="cliente-saldo-label">
+                          <PiggyBank size={14} /> Saldo Total
+                        </span>
+                        <span className="cliente-saldo-badge">Poupança</span>
+                      </div>
+                      <div className="cliente-saldo-valor">
+                        {formatCurrency(getClientSavingsBalance(client.id))}
+                      </div>
+                    </div>
+
                     <p className="cliente-dado">
                       <span className="dado-label">CPF:</span> {formatCPF(client.cpf)}
                     </p>
@@ -560,6 +629,28 @@ const ListaClientes = () => {
                         <MapPin size={14} color="#d4af37" /> {formatAddress(client)}
                       </p>
                     )}
+
+                    {/* NOVOS BOTÕES DE AÇÃO RÁPIDA: SAQUE & DEPÓSITOS */}
+                    <div className="cliente-carteira-actions">
+                      <button 
+                        type="button" 
+                        className="btn-carteira-action btn-carteira-saque"
+                        onClick={() => handleOpenSaque(client)}
+                        title="Realizar Saque"
+                      >
+                        <ArrowDownLeft size={15} />
+                        <span>Saque</span>
+                      </button>
+                      <button 
+                        type="button" 
+                        className="btn-carteira-action btn-carteira-deposito"
+                        onClick={() => handleOpenDepositos(client)}
+                        title="Histórico de Depósitos e Extrato"
+                      >
+                        <ArrowUpRight size={15} />
+                        <span>Depósitos</span>
+                      </button>
+                    </div>
                   </div>
 
                   {/* AÇÕES (Grade 2x2 Exata com 4 Botões) */}
@@ -1229,6 +1320,37 @@ const ListaClientes = () => {
             </button>
           </div>
         </div>
+      )}
+
+      {/* Modal de Saque C6 Carbon */}
+      {showSaqueModal && selectedSavingsClient && (
+        <ModalSaque
+          isOpen={showSaqueModal}
+          onClose={() => {
+            setShowSaqueModal(false);
+            setSelectedSavingsClient(null);
+          }}
+          client={selectedSavingsClient}
+          currentBalance={getClientSavingsBalance(selectedSavingsClient.id)}
+          onSuccess={async () => {
+            await fetchAllData();
+          }}
+        />
+      )}
+
+      {/* Central / Modal de Depósitos e Extrato C6 Carbon */}
+      {showDepositosModal && selectedSavingsClient && (
+        <ModalDepositos
+          isOpen={showDepositosModal}
+          onClose={() => {
+            setShowDepositosModal(false);
+            setSelectedSavingsClient(null);
+          }}
+          client={selectedSavingsClient}
+          onBalanceUpdate={async () => {
+            await fetchAllData();
+          }}
+        />
       )}
     </div>
   );

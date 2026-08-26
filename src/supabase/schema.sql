@@ -147,7 +147,23 @@ CREATE TABLE IF NOT EXISTS public.transactions (
 );
 
 -- ----------------------------------------------------------
--- 10. Triggers de Atualização de updated_at
+-- 10. Tabela: SAVINGS_TRANSACTIONS (Carteira de Depósitos, Saques e Poupança de Clientes)
+-- ----------------------------------------------------------
+CREATE TABLE IF NOT EXISTS public.savings_transactions (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    client_id UUID NOT NULL REFERENCES public.clients(id) ON DELETE CASCADE,
+    type VARCHAR(50) NOT NULL CHECK (type IN ('deposit', 'withdrawal', 'interest', 'adjustment')),
+    amount NUMERIC(15, 2) NOT NULL DEFAULT 0.00,
+    interest_rate_month NUMERIC(8, 4) DEFAULT 0.0000,
+    transaction_date DATE NOT NULL DEFAULT CURRENT_DATE,
+    payment_method VARCHAR(50) DEFAULT 'pix' CHECK (payment_method IN ('pix', 'dinheiro', 'transferencia', 'ted_doc', 'outro')),
+    notes TEXT,
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+    updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+);
+
+-- ----------------------------------------------------------
+-- 11. Triggers de Atualização de updated_at
 -- ----------------------------------------------------------
 DROP TRIGGER IF EXISTS tr_users_updated_at ON public.users;
 CREATE TRIGGER tr_users_updated_at BEFORE UPDATE ON public.users FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
@@ -164,8 +180,11 @@ CREATE TRIGGER tr_loans_updated_at BEFORE UPDATE ON public.loans FOR EACH ROW EX
 DROP TRIGGER IF EXISTS tr_payments_updated_at ON public.payments;
 CREATE TRIGGER tr_payments_updated_at BEFORE UPDATE ON public.payments FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
 
+DROP TRIGGER IF EXISTS tr_savings_transactions_updated_at ON public.savings_transactions;
+CREATE TRIGGER tr_savings_transactions_updated_at BEFORE UPDATE ON public.savings_transactions FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
+
 -- ----------------------------------------------------------
--- 11. Índices de Otimização de Busca
+-- 12. Índices de Otimização de Busca
 -- ----------------------------------------------------------
 CREATE INDEX IF NOT EXISTS idx_clients_cpf ON public.clients(cpf);
 CREATE INDEX IF NOT EXISTS idx_clients_status ON public.clients(status);
@@ -177,9 +196,11 @@ CREATE INDEX IF NOT EXISTS idx_payments_contract_id ON public.payments(contract_
 CREATE INDEX IF NOT EXISTS idx_payments_date ON public.payments(payment_date);
 CREATE INDEX IF NOT EXISTS idx_blacklist_client_id ON public.blacklist(client_id);
 CREATE INDEX IF NOT EXISTS idx_transactions_created_at ON public.transactions(created_at);
+CREATE INDEX IF NOT EXISTS idx_savings_client_id ON public.savings_transactions(client_id);
+CREATE INDEX IF NOT EXISTS idx_savings_date ON public.savings_transactions(transaction_date);
 
 -- ----------------------------------------------------------
--- 12. Habilitação de Row Level Security (RLS)
+-- 13. Habilitação de Row Level Security (RLS)
 -- ----------------------------------------------------------
 ALTER TABLE public.users ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.clients ENABLE ROW LEVEL SECURITY;
@@ -188,6 +209,7 @@ ALTER TABLE public.loans ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.payments ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.blacklist ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.transactions ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.savings_transactions ENABLE ROW LEVEL SECURITY;
 
 -- Políticas de RLS para usuários autenticados (Full Access ao tenant/usuários autenticados)
 CREATE POLICY "Permitir acesso completo a usuários autenticados em users" 
@@ -210,3 +232,6 @@ ON public.blacklist FOR ALL TO authenticated USING (true) WITH CHECK (true);
 
 CREATE POLICY "Permitir acesso completo a usuários autenticados em transactions" 
 ON public.transactions FOR ALL TO authenticated USING (true) WITH CHECK (true);
+
+CREATE POLICY "Permitir acesso completo a usuários autenticados em savings_transactions" 
+ON public.savings_transactions FOR ALL TO authenticated USING (true) WITH CHECK (true);

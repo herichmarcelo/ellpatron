@@ -20,13 +20,27 @@
   justify-content: space-between;
   background-color: #121214;
   border: 1px solid #29292e;
-  border-radius: 8px;
-  padding: 12px 16px;
-  min-height: 44px;
+  border-radius: 10px;
+  padding: 10px 14px;
+  min-height: 42px;
   cursor: pointer;
   transition: all 0.2s ease;
   user-select: none;
   outline: none;
+  gap: 8px;
+}
+
+.custom-select-trigger-content {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
+  flex: 1;
+}
+
+.custom-select-prefix-icon {
+  color: #d4af37;
+  flex-shrink: 0;
 }
 
 /* Efeito ao focar ou abrir */
@@ -34,18 +48,21 @@
 .custom-select-trigger.is-open,
 .custom-select-trigger:focus {
   border-color: #eab308;
-  box-shadow: 0 0 0 2px rgba(234, 179, 8, 0.15);
+  box-shadow: 0 0 0 2px rgba(234, 179, 8, 0.2);
 }
 
 .text-selected {
   color: #ffffff;
-  font-size: 14px;
+  font-size: 13px;
   font-weight: 600;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .text-placeholder {
   color: #737380;
-  font-size: 14px;
+  font-size: 13px;
 }
 
 /* Ícone da seta girando */
@@ -57,6 +74,7 @@
 
 .custom-select-icon.rotate {
   transform: rotate(180deg);
+  color: #eab308;
 }
 
 /* O Menu Suspenso (Dropdown) */
@@ -65,13 +83,33 @@
   top: calc(100% + 6px);
   left: 0;
   width: 100%;
-  background-color: #1e1e22;
+  min-width: 180px;
+  max-height: 240px;
+  overflow-y: auto;
+  background-color: #16181d;
   border: 1px solid #29292e;
-  border-radius: 8px;
-  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.6);
-  z-index: 100;
-  overflow: hidden;
-  animation: slideDown 0.2s ease forwards;
+  border-radius: 10px;
+  box-shadow: 0 16px 36px rgba(0, 0, 0, 0.8), 0 0 20px rgba(0, 0, 0, 0.4);
+  z-index: 1200;
+  animation: slideDownSelect 0.2s ease forwards;
+}
+
+/* Scrollbar do Dropdown */
+.custom-select-dropdown::-webkit-scrollbar {
+  width: 6px;
+}
+
+.custom-select-dropdown::-webkit-scrollbar-track {
+  background: #121418;
+}
+
+.custom-select-dropdown::-webkit-scrollbar-thumb {
+  background: #2a261a;
+  border-radius: 3px;
+}
+
+.custom-select-dropdown::-webkit-scrollbar-thumb:hover {
+  background: #d4af37;
 }
 
 /* Itens da Lista */
@@ -79,30 +117,38 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 12px 16px;
+  padding: 10px 14px;
   color: #e1e1e6;
-  font-size: 14px;
+  font-size: 13px;
+  font-weight: 500;
   cursor: pointer;
-  transition: background-color 0.2s ease;
+  transition: background-color 0.15s ease, color 0.15s ease;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.03);
+}
+
+.custom-select-item:last-child {
+  border-bottom: none;
 }
 
 .custom-select-item:hover {
-  background-color: #29292e;
+  background-color: #232730;
+  color: #ffffff;
 }
 
 /* Estilo do item que está selecionado */
 .custom-select-item.is-selected {
-  background-color: rgba(234, 179, 8, 0.08);
+  background-color: rgba(234, 179, 8, 0.12);
   color: #eab308;
   font-weight: 700;
 }
 
 .check-icon {
   color: #eab308;
+  flex-shrink: 0;
 }
 
 /* Animação suave de entrada */
-@keyframes slideDown {
+@keyframes slideDownSelect {
   from {
     opacity: 0;
     transform: translateY(-6px);
@@ -112,3 +158,4 @@
     transform: translateY(0);
   }
 }
+

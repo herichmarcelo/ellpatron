@@ -13,12 +13,14 @@ import {
   DollarSign,
   ArrowRight,
   ArrowUpRight,
+  ArrowDownLeft,
+  PiggyBank,
   ShieldCheck,
   Sparkles
 } from 'lucide-react';
 import Card from '../components/Card';
 import { formatCurrency } from '../utils/formatters';
-import { getContracts, getClients } from '../supabase/services.js';
+import { getContracts, getClients, getSavingsTransactions } from '../supabase/services.js';
 import './Dashboard.css';
 
 const Dashboard = () => {
@@ -27,20 +29,24 @@ const Dashboard = () => {
   const [selectedMonth, setSelectedMonth] = useState(new Date());
   const [contracts, setContracts] = useState([]);
   const [clients, setClients] = useState([]);
+  const [savingsTransactions, setSavingsTransactions] = useState([]);
   const [loading, setLoading] = useState(true);
   const [isBalanceHidden, setIsBalanceHidden] = useState(false);
 
   useEffect(() => {
     let isMounted = true;
 
-    Promise.all([getContracts(), getClients()])
-      .then(([contractsResult, clientsResult]) => {
+    Promise.all([getContracts(), getClients(), getSavingsTransactions()])
+      .then(([contractsResult, clientsResult, savingsResult]) => {
         if (!isMounted) return;
         if (contractsResult.success) {
           setContracts(contractsResult.data || []);
         }
         if (clientsResult.success) {
           setClients(clientsResult.data || []);
+        }
+        if (savingsResult.success) {
+          setSavingsTransactions(savingsResult.data || []);
         }
         setLoading(false);
       })
@@ -129,6 +135,27 @@ const Dashboard = () => {
   // Formatação gramatical correta
   const activeContractsLabel = activeContracts === 1 ? '1 contrato ativo' : `${activeContracts} contratos ativos`;
   const overdueContractsLabel = overdueContractsCount === 1 ? '1 em atraso' : `${overdueContractsCount} em atraso`;
+
+  // 7. Aportes (Entradas) e Resgates (Saídas) da Poupança/Carteira no mês selecionado
+  const monthSavingsTransactions = savingsTransactions.filter(t => {
+    const dateStr = t.transaction_date || t.created_at;
+    if (!dateStr) return false;
+    const d = new Date(dateStr);
+    return d.getFullYear() === selectedYear && d.getMonth() === selectedMonthIdx;
+  });
+
+  const totalMonthDeposits = monthSavingsTransactions
+    .filter(t => t.type === 'deposit')
+    .reduce((sum, t) => sum + (Number(t.amount) || 0), 0);
+  const countMonthDeposits = monthSavingsTransactions.filter(t => t.type === 'deposit').length;
+
+  const totalMonthWithdrawals = monthSavingsTransactions
+    .filter(t => t.type === 'withdrawal')
+    .reduce((sum, t) => sum + (Number(t.amount) || 0), 0);
+  const countMonthWithdrawals = monthSavingsTransactions.filter(t => t.type === 'withdrawal').length;
+
+  const depositsLabel = countMonthDeposits === 1 ? '1 aporte' : `${countMonthDeposits} aportes`;
+  const withdrawalsLabel = countMonthWithdrawals === 1 ? '1 resgate' : `${countMonthWithdrawals} resgates`;
 
   // Calcula porcentagem para a barra de saúde
   const healthyPercentage = expectedRevenue > 0 ? Number(((netRevenue / expectedRevenue) * 100).toFixed(1)) : 100;
@@ -286,6 +313,65 @@ const Dashboard = () => {
             </span>
             <span className="c6-action-link">
               Carteira <ArrowRight size={12} />
+            </span>
+          </div>
+        </div>
+      </div>
+
+      {/* C6 CARTEIRA & APORTES (Entradas e Saídas de Poupança) */}
+      <div className="c6-section-header">
+        <h3 className="c6-section-title">Aportes & Resgates (Carteira)</h3>
+        <button 
+          className="c6-link-btn" 
+          onClick={() => navigate('/lista-aportes')}
+        >
+          Ver extrato de aportes <ArrowUpRight size={14} />
+        </button>
+      </div>
+
+      <div className="c6-saldos-grid">
+        {/* Card 1: Aportes / Entradas */}
+        <div className="c6-balance-card c6-balance-card--green" onClick={() => navigate('/lista-aportes')}>
+          <div className="c6-card-header">
+            <div className="c6-icon-wrapper c6-icon-wrapper--green">
+              <ArrowUpRight size={15} />
+            </div>
+            <span className="c6-card-title">Aportes (Entradas)</span>
+          </div>
+          
+          <div className="c6-card-body">
+            <h3 className="c6-card-value">{renderValue(totalMonthDeposits)}</h3>
+          </div>
+          
+          <div className="c6-card-footer">
+            <span className="c6-badge c6-badge--green">
+              {depositsLabel}
+            </span>
+            <span className="c6-action-link">
+              Extrato <ArrowRight size={12} />
+            </span>
+          </div>
+        </div>
+
+        {/* Card 2: Resgates / Saídas */}
+        <div className="c6-balance-card c6-balance-card--amber" onClick={() => navigate('/lista-aportes')}>
+          <div className="c6-card-header">
+            <div className="c6-icon-wrapper c6-icon-wrapper--amber">
+              <ArrowDownLeft size={15} />
+            </div>
+            <span className="c6-card-title">Resgates (Saídas)</span>
+          </div>
+          
+          <div className="c6-card-body">
+            <h3 className="c6-card-value">{renderValue(totalMonthWithdrawals)}</h3>
+          </div>
+          
+          <div className="c6-card-footer">
+            <span className={`c6-badge ${countMonthWithdrawals > 0 ? 'c6-badge--amber' : 'c6-badge--muted'}`}>
+              {withdrawalsLabel}
+            </span>
+            <span className="c6-action-link">
+              Extrato <ArrowRight size={12} />
             </span>
           </div>
         </div>

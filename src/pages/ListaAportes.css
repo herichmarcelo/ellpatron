@@ -1,0 +1,1029 @@
+/* ==========================================================================
+   LISTA DE APORTES - ELL PATRON C6 CARBON EDITION
+   ========================================================================== */
+
+.lista-aportes-page {
+  padding: var(--spacing-lg);
+  max-width: 1200px;
+  width: 100%;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-lg);
+  box-sizing: border-box;
+}
+
+/* 1. CABEÇALHO DA PÁGINA */
+.aportes-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 16px;
+  flex-wrap: wrap;
+  background: #14161c;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 16px;
+  padding: 18px 22px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.35);
+}
+
+.aportes-header-info {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.aportes-title-row {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.aportes-header-icon-box {
+  width: 44px;
+  height: 44px;
+  background: linear-gradient(135deg, rgba(234, 179, 8, 0.2) 0%, rgba(212, 175, 55, 0.05) 100%);
+  border: 1px solid rgba(234, 179, 8, 0.3);
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #eab308;
+  flex-shrink: 0;
+}
+
+.aportes-title {
+  font-size: 18px;
+  font-weight: 800;
+  color: #ffffff;
+  margin: 0;
+  letter-spacing: -0.3px;
+}
+
+.aportes-subtitle {
+  font-size: 12px;
+  color: #8e8e93;
+  margin: 2px 0 0 0;
+}
+
+.aportes-header-actions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.btn-aportes-download {
+  background: linear-gradient(135deg, #eab308 0%, #ca8a04 100%);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  color: #050608;
+  padding: 9px 16px;
+  border-radius: 10px;
+  font-size: 13px;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  cursor: pointer;
+  box-shadow: 0 4px 14px rgba(234, 179, 8, 0.35);
+  transition: all 0.2s ease;
+}
+
+.btn-aportes-download:hover {
+  transform: translateY(-1px);
+  filter: brightness(1.1);
+}
+
+.btn-aportes-print {
+  background: #202227;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  color: #ffffff;
+  padding: 9px 16px;
+  border-radius: 10px;
+  font-size: 13px;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.btn-aportes-print:hover {
+  background: #2a2d34;
+  border-color: #eab308;
+  color: #eab308;
+  transform: translateY(-1px);
+}
+
+.btn-aportes-novo {
+  background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  color: #050608;
+  padding: 9px 16px;
+  border-radius: 10px;
+  font-size: 13px;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  cursor: pointer;
+  box-shadow: 0 4px 14px rgba(16, 185, 129, 0.35);
+  transition: all 0.2s ease;
+}
+
+.btn-aportes-novo:hover {
+  transform: translateY(-1px);
+  filter: brightness(1.1);
+}
+
+/* 2. KPI CARDS (2 CARDS POR LINHA IGUAL AO DASHBOARD) */
+.aportes-kpis-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 14px;
+}
+
+.aporte-kpi-card {
+  background: #16171c;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 16px;
+  padding: 16px 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  transition: transform 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
+  min-width: 0;
+}
+
+.aporte-kpi-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 24px rgba(0, 0, 0, 0.6);
+}
+
+.aporte-kpi-card--gold:hover { border-color: rgba(212, 175, 55, 0.4); }
+.aporte-kpi-card--green:hover { border-color: rgba(16, 185, 129, 0.4); }
+.aporte-kpi-card--red:hover { border-color: rgba(239, 68, 68, 0.4); }
+.aporte-kpi-card--blue:hover { border-color: rgba(59, 130, 246, 0.4); }
+
+.kpi-card-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
+}
+
+.kpi-icon-wrap {
+  width: 28px;
+  height: 28px;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.kpi-icon-wrap--gold {
+  background: rgba(234, 179, 8, 0.15);
+  color: #eab308;
+}
+
+.kpi-icon-wrap--green {
+  background: rgba(16, 185, 129, 0.15);
+  color: #10b981;
+}
+
+.kpi-icon-wrap--red {
+  background: rgba(239, 68, 68, 0.15);
+  color: #ef4444;
+}
+
+.kpi-icon-wrap--blue {
+  background: rgba(59, 130, 246, 0.15);
+  color: #3b82f6;
+}
+
+.kpi-title {
+  font-size: 13px;
+  color: #a1a1aa;
+  font-weight: 500;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.kpi-value {
+  font-size: 24px;
+  font-weight: 800;
+  color: #ffffff;
+  letter-spacing: -0.5px;
+  font-variant-numeric: tabular-nums;
+  line-height: 1.1;
+}
+
+.text-green { color: #10b981 !important; }
+.text-red { color: #ef4444 !important; }
+.text-gold { color: #eab308 !important; }
+
+.kpi-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 6px;
+  margin-top: auto;
+  padding-top: 10px;
+  border-top: 1px solid rgba(255, 255, 255, 0.06);
+  min-width: 0;
+}
+
+.kpi-badge {
+  font-size: 11px;
+  font-weight: 600;
+  padding: 3px 8px;
+  border-radius: 100px;
+  white-space: nowrap;
+}
+
+.kpi-badge--gold {
+  background: rgba(234, 179, 8, 0.12);
+  color: #f5d77f;
+  border: 1px solid rgba(234, 179, 8, 0.25);
+}
+
+.kpi-badge--green {
+  background: rgba(16, 185, 129, 0.12);
+  color: #10b981;
+  border: 1px solid rgba(16, 185, 129, 0.25);
+}
+
+.kpi-badge--red {
+  background: rgba(239, 68, 68, 0.12);
+  color: #ef4444;
+  border: 1px solid rgba(239, 68, 68, 0.25);
+}
+
+.kpi-badge--blue {
+  background: rgba(59, 130, 246, 0.12);
+  color: #3b82f6;
+  border: 1px solid rgba(59, 130, 246, 0.25);
+}
+
+.kpi-detail {
+  font-size: 11px;
+  color: #8e8e93;
+  white-space: nowrap;
+}
+
+/* 3. BARRA DE FILTROS & CONTROLES */
+.aportes-controls-panel {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  background: #14161c;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 14px;
+  padding: 14px 18px;
+}
+
+.aportes-search-box {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background: #1a1d24;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 10px;
+  padding: 0 14px;
+  height: 42px;
+  transition: border-color 0.2s ease;
+}
+
+.aportes-search-box:focus-within {
+  border-color: #eab308;
+  box-shadow: 0 0 0 2px rgba(234, 179, 8, 0.2);
+}
+
+.aportes-search-icon {
+  color: #8e8e93;
+}
+
+.aportes-search-input {
+  flex: 1;
+  background: transparent;
+  border: none;
+  color: #ffffff;
+  font-size: 13px;
+  outline: none;
+}
+
+.aportes-search-input::placeholder {
+  color: #71717a;
+}
+
+.aportes-search-clear {
+  background: none;
+  border: none;
+  color: #8e8e93;
+  cursor: pointer;
+  padding: 4px;
+}
+
+.aportes-search-clear:hover {
+  color: #ffffff;
+}
+
+.aportes-filters-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.aportes-filter-item {
+  flex: 1;
+  min-width: 180px;
+}
+
+/* 4. TABELA DE APORTES (C6 CARBON) */
+.aportes-table-card {
+  background: #14161c;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 16px;
+  overflow: hidden;
+  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.4);
+}
+
+.aportes-table-responsive {
+  width: 100%;
+  overflow-x: auto;
+}
+
+.aportes-table {
+  width: 100%;
+  border-collapse: collapse;
+  text-align: left;
+  font-size: 13px;
+}
+
+.aportes-table thead {
+  background: #1a1d24;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.aportes-table th {
+  padding: 14px 18px;
+  font-size: 11px;
+  font-weight: 700;
+  color: #a1a1aa;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  white-space: nowrap;
+}
+
+.aportes-table td {
+  padding: 14px 18px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+  color: #ffffff;
+  vertical-align: middle;
+}
+
+.aporte-row {
+  transition: background-color 0.15s ease;
+}
+
+.aporte-row:hover {
+  background-color: rgba(255, 255, 255, 0.02);
+}
+
+/* Celula do Cliente */
+.aporte-client-cell {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-width: 180px;
+}
+
+.aporte-client-avatar {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #f5d77f 0%, #d4af37 100%);
+  color: #0c0d10;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 800;
+  font-size: 11px;
+  flex-shrink: 0;
+}
+
+.aporte-client-meta {
+  display: flex;
+  flex-direction: column;
+}
+
+.aporte-client-name {
+  font-weight: 700;
+  color: #ffffff;
+  font-size: 13px;
+}
+
+.aporte-client-cpf {
+  font-size: 11px;
+  color: #8e8e93;
+}
+
+/* Data */
+.aporte-date-cell {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  color: #d4d4d8;
+  font-weight: 500;
+  white-space: nowrap;
+}
+
+/* Badges de Tipo */
+.aporte-type-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 4px 10px;
+  border-radius: 100px;
+  font-size: 11px;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.badge-dep {
+  background: rgba(16, 185, 129, 0.15);
+  color: #10b981;
+  border: 1px solid rgba(16, 185, 129, 0.3);
+}
+
+.badge-with {
+  background: rgba(239, 68, 68, 0.15);
+  color: #ef4444;
+  border: 1px solid rgba(239, 68, 68, 0.3);
+}
+
+.badge-int {
+  background: rgba(59, 130, 246, 0.15);
+  color: #3b82f6;
+  border: 1px solid rgba(59, 130, 246, 0.3);
+}
+
+.badge-adj {
+  background: rgba(234, 179, 8, 0.15);
+  color: #eab308;
+  border: 1px solid rgba(234, 179, 8, 0.3);
+}
+
+/* Método */
+.aporte-method-pill {
+  display: inline-block;
+  background: #1f222a;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  color: #d4d4d8;
+  padding: 2px 8px;
+  border-radius: 6px;
+  font-size: 11px;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+/* Observações / Taxa */
+.aporte-notes-cell {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  max-width: 220px;
+}
+
+.aporte-rate-pill {
+  background: rgba(234, 179, 8, 0.15);
+  border: 1px solid rgba(234, 179, 8, 0.3);
+  color: #eab308;
+  padding: 2px 6px;
+  border-radius: 4px;
+  font-size: 10px;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.aporte-notes-text {
+  color: #8e8e93;
+  font-size: 12px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* Valores com Regra Visual Crucial: Verde para Entrada (#10b981) e Vermelho para Saída (#ef4444) */
+.aporte-amount-text {
+  font-size: 14px;
+  font-weight: 800;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+.amount-green {
+  color: #10b981 !important;
+}
+
+.amount-red {
+  color: #ef4444 !important;
+}
+
+.amount-gold {
+  color: #eab308 !important;
+}
+
+.text-right { text-align: right; }
+.text-center { text-align: center; }
+
+/* Botões de Ação */
+.aporte-actions-btns {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
+
+.btn-action-wpp {
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
+  background: rgba(16, 185, 129, 0.15);
+  border: 1px solid rgba(16, 185, 129, 0.3);
+  color: #10b981;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.btn-action-wpp:hover {
+  background: #10b981;
+  color: #050608;
+}
+
+.btn-action-del {
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
+  background: rgba(239, 68, 68, 0.12);
+  border: 1px solid rgba(239, 68, 68, 0.25);
+  color: #ef4444;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.btn-action-del:hover {
+  background: #ef4444;
+  color: #ffffff;
+}
+
+/* Empty State */
+.aportes-empty-box {
+  padding: 48px 24px;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  color: #8e8e93;
+}
+
+.aportes-empty-title {
+  font-size: 16px;
+  font-weight: 700;
+  color: #ffffff;
+  margin: 4px 0 0 0;
+}
+
+.aportes-empty-subtitle {
+  font-size: 12px;
+  max-width: 360px;
+}
+
+/* Rodapé da Tabela */
+.aportes-table-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 14px 20px;
+  background: #1a1d24;
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+  font-size: 12px;
+  color: #a1a1aa;
+  flex-wrap: wrap;
+}
+
+.table-footer-right {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+.footer-stat {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+/* ==========================================================================
+   ESTRUTURA DE IMPRESSÃO LIMPA E RELATÓRIO PDF (@media print)
+   ========================================================================== */
+.print-header-sheet,
+.print-summary-box {
+  display: none;
+}
+
+@page {
+  size: A4 portrait;
+  margin: 10mm 12mm 12mm 12mm;
+}
+
+@media print {
+  /* 1. Ocultar todos os elementos da interface do sistema */
+  .no-print,
+  .sidebar,
+  .header,
+  .aportes-header,
+  .aportes-kpis-grid,
+  .aportes-controls-panel,
+  .btn-action-wpp,
+  .btn-action-del,
+  .sidebar-overlay,
+  .header-logs-modal,
+  .modal-overlay {
+    display: none !important;
+  }
+
+  /* 2. Configurações gerais da página A4 */
+  *, *::before, *::after {
+    box-sizing: border-box !important;
+  }
+
+  body, html, .app, .app-main, .app-content, .lista-aportes-page {
+    background: #ffffff !important;
+    color: #111827 !important;
+    padding: 0 !important;
+    margin: 0 !important;
+    max-width: 100% !important;
+    width: 100% !important;
+    box-shadow: none !important;
+  }
+
+  .lista-aportes-page {
+    display: block !important;
+    gap: 0 !important;
+  }
+
+  /* 3. Cabeçalho Timbrado Oficial no topo */
+  .print-header-sheet {
+    display: flex !important;
+    justify-content: space-between;
+    align-items: flex-start;
+    border-bottom: 2px solid #111827 !important;
+    padding-bottom: 8px !important;
+    margin-bottom: 12px !important;
+    width: 100% !important;
+  }
+
+  .print-brand h2 {
+    font-size: 16px !important;
+    font-weight: 800 !important;
+    margin: 0 !important;
+    color: #000000 !important;
+    letter-spacing: 0.5px !important;
+  }
+
+  .print-brand p {
+    font-size: 11px !important;
+    margin: 2px 0 0 0 !important;
+    color: #4b5563 !important;
+  }
+
+  .print-meta {
+    font-size: 10px !important;
+    color: #374151 !important;
+    text-align: right !important;
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 2px !important;
+  }
+
+  /* 4. Quadro Resumo de Indicadores A4 (Grid 4 Colunas Perfeito) */
+  .print-summary-box {
+    display: grid !important;
+    grid-template-columns: repeat(4, 1fr) !important;
+    gap: 8px !important;
+    margin-bottom: 14px !important;
+    width: 100% !important;
+  }
+
+  .print-stat-item {
+    background: #f9fafb !important;
+    border: 1px solid #d1d5db !important;
+    border-radius: 6px !important;
+    padding: 6px 10px !important;
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 2px !important;
+  }
+
+  .print-stat-label {
+    font-size: 9px !important;
+    color: #4b5563 !important;
+    font-weight: 600 !important;
+    text-transform: uppercase !important;
+  }
+
+  .print-stat-val {
+    font-size: 13px !important;
+    font-weight: 800 !important;
+  }
+
+  .print-gold { color: #b45309 !important; }
+  .print-green { color: #047857 !important; }
+  .print-red { color: #b91c1c !important; }
+  .print-blue { color: #1d4ed8 !important; }
+
+  /* 5. Tabela de Movimentações A4 com Largura Fixa e Sem Quebra */
+  .aportes-table-card {
+    background: #ffffff !important;
+    border: 1px solid #d1d5db !important;
+    box-shadow: none !important;
+    border-radius: 6px !important;
+    width: 100% !important;
+    margin-bottom: 12px !important;
+  }
+
+  .aportes-table-responsive {
+    overflow: visible !important;
+    width: 100% !important;
+  }
+
+  .aportes-table {
+    width: 100% !important;
+    table-layout: fixed !important;
+    border-collapse: collapse !important;
+  }
+
+  .aportes-table thead {
+    background: #f3f4f6 !important;
+    border-bottom: 1.5px solid #9ca3af !important;
+  }
+
+  .aportes-table th {
+    color: #111827 !important;
+    font-size: 9.5px !important;
+    padding: 6px 8px !important;
+    font-weight: 700 !important;
+  }
+
+  /* Definição estrita das proporções das colunas no A4 */
+  .aportes-table th:nth-child(1),
+  .aportes-table td:nth-child(1) {
+    width: 28% !important;
+  }
+
+  .aportes-table th:nth-child(2),
+  .aportes-table td:nth-child(2) {
+    width: 14% !important;
+  }
+
+  .aportes-table th:nth-child(3),
+  .aportes-table td:nth-child(3) {
+    width: 18% !important;
+  }
+
+  .aportes-table th:nth-child(4),
+  .aportes-table td:nth-child(4) {
+    width: 10% !important;
+  }
+
+  .aportes-table th:nth-child(5),
+  .aportes-table td:nth-child(5) {
+    width: 15% !important;
+  }
+
+  .aportes-table th:nth-child(6),
+  .aportes-table td:nth-child(6) {
+    width: 15% !important;
+    text-align: right !important;
+  }
+
+  .aportes-table td {
+    color: #1f2937 !important;
+    border-bottom: 1px solid #e5e7eb !important;
+    padding: 6px 8px !important;
+    font-size: 9.5px !important;
+    word-break: break-word !important;
+  }
+
+  .aporte-client-cell {
+    min-width: 0 !important;
+    gap: 4px !important;
+  }
+
+  .aporte-client-avatar {
+    display: none !important;
+  }
+
+  .aporte-client-name {
+    color: #000000 !important;
+    font-size: 10px !important;
+  }
+
+  .aporte-client-cpf {
+    color: #4b5563 !important;
+    font-size: 8.5px !important;
+  }
+
+  .badge-dep {
+    background: #d1fae5 !important;
+    color: #065f46 !important;
+    border: 1px solid #a7f3d0 !important;
+    font-size: 9px !important;
+    padding: 2px 6px !important;
+  }
+
+  .badge-with {
+    background: #fee2e2 !important;
+    color: #991b1b !important;
+    border: 1px solid #fecaca !important;
+    font-size: 9px !important;
+    padding: 2px 6px !important;
+  }
+
+  .badge-int {
+    background: #dbeafe !important;
+    color: #1e40af !important;
+    border: 1px solid #bfdbfe !important;
+    font-size: 9px !important;
+    padding: 2px 6px !important;
+  }
+
+  .aporte-method-pill {
+    background: #f3f4f6 !important;
+    border: 1px solid #d1d5db !important;
+    color: #1f2937 !important;
+    font-size: 9px !important;
+    padding: 1px 4px !important;
+  }
+
+  .aporte-rate-pill {
+    background: #fef3c7 !important;
+    border: 1px solid #fde68a !important;
+    color: #92400e !important;
+    font-size: 8px !important;
+  }
+
+  .aporte-notes-cell {
+    max-width: 100% !important;
+  }
+
+  .aporte-notes-text {
+    font-size: 9px !important;
+    color: #4b5563 !important;
+    white-space: normal !important;
+  }
+
+  .amount-green {
+    color: #047857 !important;
+    font-weight: 800 !important;
+    font-size: 10px !important;
+  }
+
+  .amount-red {
+    color: #b91c1c !important;
+    font-weight: 800 !important;
+    font-size: 10px !important;
+  }
+
+  .amount-gold {
+    color: #b45309 !important;
+    font-weight: 800 !important;
+    font-size: 10px !important;
+  }
+
+  .aportes-table-footer {
+    background: #f9fafb !important;
+    border-top: 1.5px solid #9ca3af !important;
+    color: #111827 !important;
+    padding: 8px 10px !important;
+    font-size: 9.5px !important;
+  }
+}
+
+/* RESPONSIVIDADE MOBILE (2 CARDS POR LINHA FIXO IGUAL AO DASHBOARD) */
+@media (max-width: 768px) {
+  .lista-aportes-page {
+    padding: 12px;
+    gap: 12px;
+  }
+
+  .aportes-header {
+    padding: 12px 14px;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 12px;
+  }
+
+  .aportes-header-actions {
+    width: 100%;
+  }
+
+  .btn-aportes-download,
+  .btn-aportes-print, 
+  .btn-aportes-novo {
+    flex: 1;
+    justify-content: center;
+    padding: 8px 10px;
+    font-size: 12px;
+  }
+
+  .aportes-kpis-grid {
+    grid-template-columns: repeat(2, 1fr) !important;
+    gap: 10px;
+  }
+
+  .aporte-kpi-card {
+    padding: 14px 12px;
+    gap: 8px;
+  }
+
+  .kpi-title {
+    font-size: 11px;
+  }
+
+  .kpi-value {
+    font-size: 18px;
+  }
+
+  .kpi-footer {
+    padding-top: 8px;
+    gap: 4px;
+  }
+
+  .kpi-badge {
+    font-size: 10px;
+    padding: 2px 6px;
+  }
+
+  .kpi-detail {
+    font-size: 10px;
+  }
+
+  .aportes-controls-panel {
+    padding: 12px 14px;
+  }
+
+  .aportes-filters-row {
+    flex-direction: column;
+  }
+
+  .aportes-filter-item {
+    width: 100%;
+    min-width: 0;
+  }
+}
+
+@media (max-width: 480px) {
+  .aportes-kpis-grid {
+    grid-template-columns: repeat(2, 1fr) !important;
+    gap: 8px;
+  }
+
+  .aporte-kpi-card {
+    padding: 12px 10px;
+    gap: 6px;
+  }
+
+  .kpi-title {
+    font-size: 10.5px;
+  }
+
+  .kpi-value {
+    font-size: 16px;
+  }
+
+  .kpi-badge {
+    font-size: 9px;
+    padding: 2px 4px;
+  }
+
+  .kpi-detail {
+    font-size: 9px;
+  }
+}
+

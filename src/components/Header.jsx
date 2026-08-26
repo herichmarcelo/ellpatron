@@ -3,11 +3,12 @@ import { useNavigate } from 'react-router-dom';
 import { 
   Menu, Bell, User, Search, Sparkles, X, LogOut, 
   CheckCircle2, AlertTriangle, Clock, FileText, 
-  ChevronRight, ShieldCheck, RefreshCw, Layers
+  ChevronRight, ShieldCheck, RefreshCw, Layers,
+  ArrowUpRight, ArrowDownLeft, ArrowRightLeft, PiggyBank
 } from 'lucide-react';
 import Badge from './Badge';
 import { useAuth } from '../contexts/useAuth';
-import { getContracts, getPayments } from '../supabase/services.js';
+import { getContracts, getPayments, getSavingsTransactions, getClients } from '../supabase/services.js';
 import { formatCurrency, formatDate } from '../utils/formatters';
 import { calculateOverduePenalties, calculateUpdatedTotal } from '../utils/calculations';
 import './Header.css';
@@ -18,25 +19,37 @@ const Header = ({ onMenuClick, title }) => {
 
   const [showNotificationsModal, setShowNotificationsModal] = useState(false);
   const [showProfileMenu, setShowProfileMenu] = useState(false);
-  const [activeTab, setActiveTab] = useState('all'); // 'all', 'overdue', 'today', 'payment', 'contract'
+  const [activeTab, setActiveTab] = useState('all'); // 'all', 'overdue', 'today', 'payment', 'contract', 'savings'
   const [searchTerm, setSearchTerm] = useState('');
   
   const [contracts, setContracts] = useState([]);
   const [payments, setPayments] = useState([]);
+  const [savingsList, setSavingsList] = useState([]);
+  const [clientsMap, setClientsMap] = useState({});
   const [loadingLogs, setLoadingLogs] = useState(false);
 
   const profileMenuRef = useRef(null);
 
-  // Carregar dados de contratos e pagamentos
+  // Carregar dados de contratos, pagamentos e aportes
   const loadLogsData = async () => {
     setLoadingLogs(true);
     try {
-      const [contractsRes, paymentsRes] = await Promise.all([
+      const [contractsRes, paymentsRes, savingsRes, clientsRes] = await Promise.all([
         getContracts(),
-        getPayments()
+        getPayments(),
+        getSavingsTransactions(),
+        getClients()
       ]);
       if (contractsRes.success) setContracts(contractsRes.data || []);
       if (paymentsRes.success) setPayments(paymentsRes.data || []);
+      if (savingsRes.success) setSavingsList(savingsRes.data || []);
+      if (clientsRes.success) {
+        const cMap = {};
+        (clientsRes.data || []).forEach(c => {
+          cMap[c.id] = c.name;
+        });
+        setClientsMap(cMap);
+      }
     } catch (err) {
       console.error('Error fetching logs for header:', err);
     } finally {
@@ -48,13 +61,23 @@ const Header = ({ onMenuClick, title }) => {
     let isMounted = true;
     const fetchInitial = async () => {
       try {
-        const [contractsRes, paymentsRes] = await Promise.all([
+        const [contractsRes, paymentsRes, savingsRes, clientsRes] = await Promise.all([
           getContracts(),
-          getPayments()
+          getPayments(),
+          getSavingsTransactions(),
+          getClients()
         ]);
         if (isMounted) {
           if (contractsRes.success) setContracts(contractsRes.data || []);
           if (paymentsRes.success) setPayments(paymentsRes.data || []);
+          if (savingsRes.success) setSavingsList(savingsRes.data || []);
+          if (clientsRes.success) {
+            const cMap = {};
+            (clientsRes.data || []).forEach(c => {
+              cMap[c.id] = c.name;
+            });
+            setClientsMap(cMap);
+          }
         }
       } catch (err) {
         console.error('Error fetching logs for header:', err);
@@ -182,15 +205,71 @@ const Header = ({ onMenuClick, title }) => {
     });
   });
 
+  // 4. Aportes e Resgates da Carteira (Feed de Aportes/Saques)
+  savingsList.forEach(s => {
+    const clientName = clientsMap[s.client_id] || s.client_name || 'Cliente';
+    const isDep = s.type === 'deposit';
+    const isWith = s.type === 'withdrawal';
+    const isInterest = s.type === 'interest';
+
+    if (isDep) {
+      logItems.push({
+        id: `savings-dep-${s.id}`,
+        type: 'savings',
+        savingsType: 'deposit',
+        title: `+${formatCurrency(s.amount)} de ${clientName}`,
+        clientName: clientName,
+        amount: s.amount,
+        date: s.transaction_date || s.created_at,
+        badgeText: 'APORTE',
+        badgeType: 'green',
+        iconType: 'deposit',
+        details: `Aporte em Carteira • Forma: ${(s.payment_method || 'PIX').toUpperCase()}${Number(s.interest_rate_month) > 0 ? ` • ${s.interest_rate_month}% a.m.` : ''}`,
+        timestamp: new Date(s.transaction_date || s.created_at).getTime()
+      });
+    } else if (isWith) {
+      logItems.push({
+        id: `savings-with-${s.id}`,
+        type: 'savings',
+        savingsType: 'withdrawal',
+        title: `-${formatCurrency(s.amount)} de ${clientName}`,
+        clientName: clientName,
+        amount: s.amount,
+        date: s.transaction_date || s.created_at,
+        badgeText: 'RESGATE',
+        badgeType: 'red',
+        iconType: 'withdrawal',
+        details: `Saque efetuado • Forma: ${(s.payment_method || 'PIX').toUpperCase()}${s.notes ? ` • ${s.notes}` : ''}`,
+        timestamp: new Date(s.transaction_date || s.created_at).getTime()
+      });
+    } else if (isInterest) {
+      logItems.push({
+        id: `savings-int-${s.id}`,
+        type: 'savings',
+        savingsType: 'interest',
+        title: `+${formatCurrency(s.amount)} (Rendimento) de ${clientName}`,
+        clientName: clientName,
+        amount: s.amount,
+        date: s.transaction_date || s.created_at,
+        badgeText: 'RENDIMENTO',
+        badgeType: 'gold',
+        iconType: 'interest',
+        details: `Rendimento automático de poupança creditado`,
+        timestamp: new Date(s.transaction_date || s.created_at).getTime()
+      });
+    }
+  });
+
   // Ordenar logs: Mais recentes e urgentes primeiro
   logItems.sort((a, b) => b.timestamp - a.timestamp);
 
-  // Contagem de alertas urgentes (Atrasados + Vencem Hoje)
+  // Contagem de alertas urgentes
   const urgentCount = logItems.filter(item => item.type === 'overdue' || item.type === 'today').length;
   const overdueCount = logItems.filter(item => item.type === 'overdue').length;
   const todayCount = logItems.filter(item => item.type === 'today').length;
   const paymentCount = logItems.filter(item => item.type === 'payment').length;
   const contractCount = logItems.filter(item => item.type === 'contract').length;
+  const savingsCount = logItems.filter(item => item.type === 'savings').length;
 
   // Filtragem por Tab e Busca
   const filteredLogs = logItems.filter(item => {
@@ -372,6 +451,12 @@ const Header = ({ onMenuClick, title }) => {
                 <Layers size={14} /> Todos ({logItems.length})
               </button>
               <button 
+                className={`header-log-tab tab-savings ${activeTab === 'savings' ? 'active' : ''}`}
+                onClick={() => setActiveTab('savings')}
+              >
+                <span className="tab-dot green" /> Aportes ({savingsCount})
+              </button>
+              <button 
                 className={`header-log-tab tab-red ${activeTab === 'overdue' ? 'active' : ''}`}
                 onClick={() => setActiveTab('overdue')}
               >
@@ -429,6 +514,7 @@ const Header = ({ onMenuClick, title }) => {
                     const isYellow = log.badgeType === 'yellow';
                     const isGreen = log.badgeType === 'green';
                     const isPurple = log.badgeType === 'purple';
+                    const isGold = log.badgeType === 'gold';
 
                     return (
                       <div 
@@ -438,15 +524,19 @@ const Header = ({ onMenuClick, title }) => {
                           setShowNotificationsModal(false);
                           if (log.type === 'overdue') navigate('/atrasados');
                           else if (log.type === 'contract') navigate('/historico-contratos');
+                          else if (log.type === 'savings') navigate('/lista-aportes');
                           else navigate('/lista-clientes');
                         }}
                       >
                         {/* Ícone de Status Lateral */}
                         <div className={`header-log-icon-wrap icon-${log.badgeType}`}>
-                          {isRed && <AlertTriangle size={18} />}
-                          {isYellow && <Clock size={18} />}
-                          {isGreen && <CheckCircle2 size={18} />}
-                          {isPurple && <FileText size={18} />}
+                          {log.iconType === 'deposit' && <ArrowUpRight size={18} />}
+                          {log.iconType === 'withdrawal' && <ArrowDownLeft size={18} />}
+                          {log.iconType === 'interest' && <PiggyBank size={18} />}
+                          {!log.iconType && isRed && <AlertTriangle size={18} />}
+                          {!log.iconType && isYellow && <Clock size={18} />}
+                          {!log.iconType && isGreen && <CheckCircle2 size={18} />}
+                          {!log.iconType && isPurple && <FileText size={18} />}
                         </div>
 
                         {/* Conteúdo Central do Log */}
@@ -472,7 +562,7 @@ const Header = ({ onMenuClick, title }) => {
                               <Clock size={12} /> {formatDate(log.date)}
                             </span>
                             <span className={`header-log-amount amount-${log.badgeType}`}>
-                              {formatCurrency(log.amount)}
+                              {log.iconType === 'deposit' ? `+${formatCurrency(log.amount)}` : log.iconType === 'withdrawal' ? `-${formatCurrency(log.amount)}` : formatCurrency(log.amount)}
                             </span>
                           </div>
                         </div>
@@ -491,16 +581,16 @@ const Header = ({ onMenuClick, title }) => {
             {/* Rodapé Informativo */}
             <div className="header-logs-footer">
               <span className="header-logs-legend">
-                🟡 Vence Hoje • 🔴 Atrasado • 🟢 Pago • 🟣 Empréstimo
+                🟢 Aporte • 🔴 Resgate • 🟡 Vence Hoje • 🔴 Atrasado • 🟣 Empréstimo
               </span>
               <button 
                 className="header-logs-cta-btn"
                 onClick={() => {
                   setShowNotificationsModal(false);
-                  navigate('/atrasados');
+                  navigate('/lista-aportes');
                 }}
               >
-                Ver Relatório Geral <ChevronRight size={16} />
+                Ver Extrato de Aportes <ChevronRight size={16} />
               </button>
             </div>
 

@@ -276,6 +276,124 @@
   gap: 6px;
 }
 
+/* Card de Saldo Total da Poupança no Card do Cliente */
+.cliente-saldo-card {
+  background: linear-gradient(135deg, rgba(16, 185, 129, 0.12) 0%, rgba(6, 78, 59, 0.22) 100%);
+  border: 1px solid rgba(16, 185, 129, 0.35);
+  border-radius: 12px;
+  padding: 10px 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  margin-bottom: 4px;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.3), inset 0 1px 0 rgba(255, 255, 255, 0.05);
+  transition: all 0.2s ease;
+}
+
+.cliente-saldo-card:hover {
+  border-color: rgba(16, 185, 129, 0.55);
+  box-shadow: 0 6px 18px rgba(16, 185, 129, 0.18);
+  transform: translateY(-1px);
+}
+
+.cliente-saldo-topo {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.cliente-saldo-label {
+  font-size: 11px;
+  font-weight: 700;
+  color: #10b981;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.cliente-saldo-badge {
+  background: rgba(16, 185, 129, 0.2);
+  border: 1px solid rgba(16, 185, 129, 0.4);
+  color: #a7f3d0;
+  font-size: 9px;
+  font-weight: 700;
+  padding: 1px 6px;
+  border-radius: 4px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.cliente-saldo-valor {
+  font-size: 18px;
+  font-weight: 800;
+  color: #10b981;
+  letter-spacing: -0.3px;
+  line-height: 1.2;
+}
+
+/* Barra de Ações Rápidas de Carteira: Saque & Depósitos */
+.cliente-carteira-actions {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+  margin-top: 4px;
+  margin-bottom: 2px;
+}
+
+.btn-carteira-action {
+  border-radius: 9px;
+  padding: 8px 10px;
+  font-size: 12px;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  border: 1px solid transparent;
+}
+
+/* Botão Saque (Âmbar / Resgate C6) */
+.btn-carteira-saque {
+  background: rgba(245, 158, 11, 0.12);
+  border-color: rgba(245, 158, 11, 0.3);
+  color: #f59e0b;
+}
+
+.btn-carteira-saque:hover {
+  background: rgba(245, 158, 11, 0.22);
+  border-color: rgba(245, 158, 11, 0.5);
+  color: #fbbf24;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(245, 158, 11, 0.25);
+}
+
+.btn-carteira-saque:active {
+  transform: scale(0.97);
+}
+
+/* Botão Depósitos (Esmeralda / Aporte C6) */
+.btn-carteira-deposito {
+  background: rgba(16, 185, 129, 0.12);
+  border-color: rgba(16, 185, 129, 0.3);
+  color: #10b981;
+}
+
+.btn-carteira-deposito:hover {
+  background: rgba(16, 185, 129, 0.22);
+  border-color: rgba(16, 185, 129, 0.5);
+  color: #34d399;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(16, 185, 129, 0.25);
+}
+
+.btn-carteira-deposito:active {
+  transform: scale(0.97);
+}
+
 .cliente-dado {
   color: #a8a8b3;
   font-size: 13px;

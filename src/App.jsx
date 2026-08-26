@@ -14,6 +14,7 @@ import Historico from './pages/Historico';
 import AdicionarCliente from './pages/AdicionarCliente';
 import GerarContrato from './pages/GerarContrato';
 import HistoricoContratos from './pages/HistoricoContratos';
+import ListaAportes from './pages/ListaAportes';
 import './App.css';
 
 function AppLayout() {
@@ -40,6 +41,7 @@ function AppLayout() {
       'editar-cliente': 'Editar Cliente',
       'detalhes-cliente': 'Detalhes do Cliente',
       'lista-clientes': 'Lista de Clientes',
+      'lista-aportes': 'Lista de Aportes',
       'gerar-contrato': 'Gerar Contrato',
       'historico-contratos': 'Histórico de Contratos',
       atrasados: 'Atrasados',
@@ -84,6 +86,7 @@ function AppLayout() {
             <Route path="/editar-cliente/:id" element={<AdicionarCliente />} />
             <Route path="/detalhes-cliente/:id" element={<ListaClientes />} />
             <Route path="/lista-clientes" element={<ListaClientes />} />
+            <Route path="/lista-aportes" element={<ListaAportes />} />
             <Route path="/gerar-contrato" element={<GerarContrato />} />
             <Route path="/historico-contratos" element={<HistoricoContratos />} />
             <Route path="/atrasados" element={<Atrasados />} />

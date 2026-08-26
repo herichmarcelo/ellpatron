@@ -40,12 +40,33 @@ export const useClients = () => {
   };
 
   const searchClients = (query) => {
-    const lowerQuery = query.toLowerCase();
-    return clients.filter(client => 
-      client.name.toLowerCase().includes(lowerQuery) ||
-      client.phone.includes(query) ||
-      client.cpf.includes(query)
-    );
+    if (!query) return clients || [];
+    const queryStr = typeof query === 'string' ? query : (query?.target?.value || String(query || ''));
+    if (!queryStr.trim()) return clients || [];
+
+    const lowerQuery = queryStr.toLowerCase().trim();
+    const cleanQuery = queryStr.replace(/\D/g, '');
+
+    return (clients || []).filter(client => {
+      if (!client) return false;
+      const name = (client.name || '').toLowerCase();
+      const email = (client.email || '').toLowerCase();
+      const phone = (client.phone || '').toString();
+      const cleanPhone = phone.replace(/\D/g, '');
+      const cpf = (client.cpf || '').toString();
+      const cleanCpf = cpf.replace(/\D/g, '');
+      const city = (client.city || '').toLowerCase();
+
+      return (
+        name.includes(lowerQuery) ||
+        email.includes(lowerQuery) ||
+        city.includes(lowerQuery) ||
+        phone.includes(lowerQuery) ||
+        (cleanQuery && cleanPhone.includes(cleanQuery)) ||
+        cpf.includes(lowerQuery) ||
+        (cleanQuery && cleanCpf.includes(cleanQuery))
+      );
+    });
   };
 
   const getFormattedClients = () => {

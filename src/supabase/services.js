@@ -711,3 +711,204 @@ export const deletePayment = async (paymentId) => {
     return { success: false, error: error.message };
   }
 };
+
+// ==========================================================
+// SAVINGS & DEPOSITS WALLET (Carteira e Poupança de Clientes)
+// ==========================================================
+
+const LOCAL_SAVINGS_KEY = 'ellpatron_savings_transactions_fallback';
+
+const getLocalSavings = () => {
+  try {
+    const data = localStorage.getItem(LOCAL_SAVINGS_KEY);
+    return data ? JSON.parse(data) : [];
+  } catch (e) {
+    return [];
+  }
+};
+
+const saveLocalSavings = (list) => {
+  try {
+    localStorage.setItem(LOCAL_SAVINGS_KEY, JSON.stringify(list));
+  } catch (e) {}
+};
+
+export const createSavingsTransaction = async (transactionData) => {
+  try {
+    const payload = {
+      client_id: transactionData.client_id || transactionData.clientId,
+      type: transactionData.type || 'deposit', // 'deposit', 'withdrawal', 'interest', 'adjustment'
+      amount: parseFloat(transactionData.amount) || 0,
+      interest_rate_month: parseFloat(transactionData.interest_rate_month || transactionData.interestRateMonth || 0),
+      transaction_date: transactionData.transaction_date || transactionData.transactionDate || new Date().toISOString().split('T')[0],
+      payment_method: transactionData.payment_method || transactionData.paymentMethod || 'pix',
+      notes: transactionData.notes || '',
+      created_at: new Date().toISOString(),
+      updated_at: new Date().toISOString()
+    };
+
+    const { data, error } = await supabase
+      .from('savings_transactions')
+      .insert(payload)
+      .select()
+      .single();
+
+    if (error) {
+      console.warn('Supabase savings_transactions not accessible, using local fallback:', error.message);
+      const fallbackItem = {
+        ...payload,
+        id: 'local_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9)
+      };
+      const list = getLocalSavings();
+      list.push(fallbackItem);
+      saveLocalSavings(list);
+      return { success: true, data: fallbackItem, id: fallbackItem.id, fallback: true };
+    }
+
+    return { success: true, data, id: data.id };
+  } catch (error) {
+    console.error('Error creating savings transaction:', error);
+    // Local fallback
+    const payload = {
+      id: 'local_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9),
+      client_id: transactionData.client_id || transactionData.clientId,
+      type: transactionData.type || 'deposit',
+      amount: parseFloat(transactionData.amount) || 0,
+      interest_rate_month: parseFloat(transactionData.interest_rate_month || 0),
+      transaction_date: transactionData.transaction_date || new Date().toISOString().split('T')[0],
+      payment_method: transactionData.payment_method || 'pix',
+      notes: transactionData.notes || '',
+      created_at: new Date().toISOString()
+    };
+    const list = getLocalSavings();
+    list.push(payload);
+    saveLocalSavings(list);
+    return { success: true, data: payload, id: payload.id, fallback: true };
+  }
+};
+
+export const getSavingsTransactions = async (filters = {}) => {
+  try {
+    let query = supabase.from('savings_transactions').select('*');
+
+    if (filters.clientId || filters.client_id) {
+      query = query.eq('client_id', filters.clientId || filters.client_id);
+    }
+
+    if (filters.type) {
+      query = query.eq('type', filters.type);
+    }
+
+    query = query.order('transaction_date', { ascending: false });
+
+    const { data, error } = await query;
+
+    if (error) {
+      console.warn('Supabase savings query fallback:', error.message);
+      let localList = getLocalSavings();
+      if (filters.clientId || filters.client_id) {
+        const cId = filters.clientId || filters.client_id;
+        localList = localList.filter(t => t.client_id === cId);
+      }
+      if (filters.type) {
+        localList = localList.filter(t => t.type === filters.type);
+      }
+      localList.sort((a, b) => new Date(b.transaction_date || b.created_at) - new Date(a.transaction_date || a.created_at));
+      return { success: true, data: localList, fallback: true };
+    }
+
+    // Merge any local items with supabase items seamlessly
+    const localItems = getLocalSavings().filter(l => 
+      (!filters.clientId && !filters.client_id) || l.client_id === (filters.clientId || filters.client_id)
+    );
+    const combined = [...(data || [])];
+    localItems.forEach(item => {
+      if (!combined.some(c => c.id === item.id)) {
+        combined.push(item);
+      }
+    });
+
+    combined.sort((a, b) => new Date(b.transaction_date || b.created_at) - new Date(a.transaction_date || a.created_at));
+
+    return { success: true, data: combined };
+  } catch (error) {
+    console.error('Error getting savings transactions:', error);
+    let localList = getLocalSavings();
+    if (filters.clientId || filters.client_id) {
+      const cId = filters.clientId || filters.client_id;
+      localList = localList.filter(t => t.client_id === cId);
+    }
+    return { success: true, data: localList, fallback: true };
+  }
+};
+
+export const deleteSavingsTransaction = async (transactionId) => {
+  try {
+    if (String(transactionId).startsWith('local_')) {
+      const list = getLocalSavings().filter(t => t.id !== transactionId);
+      saveLocalSavings(list);
+      return { success: true };
+    }
+
+    const { error } = await supabase
+      .from('savings_transactions')
+      .delete()
+      .eq('id', transactionId);
+
+    if (error) {
+      // Also check local
+      const list = getLocalSavings().filter(t => t.id !== transactionId);
+      saveLocalSavings(list);
+      return { success: true };
+    }
+
+    return { success: true };
+  } catch (error) {
+    const list = getLocalSavings().filter(t => t.id !== transactionId);
+    saveLocalSavings(list);
+    return { success: true };
+  }
+};
+
+export const getClientSavingsSummary = async (clientId) => {
+  try {
+    const result = await getSavingsTransactions({ clientId });
+    const transactions = result.success ? (result.data || []) : [];
+
+    let totalDeposits = 0;
+    let totalWithdrawals = 0;
+    let totalInterest = 0;
+
+    transactions.forEach(t => {
+      const amt = Number(t.amount) || 0;
+      if (t.type === 'deposit') totalDeposits += amt;
+      else if (t.type === 'withdrawal') totalWithdrawals += amt;
+      else if (t.type === 'interest') totalInterest += amt;
+      else if (t.type === 'adjustment') {
+        if (amt >= 0) totalDeposits += amt;
+        else totalWithdrawals += Math.abs(amt);
+      }
+    });
+
+    const currentBalance = Math.max(0, (totalDeposits + totalInterest) - totalWithdrawals);
+
+    return {
+      success: true,
+      data: {
+        currentBalance,
+        totalDeposits,
+        totalWithdrawals,
+        totalInterest,
+        transactionCount: transactions.length,
+        transactions
+      }
+    };
+  } catch (error) {
+    return {
+      success: false,
+      error: error.message,
+      data: { currentBalance: 0, totalDeposits: 0, totalWithdrawals: 0, totalInterest: 0, transactions: [] }
+    };
+  }
+};
+

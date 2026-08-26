@@ -1,6 +1,9 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
-import { BarChart3, UserPlus, LayoutDashboard, Users, AlertCircle, Ban, Clock, FileText, List } from 'lucide-react';
+import { 
+  BarChart3, UserPlus, LayoutDashboard, Users, AlertCircle, Ban, 
+  Clock, FileText, List, ArrowRightLeft 
+} from 'lucide-react';
 import Badge from './Badge';
 import './Sidebar.css';
 
@@ -12,6 +15,7 @@ const Sidebar = ({ isOpen, onClose, currentPage }) => {
     { id: 'historico', label: 'Histórico', icon: BarChart3, path: '/historico' },
     { id: 'adicionar-cliente', label: 'Adicionar Cliente', icon: UserPlus, path: '/adicionar-cliente' },
     { id: 'lista-clientes', label: 'Lista de Clientes', icon: Users, path: '/lista-clientes' },
+    { id: 'lista-aportes', label: 'Lista de Aportes', icon: ArrowRightLeft, path: '/lista-aportes' },
     { id: 'gerar-contrato', label: 'Gerar Contrato', icon: FileText, path: '/gerar-contrato' },
     { id: 'historico-contratos', label: 'Histórico Contratos', icon: List, path: '/historico-contratos' },
     { id: 'atrasados', label: 'Atrasados', icon: AlertCircle, path: '/atrasados' },

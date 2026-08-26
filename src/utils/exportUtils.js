@@ -388,3 +388,103 @@ export const exportSingleContractPDF = (contract) => {
     return { success: false, error: error.message };
   }
 };
+
+/**
+ * Export Savings / Deposits Ledger to PDF (Standard A4 Portrait)
+ */
+export const exportSavingsLedgerPDF = (totals = {}, transactions = [], filterInfo = {}) => {
+  try {
+    const doc = new jsPDF('portrait'); // Standard A4 (210 x 297 mm)
+
+    addPDFHeader(doc, 'Relatório Consolidado de Aportes & Carteira', filterInfo.periodLabel || 'Extrato Geral');
+
+    // 1. Summary Box
+    doc.setFontSize(10);
+    doc.setTextColor(40, 40, 40);
+    doc.setFont('helvetica', 'bold');
+    doc.text('Resumo Financeiro da Carteira', 14, 38);
+
+    const summaryData = [
+      [
+        { content: 'Saldo Global:\n' + formatCurrency(totals.currentBalance || 0), styles: { fontStyle: 'bold', textColor: [180, 130, 10], fillColor: [254, 252, 232] } },
+        { content: 'Total Aportado:\n+' + formatCurrency(totals.deposits || 0), styles: { fontStyle: 'bold', textColor: [16, 185, 129], fillColor: [240, 253, 244] } },
+        { content: 'Total Resgatado:\n-' + formatCurrency(totals.withdrawals || 0), styles: { fontStyle: 'bold', textColor: [239, 68, 68], fillColor: [254, 242, 242] } },
+        { content: 'Rendimentos:\n+' + formatCurrency(totals.interest || 0), styles: { fontStyle: 'bold', textColor: [59, 130, 246], fillColor: [239, 246, 255] } }
+      ]
+    ];
+
+    autoTable(doc, {
+      startY: 42,
+      body: summaryData,
+      theme: 'grid',
+      styles: { fontSize: 8.5, cellPadding: 3, halign: 'center', valign: 'middle' },
+      columnStyles: {
+        0: { cellWidth: 45 },
+        1: { cellWidth: 45 },
+        2: { cellWidth: 45 },
+        3: { cellWidth: 45 }
+      }
+    });
+
+    // 2. Table of Transactions
+    const startY = doc.lastAutoTable.finalY + 8;
+    doc.setFontSize(10);
+    doc.setTextColor(40, 40, 40);
+    doc.setFont('helvetica', 'bold');
+    doc.text(`Detalhamento das Movimentações (${transactions.length} registros)`, 14, startY);
+
+    const tableRows = transactions.map(t => {
+      const isDep = t.type === 'deposit';
+      const isWith = t.type === 'withdrawal';
+      const isInt = t.type === 'interest';
+      const typeLabel = isDep ? 'ENTRADA' : isWith ? 'SAÍDA' : isInt ? 'RENDIMENTO' : 'AJUSTE';
+      const sinal = isDep ? '+' : isWith ? '-' : '+';
+      const amtStr = `${sinal}${formatCurrency(t.amount)}`;
+
+      return [
+        `${t.client_name || '-'}\nCPF: ${formatCPF(t.client_cpf || '')}`,
+        formatDate(t.transaction_date || t.created_at),
+        typeLabel,
+        (t.payment_method || 'PIX').toUpperCase(),
+        t.notes || (Number(t.interest_rate_month) > 0 ? `Taxa: ${t.interest_rate_month}% a.m.` : '—'),
+        amtStr
+      ];
+    });
+
+    autoTable(doc, {
+      startY: startY + 3,
+      head: [['Cliente / CPF', 'Data', 'Tipo', 'Forma', 'Observações / Taxa', 'Valor']],
+      body: tableRows.length > 0 ? tableRows : [['Nenhum registro encontrado', '-', '-', '-', '-', '-']],
+      theme: 'striped',
+      headStyles: { fillColor: [20, 20, 20], textColor: [255, 215, 0], fontStyle: 'bold', fontSize: 8 },
+      styles: { fontSize: 7.5, cellPadding: 2.5 },
+      columnStyles: {
+        0: { cellWidth: 46 },
+        1: { cellWidth: 20 },
+        2: { cellWidth: 24 },
+        3: { cellWidth: 18 },
+        4: { cellWidth: 44 },
+        5: { cellWidth: 28, halign: 'right', fontStyle: 'bold' }
+      },
+      didParseCell: (data) => {
+        if (data.section === 'body' && data.column.index === 5) {
+          const raw = String(data.cell.raw || '');
+          if (raw.startsWith('+')) {
+            data.cell.styles.textColor = [16, 185, 129];
+          } else if (raw.startsWith('-')) {
+            data.cell.styles.textColor = [239, 68, 68];
+          }
+        }
+      },
+      alternateRowStyles: { fillColor: [250, 250, 250] }
+    });
+
+    addPDFFooter(doc);
+    doc.save(`Extrato_Aportes_Ell_Patron_${new Date().toISOString().split('T')[0]}.pdf`);
+    return { success: true };
+  } catch (error) {
+    console.error('Erro ao gerar PDF de aportes:', error);
+    return { success: false, error: error.message };
+  }
+};
+

@@ -1,0 +1,388 @@
+/* ==========================================================
+   MODAL DE SAQUE - PADRÃO C6 CARBON / ELL PATRON LUXURY
+   ========================================================== */
+
+.modal-saque-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(5, 6, 8, 0.82);
+  backdrop-filter: blur(8px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1100;
+  padding: 16px;
+  animation: modalSaqueFadeIn 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@keyframes modalSaqueFadeIn {
+  from {
+    opacity: 0;
+    transform: scale(0.97);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+.modal-saque-card {
+  background: #101216;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 18px;
+  width: 100%;
+  max-width: 480px;
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.8), 0 0 30px rgba(16, 185, 129, 0.08);
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+/* 1. CABEÇALHO DO MODAL */
+.modal-saque-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 18px 22px;
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.03) 0%, transparent 100%);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.07);
+}
+
+.modal-saque-title-group {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.modal-saque-icon-badge {
+  width: 40px;
+  height: 40px;
+  border-radius: 12px;
+  background: linear-gradient(135deg, rgba(245, 158, 11, 0.2) 0%, rgba(239, 68, 68, 0.1) 100%);
+  border: 1px solid rgba(245, 158, 11, 0.3);
+  color: #f59e0b;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.modal-saque-title {
+  font-family: 'Cinzel', serif;
+  font-size: 17px;
+  font-weight: 700;
+  color: #ffffff;
+  margin: 0;
+  letter-spacing: 0.5px;
+}
+
+.modal-saque-subtitle {
+  font-size: 12px;
+  color: #8e8e93;
+  margin: 0;
+}
+
+.modal-saque-close {
+  background: transparent;
+  border: none;
+  color: #71717a;
+  cursor: pointer;
+  padding: 6px;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s;
+}
+
+.modal-saque-close:hover {
+  color: #ffffff;
+  background: rgba(255, 255, 255, 0.08);
+}
+
+/* 2. CORPO DO MODAL */
+.modal-saque-body {
+  padding: 20px 22px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  max-height: 75vh;
+  overflow-y: auto;
+}
+
+/* Card do Cliente Compacto */
+.saque-cliente-info {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 14px;
+  background: #16181e;
+  border-radius: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.saque-cliente-avatar {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 800;
+  font-size: 13px;
+  color: #050608;
+  flex-shrink: 0;
+}
+
+.saque-cliente-meta h4 {
+  font-size: 14px;
+  font-weight: 600;
+  color: #ffffff;
+  margin: 0;
+}
+
+.saque-cliente-meta span {
+  font-size: 11px;
+  color: #8e8e93;
+}
+
+/* Destaque de Saldo Disponível C6 */
+.saque-saldo-disponivel-card {
+  background: linear-gradient(135deg, rgba(16, 185, 129, 0.1) 0%, rgba(6, 78, 59, 0.15) 100%);
+  border: 1px solid rgba(16, 185, 129, 0.3);
+  border-radius: 14px;
+  padding: 14px 16px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.saque-saldo-label {
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.8px;
+  color: #10b981;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.saque-saldo-valor {
+  font-size: 20px;
+  font-weight: 800;
+  color: #10b981;
+  letter-spacing: -0.3px;
+}
+
+/* Formulário de Saque */
+.saque-field-group {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.saque-label-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.saque-field-label {
+  font-size: 12px;
+  font-weight: 600;
+  color: #d4d4d8;
+}
+
+.saque-btn-max {
+  background: rgba(212, 175, 55, 0.12);
+  border: 1px solid rgba(212, 175, 55, 0.3);
+  color: #d4af37;
+  font-size: 11px;
+  font-weight: 700;
+  border-radius: 6px;
+  padding: 2px 8px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.saque-btn-max:hover {
+  background: rgba(212, 175, 55, 0.25);
+  color: #f5d77f;
+}
+
+.saque-input-wrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.saque-input-prefix {
+  position: absolute;
+  left: 14px;
+  font-size: 15px;
+  font-weight: 700;
+  color: #d4af37;
+}
+
+.saque-input {
+  width: 100%;
+  background: #0b0d10;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 10px;
+  padding: 12px 14px 12px 42px;
+  color: #ffffff;
+  font-size: 16px;
+  font-weight: 700;
+  outline: none;
+  transition: all 0.2s;
+}
+
+.saque-input:focus {
+  border-color: #f59e0b;
+  box-shadow: 0 0 0 3px rgba(245, 158, 11, 0.15);
+}
+
+.saque-input.input-error {
+  border-color: #ef4444;
+  box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.15);
+}
+
+.saque-error-text {
+  font-size: 11px;
+  color: #ef4444;
+  font-weight: 600;
+  margin-top: 2px;
+}
+
+/* Seletor de Métodos de Retirada */
+.saque-metodos-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 8px;
+}
+
+.saque-metodo-btn {
+  background: #15181f;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 10px;
+  padding: 10px 6px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  color: #a1a1aa;
+  font-size: 11px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.saque-metodo-btn:hover {
+  background: #1c202a;
+  color: #ffffff;
+}
+
+.saque-metodo-btn.active {
+  background: rgba(245, 158, 11, 0.12);
+  border-color: #f59e0b;
+  color: #f59e0b;
+  box-shadow: 0 0 12px rgba(245, 158, 11, 0.18);
+}
+
+.saque-text-input {
+  width: 100%;
+  background: #0b0d10;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 10px;
+  padding: 10px 14px;
+  color: #ffffff;
+  font-size: 13px;
+  outline: none;
+  transition: all 0.2s;
+}
+
+.saque-text-input:focus {
+  border-color: var(--gold-primary);
+}
+
+/* Resumo de Projeção */
+.saque-projecao-box {
+  background: #14171d;
+  border: 1px dashed rgba(255, 255, 255, 0.1);
+  border-radius: 10px;
+  padding: 10px 14px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.saque-projecao-label {
+  font-size: 11px;
+  color: #a1a1aa;
+}
+
+.saque-projecao-valor {
+  font-size: 13px;
+  font-weight: 700;
+  color: #ffffff;
+}
+
+/* 3. RODAPÉ / AÇÕES DO MODAL */
+.modal-saque-footer {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 10px;
+  padding: 16px 22px;
+  background: #0c0e12;
+  border-top: 1px solid rgba(255, 255, 255, 0.07);
+}
+
+.saque-btn-cancelar {
+  background: #181b22;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  color: #a1a1aa;
+  padding: 10px 16px;
+  border-radius: 10px;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.saque-btn-cancelar:hover {
+  background: #232732;
+  color: #ffffff;
+}
+
+.saque-btn-confirmar {
+  background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  color: #050608;
+  padding: 10px 20px;
+  border-radius: 10px;
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  box-shadow: 0 4px 14px rgba(245, 158, 11, 0.35);
+  transition: all 0.2s;
+}
+
+.saque-btn-confirmar:hover:not(:disabled) {
+  transform: translateY(-1px);
+  box-shadow: 0 6px 20px rgba(245, 158, 11, 0.5);
+  filter: brightness(1.1);
+}
+
+.saque-btn-confirmar:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  transform: none;
+}

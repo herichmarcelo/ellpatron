@@ -209,6 +209,7 @@
 .c6-balance-card--blue:hover { border-color: rgba(59, 130, 246, 0.4); }
 .c6-balance-card--red:hover { border-color: rgba(239, 68, 68, 0.4); }
 .c6-balance-card--gold:hover { border-color: rgba(212, 175, 55, 0.4); }
+.c6-balance-card--amber:hover { border-color: rgba(245, 158, 11, 0.4); }
 
 /* Card Header: Ícone sutil + Título em cinza */
 .c6-card-header {
@@ -246,6 +247,11 @@
 .c6-icon-wrapper--gold {
   background: rgba(212, 175, 55, 0.15);
   color: #f5d77f;
+}
+
+.c6-icon-wrapper--amber {
+  background: rgba(245, 158, 11, 0.15);
+  color: #f59e0b;
 }
 
 .c6-card-title {
@@ -320,6 +326,12 @@
   color: #f5d77f;
   background: rgba(212, 175, 55, 0.12);
   border: 1px solid rgba(212, 175, 55, 0.25);
+}
+
+.c6-badge--amber {
+  color: #f59e0b;
+  background: rgba(245, 158, 11, 0.12);
+  border: 1px solid rgba(245, 158, 11, 0.25);
 }
 
 .c6-badge--muted {
