@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { 
   Users, UserPlus, Search, Edit, Eye, Phone, MapPin, Calendar, 
-  FileText, Plus, Download, ShieldAlert, Ban 
+  FileText, Plus, Download, ShieldAlert, Ban, X 
 } from 'lucide-react';
 import Card from '../components/Card';
 import Button from '../components/Button';
@@ -400,64 +400,79 @@ const ListaClientes = () => {
       {showClientDetailsModal && selectedClientDetails && (
         <div className="modal-overlay" onClick={() => setShowClientDetailsModal(false)}>
           <div className="modal-content" onClick={(e) => e.stopPropagation()}>
+            
+            {/* Cabeçalho do Modal */}
             <div className="modal-header">
-              <h3>Ficha Cadastral do Cliente</h3>
-              <Button variant="ghost" size="small" onClick={() => setShowClientDetailsModal(false)}>
-                ✕
-              </Button>
+              <h2>Detalhes do Cliente</h2>
+              <button className="modal-close-btn" onClick={() => setShowClientDetailsModal(false)} aria-label="Fechar">
+                <X size={20} />
+              </button>
             </div>
-            <div className="modal-body">
-              <div style={{ display: 'flex', alignItems: 'center', gap: '14px', marginBottom: '20px', paddingBottom: '16px', borderBottom: '1px solid rgba(255, 255, 255, 0.08)' }}>
-                <div 
-                  className="lista-clientes-avatar"
-                  style={{ backgroundColor: stringToColor(selectedClientDetails.name), width: '52px', height: '52px', fontSize: '18px' }}
-                >
-                  {getInitials(selectedClientDetails.name)}
-                </div>
-                <div>
-                  <h3 style={{ margin: 0, fontSize: '18px', color: '#fff' }}>{selectedClientDetails.name}</h3>
-                  <div style={{ marginTop: '4px' }}>{getStatusBadge(selectedClientDetails.status)}</div>
-                </div>
-              </div>
 
-              <div className="detail-row">
-                <span className="detail-label">CPF:</span>
-                <span className="detail-value">{formatCPF(selectedClientDetails.cpf)}</span>
+            {/* Perfil (Avatar Redondo + Nome) */}
+            <div className="modal-profile">
+              <div 
+                className="modal-avatar"
+                style={{ backgroundColor: stringToColor(selectedClientDetails.name) }}
+              >
+                {getInitials(selectedClientDetails.name)}
               </div>
-              <div className="detail-row">
-                <span className="detail-label">Telefone / WhatsApp:</span>
+              <div className="modal-profile-info">
+                <h3>{selectedClientDetails.name}</h3>
+                <div>{getStatusBadge(selectedClientDetails.status)}</div>
+              </div>
+            </div>
+
+            {/* Grade de Informações Responsiva */}
+            <div className="modal-info-grid">
+              <div className="info-box">
+                <span className="info-label">CPF</span>
+                <span className="info-value">{formatCPF(selectedClientDetails.cpf)}</span>
+              </div>
+              
+              <div className="info-box">
+                <span className="info-label">Telefone / WhatsApp</span>
                 <span 
-                  className="detail-value"
-                  style={{ color: '#25d366', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '6px' }}
+                  className="info-value value-wpp" 
                   onClick={() => handleWhatsAppClick(selectedClientDetails.phone, selectedClientDetails.name)}
-                  title="Clique para abrir WhatsApp com mensagem personalizada"
+                  title="Abrir WhatsApp"
                 >
                   {formatPhone(selectedClientDetails.phone)}
-                  <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
                     <path fill="#25d366" d="M12.04 2c-5.46 0-9.91 4.45-9.91 9.91 0 1.75.46 3.45 1.32 4.95L2.05 22l5.25-1.38c1.45.79 3.08 1.21 4.74 1.21 5.46 0 9.91-4.45 9.91-9.91 0-2.65-1.03-5.14-2.9-7.01A9.816 9.816 0 0 0 12.04 2zm0 18.15c-1.48 0-2.93-.4-4.2-1.15l-.3-.18-3.12.82.83-3.04-.2-.31a8.216 8.216 0 0 1-1.26-4.38c0-4.54 3.7-8.24 8.24-8.24 2.2 0 4.27.86 5.82 2.42a8.18 8.18 0 0 1 2.41 5.83c.01 4.54-3.68 8.23-8.22 8.23zm4.52-6.16c-.25-.12-1.47-.72-1.7-.81-.23-.08-.39-.12-.56.12-.17.25-.64.81-.79.97-.14.17-.29.19-.54.06-.25-.12-1.05-.39-2-1.23-.74-.66-1.23-1.47-1.38-1.72-.14-.25-.02-.38.11-.5.11-.11.25-.29.37-.43.12-.14.17-.25.25-.41.08-.17.04-.31-.02-.43s-.56-1.34-.76-1.84c-.2-.48-.41-.42-.56-.43h-.48c-.17 0-.43.06-.66.31-.22.25-.86.84-.86 2.05s.88 2.37 1 2.54c.12.17 1.73 2.65 4.2 3.71.59.25 1.05.41 1.41.52.59.19 1.13.16 1.56.1.48-.07 1.47-.6 1.67-1.18.21-.58.21-1.07.14-1.18-.06-.11-.22-.18-.47-.3z"/>
                   </svg>
                 </span>
               </div>
+
               {selectedClientDetails.email && (
-                <div className="detail-row">
-                  <span className="detail-label">E-mail:</span>
-                  <span className="detail-value">{selectedClientDetails.email}</span>
+                <div className="info-box">
+                  <span className="info-label">E-mail</span>
+                  <span className="info-value">{selectedClientDetails.email}</span>
                 </div>
               )}
-              <div className="detail-row">
-                <span className="detail-label">Endereço:</span>
-                <span className="detail-value">{formatAddress(selectedClientDetails)}</span>
+              
+              {/* Endereço ocupa a linha inteira no PC */}
+              <div className="info-box info-full-width">
+                <span className="info-label">Endereço</span>
+                {formatAddress(selectedClientDetails) ? (
+                  <span className="info-value">{formatAddress(selectedClientDetails)}</span>
+                ) : (
+                  <span className="info-value text-muted">Não informado</span>
+                )}
               </div>
-              <div className="detail-row">
-                <span className="detail-label">Data de Cadastro:</span>
-                <span className="detail-value">{formatDate(selectedClientDetails.registrationDate || selectedClientDetails.created_at)}</span>
+              
+              <div className="info-box">
+                <span className="info-label">Data de Cadastro</span>
+                <span className="info-value">{formatDate(selectedClientDetails.registrationDate || selectedClientDetails.created_at)}</span>
               </div>
             </div>
 
-            <div className="modal-footer">
-              <Button
-                variant="secondary"
-                icon={FileText}
+            {/* Botões de Ação */}
+            <div className="modal-actions">
+              <Button 
+                variant="secondary" 
+                icon={FileText} 
+                className="btn-modal"
                 onClick={() => {
                   setShowClientDetailsModal(false);
                   handleViewContracts(selectedClientDetails);
@@ -465,9 +480,10 @@ const ListaClientes = () => {
               >
                 Ver Contratos
               </Button>
-              <Button
-                variant="primary"
-                icon={Edit}
+              <Button 
+                variant="primary" 
+                icon={Edit} 
+                className="btn-modal"
                 onClick={() => {
                   setShowClientDetailsModal(false);
                   navigate(`/editar-cliente/${selectedClientDetails.id}`);
@@ -476,6 +492,7 @@ const ListaClientes = () => {
                 Editar Cadastro
               </Button>
             </div>
+
           </div>
         </div>
       )}

@@ -353,91 +353,193 @@
   border-color: rgba(239, 68, 68, 0.3);
 }
 
-/* 5. MODAIS */
+/* 5. MODAIS & DETALHES DO CLIENTE */
 .modal-overlay {
   position: fixed;
   top: 0;
   left: 0;
   right: 0;
   bottom: 0;
-  background: rgba(0, 0, 0, 0.8);
-  backdrop-filter: blur(8px);
+  background-color: rgba(0, 0, 0, 0.75);
   display: flex;
   align-items: center;
   justify-content: center;
   z-index: 1000;
   padding: 16px;
+  backdrop-filter: blur(6px);
 }
 
 .modal-content {
-  background: #16171b;
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  border-radius: 16px;
-  padding: 20px;
-  max-width: 550px;
+  background-color: #121214;
+  border: 1px solid #29292e;
+  border-radius: 14px;
   width: 100%;
+  max-width: 500px;
+  padding: 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.7);
   max-height: 90vh;
   overflow-y: auto;
-  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.6);
 }
 
 .modal-content--large {
   max-width: 750px;
 }
 
+/* Cabeçalho do Modal */
 .modal-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 16px;
-  padding-bottom: 12px;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  border-bottom: 1px solid #29292e;
+  padding-bottom: 14px;
 }
 
 .modal-header h2,
 .modal-header h3 {
-  font-size: 17px;
+  color: #eab308;
+  font-size: 15px;
   font-weight: 700;
+  margin: 0;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.modal-close-btn {
+  background: none;
+  border: none;
+  color: #a8a8b3;
+  cursor: pointer;
+  padding: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: color 0.2s;
+  border-radius: 6px;
+}
+
+.modal-close-btn:hover {
   color: #ffffff;
+  background: rgba(255, 255, 255, 0.08);
+}
+
+/* Perfil (Avatar Redondo + Nome) */
+.modal-profile {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.modal-avatar {
+  width: 56px;
+  height: 56px;
+  background-color: #eab308;
+  color: #1a1a1a;
+  border-radius: 50%; /* Perfeitamente redondo */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 800;
+  font-size: 20px;
+  flex-shrink: 0;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
+}
+
+.modal-profile-info {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  min-width: 0;
+}
+
+.modal-profile-info h3 {
+  color: #ffffff;
+  font-size: 18px;
+  font-weight: 700;
   margin: 0;
 }
 
-.modal-body {
+/* --- GRID DE INFORMAÇÕES RESPONSIVA --- */
+.modal-info-grid {
+  display: grid;
+  grid-template-columns: 1fr; /* Mobile: 1 coluna */
+  gap: 14px;
+  background-color: #202024;
+  padding: 16px;
+  border-radius: 10px;
+  border: 1px solid #29292e;
+}
+
+.info-box {
   display: flex;
   flex-direction: column;
+  gap: 4px;
+}
+
+.info-label {
+  color: #a8a8b3;
+  font-size: 12px;
+  font-weight: 500;
+}
+
+.info-value {
+  color: #ffffff;
+  font-size: 14px;
+  font-weight: 600;
+  word-break: break-word;
+}
+
+.text-muted {
+  color: #737380;
+  font-weight: 400;
+  font-style: italic;
+}
+
+.value-wpp {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: #25d366;
+  cursor: pointer;
+  transition: opacity 0.2s ease;
+}
+
+.value-wpp:hover {
+  opacity: 0.85;
+}
+
+/* Botões do Modal */
+.modal-actions {
+  display: flex;
+  flex-direction: column; /* Mobile: Empilhados */
   gap: 12px;
 }
 
-.detail-row {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 8px 0;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.04);
-  font-size: 13px;
+.btn-modal {
+  width: 100%;
+  justify-content: center;
 }
 
-.detail-label {
-  color: #8e8e93;
-  font-weight: 600;
-}
+/* --- ADAPTAÇÃO PARA PC (DESKTOP) --- */
+@media (min-width: 600px) {
+  .modal-info-grid {
+    grid-template-columns: 1fr 1fr; /* PC: 2 colunas */
+  }
 
-.detail-value {
-  color: #ffffff;
-  font-weight: 500;
-  text-align: right;
-}
+  .info-full-width {
+    grid-column: span 2; /* Endereço ocupa a largura completa */
+  }
 
-.modal-footer {
-  display: flex;
-  gap: 10px;
-  margin-top: 20px;
-  padding-top: 16px;
-  border-top: 1px solid rgba(255, 255, 255, 0.08);
-}
+  .modal-actions {
+    flex-direction: row; /* PC: Botões lado a lado */
+  }
 
-.modal-footer > button {
-  flex: 1;
+  .modal-actions > button,
+  .modal-actions .btn-modal {
+    flex: 1;
+  }
 }
 
 /* RESPONSIVIDADE MOBILE */
