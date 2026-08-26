@@ -8,7 +8,8 @@ import Card from '../components/Card';
 import Button from '../components/Button';
 import Input from '../components/Input';
 import Badge from '../components/Badge';
-import { formatCurrency, formatDate, formatCPF, formatPhone } from '../utils/formatters';
+import { formatCurrency, formatDate, formatCPF, formatPhone, parseDateSafe } from '../utils/formatters';
+import { getContractStatus } from '../utils/calculations';
 import { getContracts, updateContract, deleteContract } from '../supabase/services';
 import { exportContractsPDF, exportContractsExcel, exportSingleContractPDF } from '../utils/exportUtils';
 import { useClients } from '../hooks/useClients';
@@ -69,10 +70,13 @@ const HistoricoContratos = () => {
   }, []);
 
   const totalCount = contracts.length;
-  const openCount = contracts.filter(c => c.status === 'open').length;
   const paidCount = contracts.filter(c => c.status === 'paid').length;
-  const overdueCount = contracts.filter(c => c.status === 'overdue' || (new Date(c.due_date) < new Date() && c.status === 'open')).length;
   const cancelledCount = contracts.filter(c => c.status === 'cancelled').length;
+  const overdueCount = contracts.filter(c => getContractStatus(c).isOverdue).length;
+  const openCount = contracts.filter(c => {
+    if (c.status === 'paid' || c.status === 'cancelled') return false;
+    return !getContractStatus(c).isOverdue;
+  }).length;
 
   const filteredContracts = useMemo(() => {
     const queryStr = typeof searchQuery === 'string' ? searchQuery : (searchQuery?.target?.value || '');
@@ -84,7 +88,8 @@ const HistoricoContratos = () => {
         (contract.client_cpf && contract.client_cpf.includes(query)) ||
         (contract.protocol_number && contract.protocol_number.toLowerCase().includes(query));
       
-      const matchesStatus = statusFilter === 'all' || contract.status === statusFilter;
+      const realStatus = getContractStatus(contract).status;
+      const matchesStatus = statusFilter === 'all' || contract.status === statusFilter || realStatus === statusFilter;
       
       return matchesSearch && matchesStatus;
     });
@@ -99,7 +104,11 @@ const HistoricoContratos = () => {
     return matchedClient?.phone || '';
   };
 
-  const getStatusBadge = (status) => {
+  const getStatusBadge = (contractOrStatus) => {
+    let status = contractOrStatus;
+    if (typeof contractOrStatus === 'object' && contractOrStatus !== null) {
+      status = getContractStatus(contractOrStatus).status;
+    }
     switch (status) {
       case 'open':
         return <Badge variant="gold" className="c6-status-badge">Em aberto</Badge>;
@@ -420,7 +429,7 @@ const HistoricoContratos = () => {
                         </td>
                         <td className="contract-date">{formatDate(contract.loan_date)}</td>
                         <td className="contract-date">{formatDate(contract.due_date)}</td>
-                        <td className="contract-status">{getStatusBadge(contract.status)}</td>
+                        <td className="contract-status">{getStatusBadge(contract)}</td>
                         <td className="contract-actions">
                           <div className="contract-actions-buttons">
                             <button
@@ -477,7 +486,7 @@ const HistoricoContratos = () => {
                           <span className="carbon-protocol-tag">
                             {contract.protocol_number}
                           </span>
-                          {getStatusBadge(contract.status)}
+                          {getStatusBadge(contract)}
                         </div>
 
                         {phone && (

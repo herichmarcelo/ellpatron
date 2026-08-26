@@ -19,8 +19,9 @@ import {
   Sparkles
 } from 'lucide-react';
 import Card from '../components/Card';
-import { formatCurrency } from '../utils/formatters';
-import { getContracts, getClients, getSavingsTransactions } from '../supabase/services.js';
+import { formatCurrency, parseDateSafe } from '../utils/formatters';
+import { getContractStatus } from '../utils/calculations';
+import { getContracts, getClients, getSavingsTransactions, getPayments } from '../supabase/services.js';
 import './Dashboard.css';
 
 const Dashboard = () => {
@@ -30,14 +31,15 @@ const Dashboard = () => {
   const [contracts, setContracts] = useState([]);
   const [clients, setClients] = useState([]);
   const [savingsTransactions, setSavingsTransactions] = useState([]);
+  const [payments, setPayments] = useState([]);
   const [loading, setLoading] = useState(true);
   const [isBalanceHidden, setIsBalanceHidden] = useState(false);
 
   useEffect(() => {
     let isMounted = true;
 
-    Promise.all([getContracts(), getClients(), getSavingsTransactions()])
-      .then(([contractsResult, clientsResult, savingsResult]) => {
+    Promise.all([getContracts(), getClients(), getSavingsTransactions(), getPayments()])
+      .then(([contractsResult, clientsResult, savingsResult, paymentsResult]) => {
         if (!isMounted) return;
         if (contractsResult.success) {
           setContracts(contractsResult.data || []);
@@ -47,6 +49,9 @@ const Dashboard = () => {
         }
         if (savingsResult.success) {
           setSavingsTransactions(savingsResult.data || []);
+        }
+        if (paymentsResult && paymentsResult.success) {
+          setPayments(paymentsResult.data || []);
         }
         setLoading(false);
       })
@@ -82,17 +87,22 @@ const Dashboard = () => {
   // Limites do mês selecionado
   const endOfSelectedMonth = new Date(selectedYear, selectedMonthIdx + 1, 0, 23, 59, 59, 999);
 
+  // Variável para o 'dia de hoje' zerando as horas para evitar falsos positivos de fuso horário
+  const hoje = new Date();
+  hoje.setHours(0, 0, 0, 0);
+
   // 1. Contratos que já existiam até o fim do mês selecionado
   const contractsExistingInMonth = contracts.filter(c => {
-    const createdDate = new Date(c.start_date || c.created_at || c.due_date);
+    const createdDate = parseDateSafe(c.start_date || c.created_at || c.due_date) || new Date();
     return createdDate <= endOfSelectedMonth;
   });
 
   // 2. Faturamento Esperado para o mês selecionado:
   // Somente parcelas/contratos cujo vencimento ocorre exatamente no mês selecionado
   const expectedRevenue = contracts.reduce((sum, contract) => {
-    const createdDate = new Date(contract.start_date || contract.created_at || contract.due_date);
-    const dueDate = new Date(contract.due_date || contract.start_date || contract.created_at);
+    const createdDate = parseDateSafe(contract.start_date || contract.created_at || contract.due_date) || new Date();
+    const rawDueDate = contract.due_date || contract.data_vencimento || contract.dueDate;
+    const dueDate = parseDateSafe(rawDueDate) || new Date(rawDueDate || createdDate);
     
     // Se o contrato foi criado após o mês selecionado, não conta
     if (createdDate > endOfSelectedMonth) {
@@ -109,11 +119,17 @@ const Dashboard = () => {
   }, 0);
   
   // 3. Contratos em atraso no período selecionado:
-  // Contratos que existiam no mês selecionado, cujo vencimento era até o fim daquele mês e não estavam quitados
+  // Contratos que existiam no mês selecionado, cujo status é de atraso real (NÃO pago e dataVencimento < hoje)
+  // e cujo vencimento ocorria até o fim daquele mês selecionado
   const overdueContractsList = contractsExistingInMonth.filter(c => {
-    const dueDate = new Date(c.due_date);
-    const isPastDue = dueDate <= endOfSelectedMonth;
-    return isPastDue && (c.status === 'open' || c.status === 'overdue');
+    const statusInfo = getContractStatus(c);
+    if (!statusInfo.isOverdue) return false;
+
+    const rawDueDate = c.due_date || c.data_vencimento || c.dueDate;
+    const dataVencimento = parseDateSafe(rawDueDate) || new Date(rawDueDate);
+    dataVencimento.setHours(0, 0, 0, 0);
+
+    return dataVencimento <= endOfSelectedMonth;
   });
   
   const overdueContractsCount = overdueContractsList.length;
@@ -121,16 +137,34 @@ const Dashboard = () => {
     return sum + (Number(c.monthly_installment) || Number(c.principal) || 0);
   }, 0);
   
-  // 4. Receita Real do mês (Esperado - Atrasado)
-  const netRevenue = Math.max(0, expectedRevenue - overdueValue);
+  // 4. Receita Real do mês (Efetivamente Recebido em Caixa no mês selecionado)
+  const monthPayments = payments.filter(p => {
+    const pDateStr = p.payment_date || p.created_at;
+    if (!pDateStr) return false;
+    const d = parseDateSafe(pDateStr) || new Date(pDateStr);
+    return d.getFullYear() === selectedYear && d.getMonth() === selectedMonthIdx;
+  });
+
+  const paymentsReceived = monthPayments.reduce((sum, p) => sum + (Number(p.amount) || 0), 0);
+
+  // Considera contratos marcados diretamente como 'paid' no mês caso não haja registro na tabela payments
+  const paidContractsRevenue = contracts.filter(c => {
+    if (c.status !== 'paid') return false;
+    const hasPaymentRecord = payments.some(p => p.contract_id === c.id || p.contract_protocol === c.protocol_number);
+    if (hasPaymentRecord) return false;
+    const paidDate = parseDateSafe(c.updated_at || c.due_date || c.loan_date) || new Date();
+    return paidDate.getFullYear() === selectedYear && paidDate.getMonth() === selectedMonthIdx;
+  }).reduce((sum, c) => sum + (Number(c.monthly_installment) || Number(c.total_amount) || Number(c.principal) || 0), 0);
+
+  const realRevenue = paymentsReceived + paidContractsRevenue;
   
-  // 5. Total na Rua (Capital Investido até aquele mês):
+  // 5. Total na Rua (Capital Investido até aquele mês em contratos em aberto/atraso):
   const totalInvested = contractsExistingInMonth
-    .filter(c => c.status === 'open' || c.status === 'overdue')
+    .filter(c => c.status !== 'paid' && c.status !== 'cancelled')
     .reduce((sum, c) => sum + (Number(c.principal) || 0), 0);
 
   // 6. Contratos ativos no mês
-  const activeContracts = contractsExistingInMonth.filter(c => c.status === 'open' || c.status === 'overdue').length;
+  const activeContracts = contractsExistingInMonth.filter(c => c.status !== 'paid' && c.status !== 'cancelled').length;
 
   // Formatação gramatical correta
   const activeContractsLabel = activeContracts === 1 ? '1 contrato ativo' : `${activeContracts} contratos ativos`;
@@ -140,7 +174,7 @@ const Dashboard = () => {
   const monthSavingsTransactions = savingsTransactions.filter(t => {
     const dateStr = t.transaction_date || t.created_at;
     if (!dateStr) return false;
-    const d = new Date(dateStr);
+    const d = parseDateSafe(dateStr) || new Date(dateStr);
     return d.getFullYear() === selectedYear && d.getMonth() === selectedMonthIdx;
   });
 
@@ -158,8 +192,14 @@ const Dashboard = () => {
   const withdrawalsLabel = countMonthWithdrawals === 1 ? '1 resgate' : `${countMonthWithdrawals} resgates`;
 
   // Calcula porcentagem para a barra de saúde
-  const healthyPercentage = expectedRevenue > 0 ? Number(((netRevenue / expectedRevenue) * 100).toFixed(1)) : 100;
-  const riskPercentage = expectedRevenue > 0 ? Number(((overdueValue / expectedRevenue) * 100).toFixed(1)) : 0;
+  const healthyPercentage = expectedRevenue > 0 
+    ? Math.min(100, Math.max(0, Number((((expectedRevenue - overdueValue) / expectedRevenue) * 100).toFixed(1)))) 
+    : 100;
+  const riskPercentage = expectedRevenue > 0 
+    ? Math.min(100, Math.max(0, Number(((overdueValue / expectedRevenue) * 100).toFixed(1)))) 
+    : 0;
+
+  const scoreTag = healthyPercentage >= 80 ? 'Saudável' : healthyPercentage >= 50 ? 'Atenção' : 'Risco';
 
   const renderValue = (val) => {
     if (isBalanceHidden) return '••••••';
@@ -239,7 +279,7 @@ const Dashboard = () => {
           </div>
           
           <div className="c6-card-body">
-            <h3 className="c6-card-value">{renderValue(netRevenue)}</h3>
+            <h3 className="c6-card-value">{renderValue(realRevenue)}</h3>
           </div>
           
           <div className="c6-card-footer">
@@ -424,8 +464,21 @@ const Dashboard = () => {
               </div>
             </div>
             <div className="c6-health-score">
-              <span className="c6-score-number">{healthyPercentage}%</span>
-              <span className="c6-score-tag">Saudável</span>
+              <span 
+                className="c6-score-number"
+                style={{ color: healthyPercentage >= 80 ? '#10b981' : healthyPercentage >= 50 ? '#f59e0b' : '#ef4444' }}
+              >
+                {healthyPercentage}%
+              </span>
+              <span 
+                className="c6-score-tag"
+                style={{
+                  background: healthyPercentage >= 80 ? 'rgba(16, 185, 129, 0.15)' : healthyPercentage >= 50 ? 'rgba(245, 158, 11, 0.15)' : 'rgba(239, 68, 68, 0.15)',
+                  color: healthyPercentage >= 80 ? '#10b981' : healthyPercentage >= 50 ? '#f59e0b' : '#ef4444'
+                }}
+              >
+                {scoreTag}
+              </span>
             </div>
           </div>
 
@@ -442,8 +495,8 @@ const Dashboard = () => {
 
           <div className="c6-health-footer">
             <div className="c6-health-stat">
-              <span className="c6-health-stat-label">Em dia:</span>
-              <span className="c6-health-stat-val text-green">{renderValue(netRevenue)}</span>
+              <span className="c6-health-stat-label">Recebido:</span>
+              <span className="c6-health-stat-val text-green">{renderValue(realRevenue)}</span>
             </div>
             <div className="c6-health-stat">
               <span className="c6-health-stat-label">Risco:</span>
@@ -504,18 +557,18 @@ const Dashboard = () => {
 
           <div className="c6-transactions-list">
             {contractsExistingInMonth.slice(0, 5).map(contract => {
-              const isOverdue = new Date(contract.due_date) <= endOfSelectedMonth && contract.status === 'open';
+              const statusInfo = getContractStatus(contract);
               const installmentsTotal = contract.installments_count || contract.installments || 1;
               const initials = (contract.client_name || 'CL').split(' ').map(n => n[0]).slice(0, 2).join('').toUpperCase();
 
               return (
                 <div 
                   key={contract.id} 
-                  className={`c6-transaction-item ${isOverdue ? 'c6-transaction-item--overdue' : ''}`}
+                  className={`c6-transaction-item ${statusInfo.isOverdue ? 'c6-transaction-item--overdue' : ''}`}
                   onClick={() => navigate('/historico-contratos')}
                 >
                   <div className="c6-transaction-left">
-                    <div className={`c6-tx-avatar ${isOverdue ? 'c6-tx-avatar--overdue' : ''}`}>
+                    <div className={`c6-tx-avatar ${statusInfo.isOverdue ? 'c6-tx-avatar--overdue' : ''}`}>
                       {initials}
                     </div>
                     <div className="c6-tx-info">
@@ -527,11 +580,11 @@ const Dashboard = () => {
                   </div>
 
                   <div className="c6-transaction-right">
-                    <span className={`c6-tx-amount ${isOverdue ? 'text-red' : contract.status === 'paid' ? 'text-green' : 'text-gold'}`}>
+                    <span className={`c6-tx-amount ${statusInfo.isOverdue ? 'text-red' : statusInfo.isPaid ? 'text-green' : 'text-gold'}`}>
                       {renderValue(contract.total_amount || contract.principal)}
                     </span>
-                    <span className={`c6-status-pill ${isOverdue ? 'c6-status-pill--red' : contract.status === 'paid' ? 'c6-status-pill--green' : 'c6-status-pill--gold'}`}>
-                      {contract.status === 'paid' ? 'Quitado' : isOverdue ? 'Atrasado' : 'Em Dia'}
+                    <span className={`c6-status-pill ${statusInfo.badgeClass}`}>
+                      {statusInfo.label}
                     </span>
                   </div>
                 </div>

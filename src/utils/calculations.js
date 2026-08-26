@@ -1,3 +1,5 @@
+import { parseDateSafe } from './formatters';
+
 /**
  * Financial calculation utilities
  */
@@ -148,32 +150,123 @@ export const calculatePaymentSchedule = (principal, monthlyRate, months, startDa
 
 /**
  * Calculate days between two dates
- * @param {Date} date1 - First date
- * @param {Date} date2 - Second date
+ * @param {Date|string} date1 - First date
+ * @param {Date|string} date2 - Second date
  * @returns {number} Number of days between dates (absolute value)
  */
 export const calculateDaysBetween = (date1, date2) => {
+  const d1 = parseDateSafe(date1) || new Date(date1);
+  const d2 = parseDateSafe(date2) || new Date(date2);
+  d1.setHours(0, 0, 0, 0);
+  d2.setHours(0, 0, 0, 0);
   const oneDay = 24 * 60 * 60 * 1000;
-  return Math.abs(Math.round((date1 - date2) / oneDay));
+  return Math.abs(Math.round((d1 - d2) / oneDay));
 };
 
 /**
  * Check if a payment is overdue
- * @param {Date} dueDate - Payment due date
+ * @param {Date|string} dueDate - Payment due date
  * @returns {object} Object with isOverdue boolean and daysOverdue number
  */
 export const checkOverdueStatus = (dueDate) => {
+  if (!dueDate) return { isOverdue: false, daysOverdue: 0 };
   const today = new Date();
   today.setHours(0, 0, 0, 0);
-  const due = new Date(dueDate);
+  const due = parseDateSafe(dueDate) || new Date(dueDate);
   due.setHours(0, 0, 0, 0);
 
-  const daysOverdue = calculateDaysBetween(today, due);
   const isOverdue = today > due;
+  const daysOverdue = isOverdue ? calculateDaysBetween(today, due) : 0;
 
   return {
     isOverdue,
-    daysOverdue: isOverdue ? daysOverdue : 0
+    daysOverdue
+  };
+};
+
+/**
+ * Determina o status detalhado de um contrato ou parcela
+ * @param {object} contract - Objeto do contrato ou parcela
+ * @returns {object} { status: 'paid'|'overdue'|'open'|'cancelled', label: string, badgeClass: string, textClass: string, isOverdue: boolean, isPaid: boolean, daysOverdue: number }
+ */
+export const getContractStatus = (contract) => {
+  if (!contract) {
+    return { status: 'open', label: 'Em Dia', badgeClass: 'c6-status-pill--gold', textClass: 'text-gold', isOverdue: false, isPaid: false, daysOverdue: 0 };
+  }
+
+  // 1. Se a parcela já estiver paga -> 'Quitado' / 'Pago'
+  if (contract.status === 'paid' || contract.paid === true) {
+    return {
+      status: 'paid',
+      label: 'Quitado',
+      badgeClass: 'c6-status-pill--green',
+      textClass: 'text-green',
+      isOverdue: false,
+      isPaid: true,
+      daysOverdue: 0
+    };
+  }
+
+  // Se cancelado
+  if (contract.status === 'cancelled') {
+    return {
+      status: 'cancelled',
+      label: 'Cancelado',
+      badgeClass: 'c6-status-pill--muted',
+      textClass: 'text-muted',
+      isOverdue: false,
+      isPaid: false,
+      daysOverdue: 0
+    };
+  }
+
+  // 2. Data de hoje zerando as horas
+  const hoje = new Date();
+  hoje.setHours(0, 0, 0, 0);
+
+  // 3. Data de vencimento zerando as horas
+  const rawDueDate = contract.due_date || contract.data_vencimento || contract.dueDate;
+  if (!rawDueDate) {
+    return {
+      status: 'open',
+      label: 'Em Dia',
+      badgeClass: 'c6-status-pill--gold',
+      textClass: 'text-gold',
+      isOverdue: false,
+      isPaid: false,
+      daysOverdue: 0
+    };
+  }
+
+  const dataVencimento = parseDateSafe(rawDueDate) || new Date(rawDueDate);
+  dataVencimento.setHours(0, 0, 0, 0);
+
+  // 4. Se NÃO estiver paga E dataVencimento < hoje -> 'Atrasado'
+  const isOverdue = dataVencimento < hoje;
+
+  if (isOverdue) {
+    const diffTime = hoje.getTime() - dataVencimento.getTime();
+    const daysOverdue = Math.max(1, Math.floor(diffTime / (1000 * 60 * 60 * 24)));
+    return {
+      status: 'overdue',
+      label: 'Atrasado',
+      badgeClass: 'c6-status-pill--red',
+      textClass: 'text-red',
+      isOverdue: true,
+      isPaid: false,
+      daysOverdue
+    };
+  }
+
+  // 5. Se NÃO estiver paga E dataVencimento >= hoje -> 'Em Dia' / 'Pendente'
+  return {
+    status: 'open',
+    label: 'Em Dia',
+    badgeClass: 'c6-status-pill--gold',
+    textClass: 'text-gold',
+    isOverdue: false,
+    isPaid: false,
+    daysOverdue: 0
   };
 };
 
@@ -317,5 +410,6 @@ export default {
   calculateContractValues,
   calculateOverduePenalties,
   calculateUpdatedTotal,
+  getContractStatus,
   generateContractProtocol
 };
