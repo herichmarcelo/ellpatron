@@ -1,0 +1,322 @@
+/* ==========================================================
+   CREDIT SCORE CARD — ESTILO C6 CARBON DARK & GOLD
+   ========================================================== */
+
+/* 1. Variante Badge (Pill) */
+.score-pill-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 3px 8px;
+  border-radius: 12px;
+  border: 1px solid;
+  background-color: rgba(20, 20, 20, 0.7);
+  font-size: 11px;
+  font-weight: 700;
+  white-space: nowrap;
+  backdrop-filter: blur(4px);
+}
+
+.score-pill-badge .score-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  box-shadow: 0 0 6px currentColor;
+}
+
+.score-pill-badge .score-num {
+  font-weight: 800;
+}
+
+.score-pill-badge .score-sep {
+  opacity: 0.4;
+  font-size: 8px;
+}
+
+.score-pill-badge .score-tier {
+  font-weight: 600;
+}
+
+/* 2. Variante Compacta (Para simulação/formulários) */
+.score-compact-card {
+  background-color: #1a1a1e;
+  border: 1px solid #29292e;
+  border-radius: 10px;
+  padding: 14px 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  transition: all 0.2s ease;
+}
+
+.score-compact-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.score-compact-title {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+  font-weight: 700;
+  color: #e1e1e6;
+}
+
+.score-compact-badge {
+  font-size: 10px;
+  font-weight: 700;
+  padding: 2px 8px;
+  border-radius: 4px;
+  border: 1px solid;
+  text-transform: uppercase;
+}
+
+.score-compact-main {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.score-compact-number {
+  font-size: 20px;
+  font-weight: 800;
+  display: flex;
+  align-items: baseline;
+  gap: 2px;
+  flex-shrink: 0;
+}
+
+.score-compact-max {
+  font-size: 11px;
+  font-weight: 600;
+  color: #737380;
+}
+
+.score-bar-bg {
+  flex: 1;
+  height: 6px;
+  background-color: #29292e;
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.score-bar-fill {
+  height: 100%;
+  border-radius: 4px;
+  transition: width 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: 0 0 8px currentColor;
+}
+
+.score-compact-desc {
+  font-size: 11px;
+  color: #a8a8b3;
+  margin: 0;
+  line-height: 1.4;
+}
+
+/* 3. Variante Completa (Para Modal de Perfil e Análise) */
+.c6-score-card {
+  background: linear-gradient(135deg, #1a1a1d 0%, #141416 100%);
+  border: 1px solid #29292e;
+  border-radius: 14px;
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
+}
+
+.c6-score-card--high {
+  border-left: 4px solid #10b981;
+}
+
+.c6-score-card--medium {
+  border-left: 4px solid #eab308;
+}
+
+.c6-score-card--low {
+  border-left: 4px solid #ef4444;
+}
+
+.c6-score-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 12px;
+}
+
+.c6-score-title-group {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.score-icon-high { color: #10b981; }
+.score-icon-medium { color: #eab308; }
+.score-icon-low { color: #ef4444; }
+
+.c6-score-title {
+  color: #ffffff;
+  font-size: 15px;
+  font-weight: 700;
+  margin: 0;
+}
+
+.c6-score-subtitle {
+  color: #737380;
+  font-size: 11px;
+}
+
+.c6-score-tier-pill {
+  font-size: 10px;
+  font-weight: 800;
+  padding: 3px 10px;
+  border-radius: 6px;
+  border: 1px solid;
+  letter-spacing: 0.5px;
+  white-space: nowrap;
+}
+
+/* Seção de Medidor / Gauge */
+.c6-score-gauge-section {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  background-color: #141414;
+  border: 1px solid #242428;
+  border-radius: 10px;
+  padding: 16px 20px;
+}
+
+.c6-score-dial-wrap {
+  position: relative;
+  width: 110px;
+  height: 60px;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.c6-score-dial-svg {
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+}
+
+.c6-score-arc-anim {
+  transition: stroke-dashoffset 0.8s ease;
+}
+
+.c6-score-dial-val {
+  position: absolute;
+  bottom: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  line-height: 1;
+}
+
+.c6-score-dial-val .dial-num {
+  font-size: 22px;
+  font-weight: 800;
+}
+
+.c6-score-dial-val .dial-max {
+  font-size: 9px;
+  color: #737380;
+  font-weight: 600;
+  margin-top: 2px;
+}
+
+.c6-score-status-text {
+  flex: 1;
+}
+
+.c6-score-recommendation {
+  color: #e1e1e6;
+  font-size: 12px;
+  line-height: 1.5;
+  margin: 0;
+}
+
+/* Grade de Métricas */
+.c6-score-metrics-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 8px;
+}
+
+.c6-score-metric-box {
+  background-color: #141414;
+  border: 1px solid #242428;
+  border-radius: 8px;
+  padding: 10px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.metric-icon-wrap {
+  width: 28px;
+  height: 28px;
+  border-radius: 6px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.metric-icon-wrap.green {
+  background-color: rgba(16, 185, 129, 0.12);
+  color: #10b981;
+}
+
+.metric-icon-wrap.gold {
+  background-color: rgba(234, 179, 8, 0.12);
+  color: #eab308;
+}
+
+.metric-icon-wrap.red {
+  background-color: rgba(239, 68, 68, 0.12);
+  color: #ef4444;
+}
+
+.metric-icon-wrap.gray {
+  background-color: rgba(255, 255, 255, 0.05);
+  color: #737380;
+}
+
+.metric-data {
+  display: flex;
+  flex-direction: column;
+}
+
+.metric-data .metric-val {
+  font-size: 13px;
+  font-weight: 700;
+  color: #ffffff;
+  line-height: 1.1;
+}
+
+.metric-data .metric-label {
+  font-size: 10px;
+  color: #737380;
+  margin-top: 2px;
+}
+
+/* Responsividade */
+@media (max-width: 600px) {
+  .c6-score-gauge-section {
+    flex-direction: column;
+    text-align: center;
+    gap: 12px;
+  }
+  
+  .c6-score-metrics-grid {
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+  }
+}

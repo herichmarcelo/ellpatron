@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { 
   Users, UserPlus, Search, Edit, Eye, Phone, MapPin, Calendar, 
@@ -11,9 +11,11 @@ import Input from '../components/Input';
 import Badge from '../components/Badge';
 import CustomSelect from '../components/CustomSelect';
 import DatePicker from '../components/DatePicker';
+import CreditScoreCard from '../components/CreditScoreCard';
 import { useClients, useAddToBlacklist, useRemoveFromBlacklist, isClientBlacklisted } from '../hooks/useClients';
 import { formatPhone, formatDate, formatCPF, getInitials, stringToColor, formatAddress, formatCurrency, getBrasiliaISODate } from '../utils/formatters';
 import { getContracts, getPayments, createPayment, updateContract } from '../supabase/services.js';
+import { calculateCreditScore } from '../utils/scoreCalculator';
 import { calculateOverduePenalties } from '../utils/calculations';
 import { exportClientsExcel } from '../utils/exportUtils';
 import './ListaClientes.css';
@@ -23,7 +25,7 @@ const ListaClientes = () => {
   const { mutate: addToBlacklist } = useAddToBlacklist();
   const { mutate: removeFromBlacklist } = useRemoveFromBlacklist();
   
-  const { blacklist, getClientStats, searchClients, getClientById } = useClients();
+  const { blacklist, getClientStats, searchClients } = useClients();
   const [searchQuery, setSearchQuery] = useState('');
   const [statusFilter, setStatusFilter] = useState('all');
   const [showContractsModal, setShowContractsModal] = useState(false);
@@ -39,10 +41,39 @@ const ListaClientes = () => {
   const [newPayment, setNewPayment] = useState({
     installment_number: '',
     amount: '',
-    payment_date: new Date().toISOString().split('T')[0],
+    payment_date: getBrasiliaISODate(),
     payment_method: 'pix',
     notes: ''
   });
+  const [allContracts, setAllContracts] = useState([]);
+  const [allPayments, setAllPayments] = useState([]);
+
+  // Carrega contratos e pagamentos para cálculo de Score em tempo real
+  useEffect(() => {
+    let isMounted = true;
+    const fetchScoreData = async () => {
+      try {
+        const [contractsRes, paymentsRes] = await Promise.all([
+          getContracts(),
+          getPayments()
+        ]);
+        if (isMounted) {
+          if (contractsRes.success) setAllContracts(contractsRes.data || []);
+          if (paymentsRes.success) setAllPayments(paymentsRes.data || []);
+        }
+      } catch (err) {
+        console.error('Error loading contracts/payments for score:', err);
+      }
+    };
+    fetchScoreData();
+    return () => { isMounted = false; };
+  }, []);
+
+  const getClientScore = (client) => {
+    if (!client) return null;
+    const isBlocked = isClientBlacklisted(blacklist, client.id);
+    return calculateCreditScore(client, allContracts, allPayments, isBlocked);
+  };
 
   const stats = getClientStats();
   
@@ -64,19 +95,18 @@ const ListaClientes = () => {
     setShowClientDetailsModal(true);
   };
 
-  const handleAddToBlacklist = (clientId) => {
-    const client = getClientById(clientId);
-    if (client) {
-      const reason = prompt('Motivo para adicionar à lista negra:');
-      if (reason) {
-        addToBlacklist({ clientId, reason });
+  const handleToggleBlacklist = (client) => {
+    if (!client) return;
+    const isBlacklisted = isClientBlacklisted(blacklist, client.id);
+    if (isBlacklisted) {
+      if (confirm(`Deseja remover ${client.name} da Lista Negra?`)) {
+        removeFromBlacklist(client.id);
       }
-    }
-  };
-
-  const handleRemoveFromBlacklist = (blacklistId) => {
-    if (confirm('Tem certeza que deseja remover da lista negra?')) {
-      removeFromBlacklist(blacklistId);
+    } else {
+      const reason = prompt(`Motivo do bloqueio de ${client.name} na Lista Negra:`);
+      if (reason) {
+        addToBlacklist({ clientId: client.id, reason });
+      }
     }
   };
 
@@ -465,7 +495,10 @@ const ListaClientes = () => {
                       
                       <div className="cliente-nomes">
                         <h3 className="cliente-nome-titulo">{client.name}</h3>
-                        <div>{getStatusBadge(client.status)}</div>
+                        <div className="cliente-tags-row">
+                          {getStatusBadge(client.status)}
+                          <CreditScoreCard scoreData={getClientScore(client)} variant="badge" />
+                        </div>
                       </div>
                     </div>
 
@@ -524,21 +557,20 @@ const ListaClientes = () => {
                         <Edit size={15}/> Editar
                       </button>
                       
-                      {isBlacklisted ? (
-                        <button 
-                          className="btn-action action-block"
-                          onClick={() => handleRemoveFromBlacklist(client.id)}
-                        >
-                          <ShieldAlert size={15}/> Desbloquear
-                        </button>
-                      ) : (
-                        <button 
-                          className="btn-action action-block"
-                          onClick={() => handleAddToBlacklist(client.id)}
-                        >
-                          <Ban size={15}/> Bloquear
-                        </button>
-                      )}
+                      <button 
+                        className={`btn-action ${isBlacklisted ? 'action-unblock' : 'action-block'}`}
+                        onClick={() => handleToggleBlacklist(client)}
+                      >
+                        {isBlacklisted ? (
+                          <>
+                            <ShieldAlert size={15}/> Desbloquear
+                          </>
+                        ) : (
+                          <>
+                            <Ban size={15}/> Bloquear
+                          </>
+                        )}
+                      </button>
                     </div>
                   </div>
                 </Card>
@@ -574,6 +606,9 @@ const ListaClientes = () => {
                 <div>{getStatusBadge(selectedClientDetails.status)}</div>
               </div>
             </div>
+
+            {/* Score de Crédito Completo */}
+            <CreditScoreCard scoreData={getClientScore(selectedClientDetails)} variant="full" />
 
             {/* Grade de Informações Responsiva */}
             <div className="modal-info-grid">

@@ -236,6 +236,13 @@
   text-overflow: ellipsis;
 }
 
+.cliente-tags-row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
 /* 2. Lado Direito do Header (O Novo Botão WhatsApp Destacado 46x46) */
 .btn-header-whatsapp {
   width: 46px;

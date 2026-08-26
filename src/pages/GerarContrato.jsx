@@ -1,22 +1,24 @@
-import React, { useState } from 'react';
-import { FileText, Calculator, Save, X, Printer, Download, Eye, RotateCcw, Share2 } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
+import { FileText, Calculator, Save, X, Printer, Download, Eye, RotateCcw, Share2, ShieldAlert } from 'lucide-react';
 import Card from '../components/Card';
 import Button from '../components/Button';
 import Input from '../components/Input';
 import DatePicker from '../components/DatePicker';
+import CreditScoreCard from '../components/CreditScoreCard';
 import { formatCurrency, formatCPF, getBrasiliaISODate } from '../utils/formatters';
 import { 
   calculateOverduePenalties, 
   calculateUpdatedTotal, 
   generateContractProtocol 
 } from '../utils/calculations';
-import { useClients, useAddClient } from '../hooks/useClients';
-import { createContract } from '../supabase/services.js';
+import { useClients, useAddClient, isClientBlacklisted } from '../hooks/useClients';
+import { createContract, getContracts, getPayments } from '../supabase/services.js';
+import { calculateCreditScore } from '../utils/scoreCalculator';
 import { exportSingleContractPDF } from '../utils/exportUtils';
 import './GerarContrato.css';
 
 const GerarContrato = () => {
-  const { clients: clientsList = [] } = useClients();
+  const { clients: clientsList = [], blacklist = [] } = useClients();
   const { mutate: addClient } = useAddClient();
 
   const [formData, setFormData] = useState({
@@ -39,6 +41,47 @@ const GerarContrato = () => {
   const [errors, setErrors] = useState({});
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [showClientSuggestions, setShowClientSuggestions] = useState(false);
+  const [allContracts, setAllContracts] = useState([]);
+  const [allPayments, setAllPayments] = useState([]);
+
+  // Carrega histórico para análise em tempo real do Score de Crédito
+  useEffect(() => {
+    let isMounted = true;
+    const fetchScoreData = async () => {
+      try {
+        const [contractsRes, paymentsRes] = await Promise.all([
+          getContracts(),
+          getPayments()
+        ]);
+        if (isMounted) {
+          if (contractsRes.success) setAllContracts(contractsRes.data || []);
+          if (paymentsRes.success) setAllPayments(paymentsRes.data || []);
+        }
+      } catch (err) {
+        console.error('Error loading contracts/payments in GerarContrato:', err);
+      }
+    };
+    fetchScoreData();
+    return () => { isMounted = false; };
+  }, []);
+
+  // Encontra cliente correspondente por CPF ou Nome
+  const cpfCleanForm = (formData.cpf || '').replace(/\D/g, '');
+  const matchedClient = clientsList.find(c => {
+    const cpfCleanClient = (c.cpf || '').replace(/\D/g, '');
+    if (cpfCleanForm.length === 11 && cpfCleanClient === cpfCleanForm) return true;
+    if (formData.nome.trim() && c.name && formData.nome.toLowerCase().trim() === c.name.toLowerCase().trim()) return true;
+    return false;
+  });
+
+  const isClientBlocked = matchedClient ? isClientBlacklisted(blacklist, matchedClient.id) : false;
+
+  const clientScoreData = (matchedClient || formData.nome.trim().length > 2 || cpfCleanForm.length >= 11) ? calculateCreditScore(
+    matchedClient || { name: formData.nome, cpf: formData.cpf },
+    allContracts,
+    allPayments,
+    isClientBlocked
+  ) : null;
 
   const handleInputChange = (field, e) => {
     const value = e?.target?.value !== undefined ? e.target.value : e;
@@ -391,6 +434,20 @@ const GerarContrato = () => {
               fullWidth
               required
             />
+
+            {/* Termômetro de Score de Crédito do Cliente */}
+            {clientScoreData && (
+              <div className="gerar-contrato-score-fullwidth">
+                <CreditScoreCard scoreData={clientScoreData} variant="compact" />
+              </div>
+            )}
+
+            {isClientBlocked && (
+              <div className="gerar-contrato-blocked-alert">
+                <ShieldAlert size={18} />
+                <span><strong>BLOQUEIO PREVENTIVO:</strong> Este cliente consta na <strong>Lista Negra</strong> do sistema. Avalie os riscos antes de conceder novos limites.</span>
+              </div>
+            )}
 
             <Input
               label="Valor Principal (R$) *"
