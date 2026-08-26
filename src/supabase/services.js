@@ -462,14 +462,27 @@ export default {
 // Contracts
 export const createContract = async (contractData) => {
   try {
+    const payload = {
+      protocol_number: contractData.protocol_number || contractData.protocolNumber,
+      client_name: contractData.client_name || contractData.clientName,
+      client_cpf: contractData.client_cpf || contractData.clientCpf,
+      loan_date: contractData.loan_date || contractData.loanDate || new Date().toISOString(),
+      principal: Number(contractData.principal) || 0,
+      due_date: contractData.due_date || contractData.dueDate,
+      installments: Number(contractData.installments || contractData.installments_count || contractData.installmentsCount) || 1,
+      interest_rate_year: Number(contractData.interest_rate_year || contractData.interestRateYear) || 0,
+      interest_rate_month: Number(contractData.interest_rate_month || contractData.interestRateMonth || contractData.interestRate) || 0,
+      penalty_rate: Number(contractData.penalty_rate || contractData.late_fee_percentage || contractData.penaltyRate) || 0,
+      daily_interest_rate: Number(contractData.daily_interest_rate || contractData.daily_late_interest_percentage || contractData.dailyInterestRate) || 0,
+      interest_amount: Number(contractData.interest_amount || contractData.totalInterest || 0),
+      monthly_installment: Number(contractData.monthly_installment || contractData.monthlyInstallment) || 0,
+      total_original: Number(contractData.total_original || contractData.total_amount || contractData.totalOriginal || contractData.totalAmount) || 0,
+      status: contractData.status || 'open'
+    };
+
     const { data, error } = await supabase
       .from('contracts')
-      .insert({
-        ...contractData,
-        created_at: new Date().toISOString(),
-        updated_at: new Date().toISOString(),
-        status: 'open'
-      })
+      .insert(payload)
       .select()
       .single();
 
@@ -477,7 +490,7 @@ export const createContract = async (contractData) => {
       console.error('Error creating contract:', error);
       return { success: false, error: error.message };
     }
-    return { success: true, id: data.id };
+    return { success: true, id: data.id, data };
   } catch (error) {
     console.error('Error creating contract:', error);
     return { success: false, error: error.message };
@@ -495,7 +508,19 @@ export const getContract = async (contractId) => {
     if (error) throw error;
     if (!data) return { success: false, error: 'Contrato não encontrado' };
 
-    return { success: true, data };
+    const normalized = {
+      ...data,
+      total_amount: data.total_original || data.total_amount || data.principal,
+      total_original: data.total_original || data.total_amount || data.principal,
+      installments_count: data.installments || data.installments_count || 1,
+      installments: data.installments || data.installments_count || 1,
+      late_fee_percentage: data.penalty_rate || data.late_fee_percentage || 0,
+      penalty_rate: data.penalty_rate || data.late_fee_percentage || 0,
+      daily_late_interest_percentage: data.daily_interest_rate || data.daily_late_interest_percentage || 0,
+      daily_interest_rate: data.daily_interest_rate || data.daily_late_interest_percentage || 0
+    };
+
+    return { success: true, data: normalized };
   } catch (error) {
     return { success: false, error: error.message };
   }
@@ -523,7 +548,20 @@ export const getContracts = async (filters = {}) => {
       console.error('Error getting contracts:', error);
       return { success: false, error: error.message };
     }
-    return { success: true, data: data || [] };
+
+    const normalized = (data || []).map(c => ({
+      ...c,
+      total_amount: c.total_original || c.total_amount || c.principal,
+      total_original: c.total_original || c.total_amount || c.principal,
+      installments_count: c.installments || c.installments_count || 1,
+      installments: c.installments || c.installments_count || 1,
+      late_fee_percentage: c.penalty_rate || c.late_fee_percentage || 0,
+      penalty_rate: c.penalty_rate || c.late_fee_percentage || 0,
+      daily_late_interest_percentage: c.daily_interest_rate || c.daily_late_interest_percentage || 0,
+      daily_interest_rate: c.daily_interest_rate || c.daily_late_interest_percentage || 0
+    }));
+
+    return { success: true, data: normalized };
   } catch (error) {
     console.error('Error getting contracts:', error);
     return { success: false, error: error.message };

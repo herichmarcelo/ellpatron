@@ -70,6 +70,10 @@
   padding-left: 44px;
 }
 
+.input--with-right-icon {
+  padding-right: 44px;
+}
+
 .input-icon {
   position: absolute;
   left: var(--spacing-md);
@@ -78,6 +82,34 @@
   justify-content: center;
   color: var(--gold-primary);
   pointer-events: none;
+}
+
+.input-right-action,
+.input-right-icon {
+  position: absolute;
+  right: var(--spacing-md);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--text-tertiary);
+  z-index: 2;
+}
+
+.input-password-toggle {
+  background: none;
+  border: none;
+  padding: 4px;
+  color: var(--text-tertiary);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: color var(--transition-normal);
+  border-radius: var(--border-radius-sm);
+}
+
+.input-password-toggle:hover {
+  color: var(--gold-primary);
 }
 
 .input-error {

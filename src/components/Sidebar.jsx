@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { BarChart3, UserPlus, LayoutDashboard, Users, AlertCircle, Ban, Clock, FileText, List } from 'lucide-react';
 import Badge from './Badge';
@@ -6,9 +6,6 @@ import './Sidebar.css';
 
 const Sidebar = ({ isOpen, onClose, currentPage }) => {
   const navigate = useNavigate();
-  const [notifications] = useState({
-    atrasados: 99
-  });
 
   const menuItems = [
     { id: 'dashboard', label: 'Dashboard', icon: LayoutDashboard, path: '/dashboard' },
@@ -17,14 +14,7 @@ const Sidebar = ({ isOpen, onClose, currentPage }) => {
     { id: 'lista-clientes', label: 'Lista de Clientes', icon: Users, path: '/lista-clientes' },
     { id: 'gerar-contrato', label: 'Gerar Contrato', icon: FileText, path: '/gerar-contrato' },
     { id: 'historico-contratos', label: 'Histórico Contratos', icon: List, path: '/historico-contratos' },
-    { 
-      id: 'atrasados', 
-      label: 'Atrasados', 
-      icon: AlertCircle, 
-      path: '/atrasados',
-      badge: notifications.atrasados > 0 ? notifications.atrasados : null,
-      badgeVariant: 'red'
-    },
+    { id: 'atrasados', label: 'Atrasados', icon: AlertCircle, path: '/atrasados' },
     { id: 'lista-negra', label: 'Lista Negra', icon: Ban, path: '/lista-negra' },
   ];
 

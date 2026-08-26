@@ -1,13 +1,16 @@
 import React, { useState } from 'react';
-import { FileText, Calculator, Save, X, Printer, Download, Eye, RotateCcw } from 'lucide-react';
+import { FileText, Calculator, Save, X, Printer, Download, Eye, RotateCcw, Share2 } from 'lucide-react';
 import Card from '../components/Card';
 import Button from '../components/Button';
 import Input from '../components/Input';
 import DatePicker from '../components/DatePicker';
 import { formatCurrency, formatCPF } from '../utils/formatters';
-import { generateContractProtocol } from '../utils/calculations';
+import { 
+  calculateOverduePenalties, 
+  calculateUpdatedTotal, 
+  generateContractProtocol 
+} from '../utils/calculations';
 import { useClients, useAddClient } from '../hooks/useClients';
-import { useAddLoan } from '../hooks/useFinancial';
 import { createContract } from '../supabase/services.js';
 import { exportSingleContractPDF } from '../utils/exportUtils';
 import './GerarContrato.css';
@@ -15,7 +18,6 @@ import './GerarContrato.css';
 const GerarContrato = () => {
   const { clients: clientsList = [] } = useClients();
   const { mutate: addClient } = useAddClient();
-  const { mutate: addLoan } = useAddLoan();
 
   const [formData, setFormData] = useState({
     nome: '',
@@ -129,70 +131,55 @@ const GerarContrato = () => {
     setIsSubmitting(true);
 
     try {
-      let clientId = null;
       const existingClient = clientsList.find(c => c.cpf === formData.cpf);
-      
-      if (existingClient) {
-        clientId = existingClient.id;
-      } else {
-        await new Promise((resolve, reject) => {
+      if (!existingClient) {
+        try {
           addClient({
             name: formData.nome,
             cpf: formData.cpf,
             phone: '',
-            email: ''
-          }, {
-            onSuccess: (result) => { clientId = result.id; resolve(); },
-            onError: reject
+            email: '',
+            address: {}
           });
-        });
+        } catch (e) {
+          console.warn('Aviso ao cadastrar cliente automático:', e);
+        }
       }
 
       const protocol = generateContractProtocol();
       
       const contractData = {
         protocol_number: protocol,
-        client_id: clientId,
         client_name: formData.nome,
         client_cpf: formData.cpf,
         loan_date: formData.dataEmprestimo instanceof Date ? formData.dataEmprestimo.toISOString().split('T')[0] : formData.dataEmprestimo,
         due_date: formData.dataVencimento instanceof Date ? formData.dataVencimento.toISOString().split('T')[0] : formData.dataVencimento,
         principal: principal,
-        installments_count: installments,
+        installments: installments,
         interest_rate_year: interestRateYear,
         interest_rate_month: interestRateMonth,
-        late_fee_percentage: penaltyRate,
-        daily_late_interest_percentage: dailyInterestRate,
+        penalty_rate: penaltyRate,
+        daily_interest_rate: dailyInterestRate,
+        interest_amount: totalInterest,
         monthly_installment: monthlyInstallment,
-        total_amount: totalOriginal,
+        total_original: totalOriginal,
         status: 'open'
       };
 
-      await createContract(contractData);
-
-      const loanData = {
-        clientId: clientId,
-        protocolNumber: protocol,
-        principal: principal,
-        interestRate: interestRateMonth,
-        installmentsCount: installments,
-        dueDate: formData.dataVencimento,
-        penaltyRate: penaltyRate,
-        dailyInterestRate: dailyInterestRate,
-        loanDate: formData.dataEmprestimo,
-        status: 'active'
-      };
-
-      addLoan(loanData);
+      const result = await createContract(contractData);
+      if (!result.success) {
+        throw new Error(result.error || 'Falha ao salvar contrato no banco de dados');
+      }
 
       setGeneratedContract({
         ...contractData,
-        id: protocol,
+        id: result.id || protocol,
         created_at: new Date().toISOString()
       });
 
       setShowContract(true);
       setIsSimulated(false);
+      alert('Contrato gerado e gravado com sucesso no sistema!');
       
     } catch (error) {
       console.error('Error generating contract:', error);
@@ -207,6 +194,40 @@ const GerarContrato = () => {
   const handleDownloadPDF = () => {
     if (!generatedContract) return;
     exportSingleContractPDF(generatedContract);
+  };
+
+  const handleShareWhatsApp = () => {
+    // 1. Monta o cabeçalho do resumo em texto
+    let texto = `*SIMULAÇÃO DE EMPRÉSTIMO* 📊\n\n`;
+    texto += `*Cliente:* ${formData.nome || 'Cliente'}\n`;
+    texto += `*Valor Liberado:* ${formatCurrency(principal)}\n`;
+    texto += `*Parcelamento:* ${installments}x de ${formatCurrency(monthlyInstallment)}\n`;
+    texto += `*Total do Contrato:* ${formatCurrency(totalOriginal)}\n\n`;
+    
+    // 2. Monta a tabela de projeção de atrasos
+    texto += `*PROJEÇÃO DE ATRASOS* ⚠️\n`;
+    texto += `_(Multa: ${penaltyRate}% | Juros: ${dailyInterestRate}% ao dia)_\n\n`;
+    
+    const diasSimulacao = [1, 5, 10, 15, 20, 25, 30];
+    
+    diasSimulacao.forEach(days => {
+      const penalties = calculateOverduePenalties(monthlyInstallment, penaltyRate, dailyInterestRate, days);
+      const updated = calculateUpdatedTotal(monthlyInstallment, penalties.totalPenalties);
+      
+      texto += `• ${days} dia(s): *${formatCurrency(updated.totalUpdated)}*\n`;
+    });
+
+    texto += `\n_Simulação gerada em ${new Date().toLocaleDateString('pt-BR')}._`;
+
+    // 3. Converte para o formato de link do WhatsApp
+    const textoCodificado = encodeURIComponent(texto);
+    
+    // 4. Se encontrar o telefone do cliente, pré-preenche o número
+    const clientFound = clientsList.find(c => c.cpf === formData.cpf || c.name === formData.nome);
+    const numLimpo = (clientFound?.phone || '').replace(/\D/g, '');
+    const url = numLimpo ? `https://wa.me/55${numLimpo}?text=${textoCodificado}` : `https://wa.me/?text=${textoCodificado}`;
+    
+    window.open(url, '_blank');
   };
 
   if (showContract && generatedContract) {
@@ -511,6 +532,32 @@ const GerarContrato = () => {
                   </span>
                 </div>
               </div>
+
+              {/* NOVA SEÇÃO: Projeção de Atrasos */}
+              <div className="gerar-contrato-section-header" style={{ marginTop: '32px' }}>
+                <Calculator size={20} />
+                <h3>Projeção de Atraso (Por Parcela)</h3>
+              </div>
+              
+              <div className="delay-simulation-grid">
+                <div className="delay-simulation-header">
+                  <span>Dias Corridos</span>
+                  <span>Novo Valor da Parcela</span>
+                </div>
+                
+                {/* Tabela gerada automaticamente para os dias informados */}
+                {[1, 5, 10, 15, 20, 25, 30].map(days => {
+                  const penalties = calculateOverduePenalties(monthlyInstallment, penaltyRate, dailyInterestRate, days);
+                  const updated = calculateUpdatedTotal(monthlyInstallment, penalties.totalPenalties);
+                  
+                  return (
+                    <div key={days} className="delay-simulation-row">
+                      <span>{days} {days === 1 ? 'dia de atraso' : 'dias de atraso'}</span>
+                      <span className="text-red font-bold">{formatCurrency(updated.totalUpdated)}</span>
+                    </div>
+                  );
+                })}
+              </div>
             </Card>
 
             <div className="gerar-contrato-actions-bottom">
@@ -521,6 +568,16 @@ const GerarContrato = () => {
               >
                 Editar Valores
               </Button>
+              
+              <Button 
+                variant="outline" 
+                icon={Share2} 
+                onClick={handleShareWhatsApp}
+                className="btn-share-wpp"
+              >
+                Enviar Resumo (WhatsApp)
+              </Button>
+
               <Button 
                 variant="primary" 
                 icon={Save} 

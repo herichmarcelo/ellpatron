@@ -4,7 +4,7 @@ import { useAuth } from '../contexts/useAuth';
 import Card from '../components/Card';
 import Input from '../components/Input';
 import Button from '../components/Button';
-import { Mail, Lock, AlertCircle } from 'lucide-react';
+import { Mail, Lock, AlertCircle, Eye, EyeOff } from 'lucide-react';
 import './Login.css';
 
 const Login = () => {
@@ -14,6 +14,7 @@ const Login = () => {
     email: '',
     password: ''
   });
+  const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
 
@@ -70,12 +71,23 @@ const Login = () => {
 
             <Input
               label="Senha"
-              type="password"
+              type={showPassword ? 'text' : 'password'}
               name="password"
               placeholder="••••••••"
               value={formData.password}
               onChange={handleChange}
               icon={Lock}
+              rightAction={
+                <button
+                  type="button"
+                  className="input-password-toggle"
+                  onClick={() => setShowPassword(!showPassword)}
+                  aria-label={showPassword ? 'Ocultar senha' : 'Exibir senha'}
+                  tabIndex="-1"
+                >
+                  {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+                </button>
+              }
               required
               fullWidth
             />

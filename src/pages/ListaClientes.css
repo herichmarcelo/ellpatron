@@ -542,6 +542,751 @@
   }
 }
 
+/* ==========================================================
+   6. MODAL ESTILO C6 CARBON (HISTÓRICO DE CONTRATOS)
+   ========================================================== */
+.c6-modal-content {
+  background-color: #141414;
+  border: 1px solid #29292e;
+  border-radius: 16px;
+  width: 100%;
+  max-width: 540px;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  box-shadow: 0 16px 48px rgba(0, 0, 0, 0.8);
+  max-height: 90vh;
+}
+
+/* Cabeçalho C6 */
+.c6-modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  padding: 24px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.c6-header-titles {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.c6-title {
+  color: #ffffff;
+  font-size: 18px;
+  font-weight: 700;
+  margin: 0;
+  letter-spacing: -0.3px;
+}
+
+.c6-subtitle {
+  color: #eab308;
+  font-size: 13px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.8px;
+}
+
+.c6-close-btn {
+  background: none;
+  border: none;
+  color: #a8a8b3;
+  cursor: pointer;
+  padding: 4px;
+  transition: color 0.2s, transform 0.2s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 6px;
+}
+
+.c6-close-btn:hover {
+  color: #ffffff;
+  background: rgba(255, 255, 255, 0.08);
+}
+
+/* Lista e Card do Contrato */
+.c6-contracts-list {
+  padding: 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  max-height: 70vh;
+  overflow-y: auto;
+}
+
+.c6-empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  padding: 40px 20px;
+  color: #737380;
+  font-size: 14px;
+  text-align: center;
+}
+
+.c6-contract-card {
+  background-color: #1e1e22;
+  border: 1px solid #29292e;
+  border-radius: 12px;
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.c6-contract-card:hover {
+  border-color: #eab308;
+  box-shadow: 0 4px 16px rgba(234, 179, 8, 0.1);
+}
+
+/* Topo do Card */
+.c6-card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 18px;
+}
+
+.c6-contract-id {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: #ffffff;
+  font-size: 14px;
+  font-weight: 700;
+}
+
+.c6-badge {
+  font-size: 11px;
+  font-weight: 700;
+  padding: 4px 10px;
+  border-radius: 100px;
+  letter-spacing: 0.5px;
+}
+
+.c6-badge-open {
+  background-color: rgba(16, 185, 129, 0.12);
+  color: #10b981;
+  border: 1px solid rgba(16, 185, 129, 0.25);
+}
+
+.c6-badge-paid {
+  background-color: rgba(59, 130, 246, 0.12);
+  color: #3b82f6;
+  border: 1px solid rgba(59, 130, 246, 0.25);
+}
+
+.c6-badge-overdue {
+  background-color: rgba(239, 68, 68, 0.12);
+  color: #ef4444;
+  border: 1px solid rgba(239, 68, 68, 0.25);
+}
+
+/* Container da nova grade 2x2 de Contratos */
+.contract-mini-cards-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+  margin-bottom: 14px;
+}
+
+/* Estilo Base dos Mini-Cards */
+.mini-card {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  padding: 10px 12px;
+  border-radius: 8px;
+  border: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.mini-card-label {
+  font-size: 11px;
+  color: #a8a8b3;
+  font-weight: 500;
+  margin-bottom: 3px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.mini-card-value {
+  font-size: 14px;
+  color: #ffffff;
+  font-weight: 600;
+}
+
+/* Cores específicas para diferenciar Datas de Valores */
+.card-date {
+  background-color: #202024;
+}
+
+.card-money {
+  background-color: rgba(234, 179, 8, 0.05);
+  border-color: rgba(234, 179, 8, 0.15);
+}
+
+/* VALOR TOTAL - Alinhamento Inline para economizar espaço */
+.contract-total-inline {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px 4px;
+  margin-bottom: 14px;
+  border-top: 1px dashed #29292e;
+  border-bottom: 1px dashed #29292e;
+}
+
+.total-inline-label {
+  font-size: 13px;
+  color: #a8a8b3;
+  font-weight: 500;
+}
+
+.total-inline-value {
+  font-size: 18px;
+  color: #eab308;
+  font-weight: 800;
+}
+
+/* Grade de Dados Legada/Genérica */
+.c6-card-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+  margin-bottom: 20px;
+}
+
+.c6-data-group {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.c6-data-label {
+  color: #a8a8b3;
+  font-size: 12px;
+  font-weight: 500;
+}
+
+.c6-data-value {
+  color: #ffffff;
+  font-size: 15px;
+  font-weight: 600;
+}
+
+/* Área de Total Separada */
+.c6-card-total {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding-top: 16px;
+  border-top: 1px dashed #29292e;
+  margin-bottom: 16px;
+}
+
+.c6-total-label {
+  color: #a8a8b3;
+  font-size: 14px;
+  font-weight: 500;
+}
+
+.c6-total-value {
+  color: #ffffff;
+  font-size: 20px;
+  font-weight: 800;
+}
+
+/* Botão de Ação Estilo C6 */
+.c6-action-btn {
+  width: 100%;
+  background-color: #29292e;
+  color: #ffffff;
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  border-radius: 8px;
+  padding: 14px 16px;
+  font-size: 14px;
+  font-weight: 600;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  cursor: pointer;
+  transition: background-color 0.2s ease, border-color 0.2s ease;
+}
+
+.c6-action-btn:hover {
+  background-color: #323238;
+  border-color: #eab308;
+}
+
+/* Modal Largo */
+.c6-modal-large {
+  max-width: 680px;
+}
+
+/* Corpo do Modal */
+.c6-modal-body {
+  padding: 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 28px;
+  overflow-y: auto;
+  max-height: 75vh;
+}
+
+/* Painel de Resumo */
+.c6-summary-panel {
+  background-color: #1e1e22;
+  border: 1px solid #29292e;
+  border-radius: 12px;
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.c6-section-title {
+  color: #ffffff;
+  font-size: 15px;
+  font-weight: 700;
+  margin: 0;
+  letter-spacing: 0.3px;
+}
+
+.c6-data-highlight .c6-data-value.text-gold {
+  color: #eab308;
+  font-size: 18px;
+  font-weight: 700;
+}
+
+/* Seção de Pagamentos */
+.c6-payments-section {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+/* Cabeçalho da Seção de Pagamentos */
+.c6-payments-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+  padding-bottom: 14px;
+}
+
+/* Botão de Ação Primária Dourado */
+.c6-btn-primary {
+  background-color: #eab308;
+  color: #141414;
+  border: none;
+  border-radius: 8px;
+  padding: 10px 16px;
+  font-size: 13px;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  box-shadow: 0 4px 12px rgba(234, 179, 8, 0.15);
+}
+
+.c6-btn-primary:hover {
+  background-color: #facc15;
+  transform: translateY(-1px);
+  box-shadow: 0 6px 16px rgba(234, 179, 8, 0.25);
+}
+
+/* Formulário de Pagamento */
+.c6-payment-form-card {
+  background-color: #1e1e22;
+  border: 1px solid #29292e;
+  border-radius: 12px;
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.c6-form-title {
+  color: #ffffff;
+  font-size: 15px;
+  font-weight: 700;
+  margin: 0;
+}
+
+.c6-payment-form-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 14px;
+}
+
+.c6-form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.c6-form-group label {
+  color: #a8a8b3;
+  font-size: 12px;
+  font-weight: 500;
+}
+
+.c6-form-full {
+  grid-column: span 2;
+}
+
+.c6-form-actions {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 8px;
+}
+
+/* Empty State */
+.c6-empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: 36px 20px;
+  background-color: rgba(30, 30, 34, 0.4);
+  border: 1px dashed #29292e;
+  border-radius: 12px;
+  gap: 8px;
+}
+
+.c6-empty-icon {
+  width: 54px;
+  height: 54px;
+  border-radius: 50%;
+  background-color: #141414;
+  border: 1px solid #29292e;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #737380;
+  margin-bottom: 6px;
+}
+
+.c6-empty-text {
+  color: #e1e1e6;
+  font-size: 14px;
+  font-weight: 600;
+  margin: 0;
+}
+
+.c6-empty-subtext {
+  color: #737380;
+  font-size: 13px;
+}
+
+/* Tabela e Tags de Pagamento */
+.c6-payments-table-container {
+  overflow-x: auto;
+  border-radius: 8px;
+  border: 1px solid #29292e;
+}
+
+.c6-payment-tag {
+  font-size: 11px;
+  font-weight: 700;
+  padding: 2px 8px;
+  background: rgba(255, 255, 255, 0.06);
+  border-radius: 4px;
+  color: #a8a8b3;
+}
+
+/* Contador de Baixas */
+.c6-installments-counter {
+  font-size: 12px;
+  color: #737380;
+  font-weight: 600;
+}
+
+/* Header do formulário de pagamento */
+.c6-form-header-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 4px;
+}
+
+.c6-form-cancel-btn {
+  background: none;
+  border: none;
+  color: #a8a8b3;
+  font-size: 13px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 4px 8px;
+  border-radius: 6px;
+  transition: all 0.2s ease;
+}
+
+.c6-form-cancel-btn:hover {
+  color: #ffffff;
+  background: rgba(255, 255, 255, 0.08);
+}
+
+/* Lista de Parcelas */
+.c6-installments-list {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.c6-installment-card {
+  background-color: #1e1e22;
+  border: 1px solid #29292e;
+  border-radius: 12px;
+  padding: 18px 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.c6-installment-card:hover {
+  border-color: #3e3e44;
+}
+
+.c6-inst-paid {
+  border-left: 4px solid #10b981;
+}
+
+.c6-inst-partial {
+  border-left: 4px solid #eab308;
+}
+
+.c6-inst-overdue {
+  border-left: 4px solid #ef4444;
+  background: linear-gradient(180deg, rgba(239, 68, 68, 0.04) 0%, #1e1e22 100%);
+}
+
+/* Cabeçalho da Parcela */
+.c6-inst-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding-bottom: 10px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.c6-inst-title-group {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.c6-inst-badge-num {
+  font-size: 14px;
+  font-weight: 700;
+  color: #ffffff;
+}
+
+.c6-inst-due-date {
+  font-size: 12px;
+  color: #a8a8b3;
+}
+
+.c6-inst-due-date strong {
+  color: #e1e1e6;
+}
+
+/* Badges de Parcela */
+.c6-badge-partial {
+  background-color: rgba(234, 179, 8, 0.12);
+  color: #eab308;
+  border: 1px solid rgba(234, 179, 8, 0.25);
+}
+
+.c6-badge-pending {
+  background-color: rgba(255, 255, 255, 0.06);
+  color: #a8a8b3;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+/* Grid de Valores da Parcela (1 Card na Esquerda e 1 Card na Direita) */
+.c6-inst-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr !important;
+  gap: 10px;
+  width: 100%;
+}
+
+.c6-inst-mini-card {
+  background-color: #141414;
+  border: 1px solid #29292e;
+  border-radius: 8px;
+  padding: 10px 12px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 4px;
+  min-width: 0;
+  transition: all 0.2s ease;
+}
+
+.c6-inst-mini-card--paid-full-width {
+  grid-column: span 2;
+}
+
+.c6-inst-mini-card--due {
+  border-color: rgba(234, 179, 8, 0.3);
+  background: linear-gradient(135deg, rgba(234, 179, 8, 0.06) 0%, #141414 100%);
+}
+
+.c6-inst-mini-card--overdue {
+  border-color: rgba(239, 68, 68, 0.3);
+  background: linear-gradient(135deg, rgba(239, 68, 68, 0.08) 0%, #141414 100%);
+}
+
+.c6-inst-mini-card--paid {
+  border-color: rgba(16, 185, 129, 0.3);
+  background: linear-gradient(135deg, rgba(16, 185, 129, 0.06) 0%, #141414 100%);
+}
+
+.c6-inst-mini-card .c6-data-label {
+  font-size: 11px;
+  color: #a8a8b3;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.4px;
+}
+
+.c6-inst-mini-card .c6-data-value {
+  font-size: 16px;
+  font-weight: 700;
+  color: #ffffff;
+}
+
+/* Alerta de Atraso e Juros */
+.c6-inst-penalty-alert {
+  background: rgba(239, 68, 68, 0.08);
+  border: 1px solid rgba(239, 68, 68, 0.2);
+  border-radius: 8px;
+  padding: 10px 14px;
+  font-size: 12px;
+  line-height: 1.5;
+  color: #fca5a5;
+}
+
+/* Mini Baixas da Parcela */
+.c6-inst-payments-mini {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 8px 12px;
+  background: rgba(0, 0, 0, 0.25);
+  border-radius: 8px;
+}
+
+.c6-mini-title {
+  font-size: 11px;
+  font-weight: 600;
+  color: #737380;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.c6-mini-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.c6-mini-tag {
+  font-size: 11px;
+  color: #10b981;
+  background: rgba(16, 185, 129, 0.1);
+  padding: 2px 8px;
+  border-radius: 4px;
+  font-weight: 600;
+}
+
+/* Rodapé do Card da Parcela */
+.c6-inst-footer {
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  padding-top: 6px;
+}
+
+.c6-inst-status-done {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 13px;
+  font-weight: 700;
+  color: #10b981;
+  padding: 8px 12px;
+  background: rgba(16, 185, 129, 0.08);
+  border-radius: 8px;
+}
+
+.c6-inst-actions-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  justify-content: flex-end;
+}
+
+.c6-btn-wpp-charge {
+  background-color: #25d366;
+  color: #ffffff;
+  border: none;
+  border-radius: 8px;
+  padding: 10px 14px;
+  font-size: 13px;
+  font-weight: 700;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  box-shadow: 0 4px 12px rgba(37, 211, 102, 0.2);
+  white-space: nowrap;
+}
+
+.c6-btn-wpp-charge img {
+  display: block;
+}
+
+.c6-btn-wpp-charge:hover {
+  background-color: #22c55e;
+  transform: translateY(-1px);
+  box-shadow: 0 6px 16px rgba(37, 211, 102, 0.3);
+}
+
+.c6-action-btn--pay {
+  width: auto;
+  min-width: 160px;
+  padding: 10px 16px;
+  font-size: 13px;
+  background-color: #29292e;
+  border-color: rgba(255, 255, 255, 0.08);
+}
+
+.c6-action-btn--pay:hover {
+  background-color: #eab308;
+  color: #141414;
+  border-color: #eab308;
+}
+
+.c6-action-btn--pay:hover svg {
+  stroke: #141414;
+}
+
 /* RESPONSIVIDADE MOBILE */
 @media (max-width: 768px) {
   .lista-clientes {
@@ -572,5 +1317,79 @@
   .header-action-buttons > button {
     font-size: 12px;
     padding: 10px 6px;
+  }
+
+  /* --- TRANSFORMA OS MODAIS C6 EM PÁGINA FULLSCREEN NO CELULAR --- */
+  .modal-overlay {
+    padding: 0 !important;
+    align-items: stretch !important;
+    justify-content: stretch !important;
+  }
+
+  .c6-modal-content,
+  .c6-modal-large {
+    width: 100vw !important;
+    height: 100vh !important;
+    max-width: none !important;
+    max-height: 100vh !important;
+    border-radius: 0 !important;
+    border: none !important;
+    display: flex !important;
+    flex-direction: column !important;
+  }
+
+  /* O cabeçalho fica fixo no topo da página */
+  .c6-modal-header {
+    background-color: #141414 !important;
+    position: sticky !important;
+    top: 0 !important;
+    z-index: 20 !important;
+    padding: 18px 20px !important;
+    border-bottom: 1px solid #29292e !important;
+    flex-shrink: 0;
+  }
+
+  /* A lista de contratos ocupa o resto da tela e rola suavemente */
+  .c6-contracts-list {
+    flex: 1 !important;
+    max-height: none !important;
+    padding: 18px 16px !important;
+    padding-bottom: 50px !important;
+    overflow-y: auto !important;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  /* O corpo do modal de pagamentos também ocupa a tela inteira */
+  .c6-modal-body {
+    flex: 1 !important;
+    max-height: none !important;
+    padding: 18px 16px !important;
+    padding-bottom: 50px !important;
+    overflow-y: auto !important;
+    -webkit-overflow-scrolling: touch;
+    gap: 20px !important;
+  }
+}
+
+@media (max-width: 480px) {
+  .c6-card-grid {
+    grid-template-columns: 1fr;
+    gap: 12px;
+  }
+  .c6-payment-form-grid {
+    grid-template-columns: 1fr;
+  }
+  .c6-form-full {
+    grid-column: span 1;
+  }
+  .c6-payments-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 12px;
+  }
+  .c6-btn-primary {
+    width: 100%;
+    justify-content: center;
+    padding: 12px;
   }
 }

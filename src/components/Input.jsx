@@ -6,6 +6,8 @@ const Input = ({
   error,
   helperText,
   icon: Icon,
+  rightIcon: RightIcon,
+  rightAction,
   type = 'text',
   placeholder,
   value,
@@ -24,12 +26,14 @@ const Input = ({
   const disabledClass = disabled ? 'input--disabled' : '';
   const fullWidthClass = fullWidth ? 'input--full-width' : '';
   const withIconClass = Icon ? 'input--with-icon' : '';
+  const withRightIconClass = (RightIcon || rightAction) ? 'input--with-right-icon' : '';
   const combinedClasses = [
     baseClasses,
     errorClass,
     disabledClass,
     fullWidthClass,
     withIconClass,
+    withRightIconClass,
     className
   ].filter(Boolean).join(' ');
 
@@ -69,6 +73,15 @@ const Input = ({
           spellCheck="false"
           {...props}
         />
+        {rightAction ? (
+          <div className="input-right-action">
+            {rightAction}
+          </div>
+        ) : RightIcon ? (
+          <div className="input-right-icon">
+            <RightIcon size={18} />
+          </div>
+        ) : null}
       </div>
       {error && <p className="input-error">{error}</p>}
       {helperText && !error && <p className="input-helper">{helperText}</p>}

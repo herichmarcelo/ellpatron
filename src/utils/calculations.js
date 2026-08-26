@@ -241,32 +241,49 @@ export const calculateContractValues = (principal, interestRate) => {
  * @returns {object} Object with penalty calculations
  */
 export const calculateOverduePenalties = (principal, penaltyRate, dailyInterestRate, daysOverdue) => {
-  const penaltyAmount = principal * (penaltyRate / 100);
-  const dailyInterestAmount = principal * (dailyInterestRate / 100);
-  const totalDailyInterest = dailyInterestAmount * daysOverdue;
+  const p = Number(principal) || 0;
+  const pRate = Number(penaltyRate) || 0;
+  const dRate = Number(dailyInterestRate) || 0;
+  const days = Number(daysOverdue) || 0;
+
+  const penaltyAmount = p * (pRate / 100);
+  const dailyInterestAmount = p * (dRate / 100);
+  const totalDailyInterest = dailyInterestAmount * days;
   const totalPenalties = penaltyAmount + totalDailyInterest;
 
   return {
     penaltyAmount,
+    multaValor: penaltyAmount,
     dailyInterestAmount,
     totalDailyInterest,
+    jurosDiariosValor: totalDailyInterest,
     totalPenalties,
-    daysOverdue
+    daysOverdue: days
   };
 };
 
 /**
  * Calculate total updated amount with penalties
  * @param {number} totalOriginal - Original total to pay
- * @param {number} totalPenalties - Total penalties amount
+ * @param {number} totalPenalties - Total penalties amount or penalty value
+ * @param {number} [jurosDiarios] - Optional daily interest value
  * @returns {object} Object with updated total
  */
-export const calculateUpdatedTotal = (totalOriginal, totalPenalties) => {
-  const totalUpdated = totalOriginal + totalPenalties;
+export const calculateUpdatedTotal = (totalOriginal, totalPenalties, jurosDiarios) => {
+  const orig = Number(totalOriginal) || 0;
+  let penalties = 0;
+  
+  if (jurosDiarios !== undefined) {
+    penalties = (Number(totalPenalties) || 0) + (Number(jurosDiarios) || 0);
+  } else {
+    penalties = Number(totalPenalties) || 0;
+  }
+
+  const totalUpdated = orig + penalties;
 
   return {
-    totalOriginal,
-    totalPenalties,
+    totalOriginal: orig,
+    totalPenalties: penalties,
     totalUpdated
   };
 };

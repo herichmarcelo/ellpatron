@@ -2,7 +2,8 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { 
   Users, UserPlus, Search, Edit, Eye, Phone, MapPin, Calendar, 
-  FileText, Plus, Download, ShieldAlert, Ban, X 
+  FileText, Plus, Download, ShieldAlert, Ban, X, ChevronRight,
+  CheckCircle2, DollarSign
 } from 'lucide-react';
 import Card from '../components/Card';
 import Button from '../components/Button';
@@ -10,7 +11,8 @@ import Input from '../components/Input';
 import Badge from '../components/Badge';
 import { useClients, useAddToBlacklist, useRemoveFromBlacklist, isClientBlacklisted } from '../hooks/useClients';
 import { formatPhone, formatDate, formatCPF, getInitials, stringToColor, formatAddress, formatCurrency } from '../utils/formatters';
-import { getContracts, getPayments, createPayment } from '../supabase/services.js';
+import { getContracts, getPayments, createPayment, updateContract } from '../supabase/services.js';
+import { calculateOverduePenalties } from '../utils/calculations';
 import { exportClientsExcel } from '../utils/exportUtils';
 import './ListaClientes.css';
 
@@ -29,6 +31,7 @@ const ListaClientes = () => {
   const [selectedContract, setSelectedContract] = useState(null);
   const [contractPayments, setContractPayments] = useState([]);
   const [showAddPaymentForm, setShowAddPaymentForm] = useState(false);
+  const [selectedInstallment, setSelectedInstallment] = useState(null);
   const [showClientDetailsModal, setShowClientDetailsModal] = useState(false);
   const [selectedClientDetails, setSelectedClientDetails] = useState(null);
   const [newPayment, setNewPayment] = useState({
@@ -119,6 +122,7 @@ const ListaClientes = () => {
     setSelectedContract(contract);
     setShowPaymentsModal(true);
     setShowAddPaymentForm(false);
+    setSelectedInstallment(null);
     
     try {
       const result = await getPayments({ contractProtocol: contract.protocol_number });
@@ -131,16 +135,61 @@ const ListaClientes = () => {
     }
   };
 
+  const handleOpenPayInstallment = (inst) => {
+    setSelectedInstallment(inst);
+    setNewPayment({
+      installment_number: inst.number,
+      amount: inst.totalDue > 0 ? inst.totalDue.toFixed(2) : inst.monthlyInstallment.toFixed(2),
+      payment_date: new Date().toISOString().split('T')[0],
+      payment_method: 'pix',
+      notes: ''
+    });
+    setShowAddPaymentForm(true);
+  };
+
+  const handleCobrarParcela = (client, inst) => {
+    // 1. Obtém e limpa o telefone do cliente
+    const phone = client?.phone || selectedContract?.client_phone || '';
+    const numeroLimpo = phone.replace(/\D/g, '');
+    const clientName = client?.name || selectedContract?.client_name || 'Cliente';
+    
+    // 2. Define os valores e dados da parcela
+    const valorCobrado = formatCurrency(inst.totalDue > 0 ? inst.totalDue : inst.monthlyInstallment);
+    const dataVenc = formatDate(inst.dueDate);
+    const numeroParcela = `${inst.number}/${inst.totalCount}`;
+    
+    // 3. Monta a mensagem personalizada
+    let mensagem = '';
+    if (inst.isOverdue) {
+      mensagem = `Olá, *${clientName}*, tudo bem? Aqui é da Ell Patron.\n\nConsta em nosso sistema que a sua parcela *${numeroParcela}* no valor atualizado de *${valorCobrado}* (com vencimento original em ${dataVenc}) encontra-se pendente com ${inst.daysOverdue} dia(s) de atraso.\n\nHouve algum imprevisto? Me dê um retorno para alinharmos a baixa, por favor!`;
+    } else {
+      mensagem = `Olá, *${clientName}*! Tudo bem? Aqui é da Ell Patron.\n\nEntrando em contato referente à sua parcela *${numeroParcela}* do seu contrato.\n\n*Vencimento:* ${dataVenc}\n*Valor:* ${valorCobrado}\n\nAssim que realizar o pagamento, pode me enviar o comprovante por aqui mesmo. Caso precise da chave PIX, é só me avisar. Fico à disposição!`;
+    }
+    
+    // 4. Codifica e abre o WhatsApp
+    const url = numeroLimpo 
+      ? `https://wa.me/55${numeroLimpo}?text=${encodeURIComponent(mensagem)}`
+      : `https://wa.me/?text=${encodeURIComponent(mensagem)}`;
+      
+    window.open(url, '_blank');
+  };
+
   const handleAddPayment = async () => {
     try {
+      const paymentAmount = parseFloat(newPayment.amount) || 0;
+      if (paymentAmount <= 0) {
+        alert('Por favor, informe um valor válido para o pagamento.');
+        return;
+      }
+
       const paymentData = {
         contract_id: selectedContract.id,
         contract_protocol: selectedContract.protocol_number,
         installment_number: parseInt(newPayment.installment_number) || 1,
-        amount: parseFloat(newPayment.amount) || 0,
-        payment_date: newPayment.payment_date,
-        payment_method: newPayment.payment_method,
-        notes: newPayment.notes
+        amount: paymentAmount,
+        payment_date: newPayment.payment_date || new Date().toISOString().split('T')[0],
+        payment_method: newPayment.payment_method || 'pix',
+        notes: newPayment.notes || ''
       };
 
       const result = await createPayment(paymentData);
@@ -148,9 +197,30 @@ const ListaClientes = () => {
       if (result.success) {
         alert('Pagamento registrado com sucesso!');
         const paymentsResult = await getPayments({ contractProtocol: selectedContract.protocol_number });
-        if (paymentsResult.success) {
-          setContractPayments(paymentsResult.data || []);
+        const updatedPayments = paymentsResult.success ? (paymentsResult.data || []) : [];
+        setContractPayments(updatedPayments);
+
+        // Verificar se todas as parcelas foram quitadas
+        const totalInstallments = parseInt(selectedContract.installments || selectedContract.installments_count || 1);
+        const monthlyVal = Number(selectedContract.monthly_installment || (selectedContract.total_amount / totalInstallments));
+        let allPaid = true;
+        for (let i = 1; i <= totalInstallments; i++) {
+          const paid = updatedPayments.filter(p => Number(p.installment_number) === i).reduce((s, p) => s + (Number(p.amount) || 0), 0);
+          if (paid < monthlyVal - 0.01) {
+            allPaid = false;
+            break;
+          }
         }
+
+        if (allPaid && selectedContract.status !== 'paid') {
+          await updateContract(selectedContract.id, { status: 'paid' });
+          setSelectedContract({ ...selectedContract, status: 'paid' });
+          const contractsRes = await getContracts();
+          if (contractsRes.success && selectedClient) {
+            setClientContracts(contractsRes.data.filter(c => c.client_name === selectedClient.name || c.client_cpf === selectedClient.cpf));
+          }
+        }
+
         setNewPayment({
           installment_number: '',
           amount: '',
@@ -159,6 +229,7 @@ const ListaClientes = () => {
           notes: ''
         });
         setShowAddPaymentForm(false);
+        setSelectedInstallment(null);
       } else {
         alert('Erro ao registrar pagamento: ' + result.error);
       }
@@ -166,6 +237,81 @@ const ListaClientes = () => {
       console.error('Error adding payment:', error);
       alert('Erro ao registrar pagamento: ' + error.message);
     }
+  };
+
+  const getInstallmentsData = () => {
+    if (!selectedContract) return [];
+    const totalCount = parseInt(selectedContract.installments || selectedContract.installments_count || 1);
+    const monthlyInstallment = Number(selectedContract.monthly_installment || (selectedContract.total_amount / totalCount));
+    const penaltyRate = Number(selectedContract.penalty_rate || selectedContract.late_fee_percentage || 10);
+    const dailyInterestRate = Number(selectedContract.daily_interest_rate || selectedContract.daily_late_interest_percentage || 1);
+    const baseDueDate = selectedContract.due_date ? new Date(selectedContract.due_date) : new Date();
+
+    const list = [];
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+
+    for (let i = 1; i <= totalCount; i++) {
+      const instDueDate = new Date(baseDueDate);
+      instDueDate.setMonth(baseDueDate.getMonth() + (i - 1));
+      const dueCompare = new Date(instDueDate);
+      dueCompare.setHours(0, 0, 0, 0);
+
+      const paymentsForThis = contractPayments.filter(p => Number(p.installment_number) === i);
+      const totalPaid = paymentsForThis.reduce((sum, p) => sum + (Number(p.amount) || 0), 0);
+      const remainingPrincipal = Math.max(0, monthlyInstallment - totalPaid);
+
+      const isOverdue = remainingPrincipal > 0.01 && today > dueCompare;
+      const daysOverdue = isOverdue ? Math.max(0, Math.floor((today - dueCompare) / (1000 * 60 * 60 * 24))) : 0;
+
+      let penaltyAmount = 0;
+      let totalDailyInterest = 0;
+      let totalDue = remainingPrincipal;
+
+      if (isOverdue && daysOverdue > 0) {
+        const penalties = calculateOverduePenalties(remainingPrincipal, penaltyRate, dailyInterestRate, daysOverdue);
+        penaltyAmount = penalties.penaltyAmount || penalties.multaValor || 0;
+        totalDailyInterest = penalties.totalDailyInterest || penalties.jurosDiariosValor || 0;
+        totalDue = remainingPrincipal + (penalties.totalPenalties || (penaltyAmount + totalDailyInterest));
+      }
+
+      let status = 'pending';
+      let statusLabel = 'PENDENTE';
+      let badgeClass = 'c6-badge-pending';
+
+      if (remainingPrincipal <= 0.01) {
+        status = 'paid';
+        statusLabel = 'PAGA';
+        badgeClass = 'c6-badge-paid';
+      } else if (totalPaid > 0) {
+        status = 'partial';
+        statusLabel = isOverdue ? `PARCIAL (${daysOverdue}d ATRASO)` : 'PARCIAL';
+        badgeClass = isOverdue ? 'c6-badge-overdue' : 'c6-badge-partial';
+      } else if (isOverdue) {
+        status = 'overdue';
+        statusLabel = `EM ATRASO (${daysOverdue}d)`;
+        badgeClass = 'c6-badge-overdue';
+      }
+
+      list.push({
+        number: i,
+        totalCount,
+        dueDate: instDueDate,
+        monthlyInstallment,
+        totalPaid,
+        remainingPrincipal,
+        isOverdue,
+        daysOverdue,
+        penaltyAmount,
+        totalDailyInterest,
+        totalDue,
+        status,
+        statusLabel,
+        badgeClass,
+        payments: paymentsForThis
+      });
+    }
+    return list;
   };
 
   const handleExportExcel = () => {
@@ -497,173 +643,339 @@ const ListaClientes = () => {
         </div>
       )}
 
-      {/* Contracts Modal */}
+      {/* Contracts Modal (C6 Carbon Style) */}
       {showContractsModal && selectedClient && (
         <div className="modal-overlay" onClick={() => setShowContractsModal(false)}>
-          <div className="modal-content" onClick={(e) => e.stopPropagation()}>
-            <div className="modal-header">
-              <h2>Histórico de Contratos - {selectedClient.name}</h2>
-              <Button variant="ghost" size="small" onClick={() => setShowContractsModal(false)}>
-                ✕
-              </Button>
+          <div className="c6-modal-content" onClick={(e) => e.stopPropagation()}>
+            
+            {/* Cabeçalho do Modal */}
+            <div className="c6-modal-header">
+              <div className="c6-header-titles">
+                <h2 className="c6-title">Histórico de Contratos</h2>
+                <span className="c6-subtitle">{selectedClient.name}</span>
+              </div>
+              <button className="c6-close-btn" onClick={() => setShowContractsModal(false)} aria-label="Fechar">
+                <X size={22} />
+              </button>
             </div>
-            <div className="modal-body">
+
+            {/* Lista de Contratos */}
+            <div className="c6-contracts-list">
               {clientContracts.length === 0 ? (
-                <p>Nenhum contrato encontrado para este cliente.</p>
+                <div className="c6-empty-state">
+                  <FileText size={32} color="#737380" />
+                  <p>Nenhum contrato encontrado para este cliente.</p>
+                </div>
               ) : (
-                <div className="contracts-list">
-                  {clientContracts.map(contract => (
-                    <Card key={contract.id} className="contract-item">
-                      <div className="contract-info">
-                        <h4>Contrato #{contract.protocol_number}</h4>
-                        <p>Data: {new Date(contract.loan_date || contract.created_at).toLocaleDateString('pt-BR')}</p>
-                        <p>Valor Principal: {formatCurrency(contract.principal)}</p>
-                        <p>Parcelas: {contract.installments_count || 1}x de {formatCurrency(contract.monthly_installment || contract.principal)}</p>
-                        <p>Total: {formatCurrency(contract.total_amount || contract.total_original || contract.principal)}</p>
-                        <Badge variant={contract.status === 'open' ? 'green' : 'gray'}>
-                          {contract.status === 'open' ? 'Em aberto' : contract.status === 'paid' ? 'Pago' : contract.status}
-                        </Badge>
+                clientContracts.map(contract => {
+                  const statusLabel = contract.status === 'open' ? 'EM ABERTO' : contract.status === 'paid' ? 'QUITADO' : contract.status === 'overdue' ? 'EM ATRASO' : (contract.status || '').toUpperCase();
+                  const badgeClass = contract.status === 'open' ? 'c6-badge-open' : contract.status === 'paid' ? 'c6-badge-paid' : 'c6-badge-overdue';
+
+                  return (
+                    <div key={contract.id} className="c6-contract-card">
+                      {/* Topo: ID e Status */}
+                      <div className="c6-card-header">
+                        <div className="c6-contract-id">
+                          <FileText size={16} color="#EAB308" />
+                          <span>#{contract.protocol_number}</span>
+                        </div>
+                        <span className={`c6-badge ${badgeClass}`}>{statusLabel}</span>
                       </div>
-                      <Button 
-                        variant="primary" 
-                        size="small"
+
+                      {/* A NOVA GRADE 2x2 DE INFORMAÇÕES */}
+                      <div className="contract-mini-cards-grid">
+                        {/* Linha 1: Datas (Fundo sutil escuro/azulado) */}
+                        <div className="mini-card card-date">
+                          <span className="mini-card-label">Emissão</span>
+                          <span className="mini-card-value">{formatDate(contract.loan_date || contract.created_at)}</span>
+                        </div>
+                        <div className="mini-card card-date">
+                          <span className="mini-card-label">Vencimento</span>
+                          <span className="mini-card-value">{formatDate(contract.due_date)}</span>
+                        </div>
+
+                        {/* Linha 2: Valores (Fundo sutil dourado/esverdeado) */}
+                        <div className="mini-card card-money">
+                          <span className="mini-card-label">Valor Principal</span>
+                          <span className="mini-card-value">{formatCurrency(contract.principal)}</span>
+                        </div>
+                        <div className="mini-card card-money">
+                          <span className="mini-card-label">Parcelamento</span>
+                          <span className="mini-card-value">
+                            {contract.installments_count || contract.installments || 1}x {formatCurrency(contract.monthly_installment || contract.principal)}
+                          </span>
+                        </div>
+                      </div>
+
+                      {/* VALOR TOTAL EM LINHA ÚNICA */}
+                      <div className="contract-total-inline">
+                        <span className="total-inline-label">Valor Total</span>
+                        <span className="total-inline-value text-gold">
+                          {formatCurrency(contract.total_amount || contract.total_original || contract.principal)}
+                        </span>
+                      </div>
+
+                      {/* Botão de Ação Minimalista */}
+                      <button 
+                        className="c6-action-btn"
                         onClick={() => handleViewPayments(contract)}
                       >
-                        Ver Pagamentos
-                      </Button>
-                    </Card>
-                  ))}
-                </div>
+                        <span>Ver Pagamentos</span>
+                        <ChevronRight size={18} />
+                      </button>
+                    </div>
+                  );
+                })
               )}
             </div>
+
           </div>
         </div>
       )}
 
-      {/* Payments Modal */}
+      {/* Payments Modal (C6 Carbon Style with Dynamic Installments & Partial Payments) */}
       {showPaymentsModal && selectedContract && (
         <div className="modal-overlay" onClick={() => setShowPaymentsModal(false)}>
-          <div className="modal-content modal-content--large" onClick={(e) => e.stopPropagation()}>
-            <div className="modal-header">
-              <h2>Pagamentos - Contrato #{selectedContract.protocol_number}</h2>
-              <Button variant="ghost" size="small" onClick={() => setShowPaymentsModal(false)}>
-                ✕
-              </Button>
+          <div className="c6-modal-content c6-modal-large" onClick={(e) => e.stopPropagation()}>
+            
+            {/* Cabeçalho do Modal */}
+            <div className="c6-modal-header">
+              <div className="c6-header-titles">
+                <h2 className="c6-title">Gestão de Pagamentos</h2>
+                <span className="c6-subtitle">Contrato #{selectedContract.protocol_number}</span>
+              </div>
+              <button className="c6-close-btn" onClick={() => setShowPaymentsModal(false)} aria-label="Fechar">
+                <X size={22} />
+              </button>
             </div>
-            <div className="modal-body">
-              <div className="contract-summary">
-                <Card className="contract-summary-card">
-                  <h4>Resumo do Contrato</h4>
-                  <p>Valor Principal: {formatCurrency(selectedContract.principal)}</p>
-                  <p>Parcelas: {selectedContract.installments_count || 1}x de {formatCurrency(selectedContract.monthly_installment || selectedContract.principal)}</p>
-                  <p>Total: {formatCurrency(selectedContract.total_amount || selectedContract.total_original || selectedContract.principal)}</p>
-                </Card>
+
+            {/* Corpo do Modal */}
+            <div className="c6-modal-body">
+              
+              {/* Bloco 1: Resumo do Contrato */}
+              <div className="c6-summary-panel">
+                <h3 className="c6-section-title">Resumo do Contrato</h3>
+                
+                <div className="c6-card-grid">
+                  <div className="c6-data-group">
+                    <span className="c6-data-label">Valor Principal</span>
+                    <span className="c6-data-value">{formatCurrency(selectedContract.principal)}</span>
+                  </div>
+                  
+                  <div className="c6-data-group">
+                    <span className="c6-data-label">Parcelas</span>
+                    <span className="c6-data-value">
+                      {selectedContract.installments_count || selectedContract.installments || 1}x de {formatCurrency(selectedContract.monthly_installment || selectedContract.principal)}
+                    </span>
+                  </div>
+                  
+                  <div className="c6-data-group c6-data-highlight">
+                    <span className="c6-data-label">Total a Pagar</span>
+                    <span className="c6-data-value text-gold">
+                      {formatCurrency(selectedContract.total_amount || selectedContract.total_original || selectedContract.principal)}
+                    </span>
+                  </div>
+                </div>
               </div>
 
-              <div className="payments-header">
-                <h3>Pagamentos Realizados</h3>
-                <Button 
-                  variant="primary" 
-                  size="small"
-                  icon={Plus}
-                  onClick={() => setShowAddPaymentForm(!showAddPaymentForm)}
-                >
-                  {showAddPaymentForm ? 'Cancelar' : 'Registrar Pagamento'}
-                </Button>
-              </div>
+              {/* Bloco 2: Lista Dinâmica de Parcelas */}
+              <div className="c6-payments-section">
+                <div className="c6-payments-header">
+                  <h3 className="c6-section-title">Cronograma de Parcelas</h3>
+                  <span className="c6-installments-counter">
+                    {contractPayments.length} baixa(s) registrada(s)
+                  </span>
+                </div>
 
-              {showAddPaymentForm && (
-                <Card className="add-payment-form">
-                  <h4>Registrar Novo Pagamento</h4>
-                  <div className="payment-form-grid">
-                    <div>
-                      <label>Parcela Nº</label>
-                      <Input
-                        type="number"
-                        placeholder="1"
-                        value={newPayment.installment_number}
-                        onChange={(value) => setNewPayment({...newPayment, installment_number: value})}
-                        min="1"
-                        max={selectedContract.installments_count || 12}
-                      />
-                    </div>
-                    <div>
-                      <label>Valor (R$)</label>
-                      <Input
-                        type="number"
-                        placeholder="0.00"
-                        value={newPayment.amount}
-                        onChange={(value) => setNewPayment({...newPayment, amount: value})}
-                      />
-                    </div>
-                    <div>
-                      <label>Data</label>
-                      <Input
-                        type="date"
-                        value={newPayment.payment_date}
-                        onChange={(value) => setNewPayment({...newPayment, payment_date: value})}
-                      />
-                    </div>
-                    <div>
-                      <label>Método</label>
-                      <select
-                        value={newPayment.payment_method}
-                        onChange={(e) => setNewPayment({...newPayment, payment_method: e.target.value})}
-                        className="payment-method-select"
+                {/* Formulário de Adicionar Pagamento Inline / Destaque */}
+                {showAddPaymentForm && (
+                  <div className="c6-payment-form-card">
+                    <div className="c6-form-header-row">
+                      <h4 className="c6-form-title">
+                        Registrar Baixa — Parcela {newPayment.installment_number}/{selectedContract.installments || selectedContract.installments_count || 1} {selectedInstallment ? `(${selectedInstallment.statusLabel})` : ''}
+                      </h4>
+                      <button 
+                        className="c6-form-cancel-btn" 
+                        onClick={() => { setShowAddPaymentForm(false); setSelectedInstallment(null); }}
                       >
-                        <option value="pix">PIX</option>
-                        <option value="dinheiro">Dinheiro</option>
-                        <option value="transferencia">Transferência</option>
-                      </select>
+                        <X size={16} /> Cancelar
+                      </button>
                     </div>
-                    <div>
-                      <label>Observações</label>
-                      <Input
-                        placeholder="Notas sobre o pagamento..."
-                        value={newPayment.notes}
-                        onChange={(value) => setNewPayment({...newPayment, notes: value})}
-                      />
-                    </div>
-                  </div>
-                  <div className="payment-form-actions">
-                    <Button 
-                      variant="primary" 
-                      onClick={handleAddPayment}
-                    >
-                      Confirmar Pagamento
-                    </Button>
-                  </div>
-                </Card>
-              )}
 
-              <div className="payments-history">
-                {contractPayments.length === 0 ? (
-                  <p>Nenhum pagamento registrado para este contrato.</p>
-                ) : (
-                  <table className="payments-table">
-                    <thead>
-                      <tr>
-                        <th>Parcela</th>
-                        <th>Valor</th>
-                        <th>Data</th>
-                        <th>Método</th>
-                        <th>Status</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {contractPayments.map(p => (
-                        <tr key={p.id}>
-                          <td>{p.installment_number}ª Parcela</td>
-                          <td>{formatCurrency(p.amount)}</td>
-                          <td>{formatDate(p.payment_date)}</td>
-                          <td>{p.payment_method?.toUpperCase()}</td>
-                          <td><Badge variant="green">Pago</Badge></td>
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
+                    <div className="c6-payment-form-grid">
+                      <div className="c6-form-group">
+                        <label>Parcela Nº</label>
+                        <Input
+                          type="number"
+                          placeholder="1"
+                          value={newPayment.installment_number}
+                          onChange={(value) => setNewPayment({...newPayment, installment_number: value})}
+                          min="1"
+                          max={selectedContract.installments_count || selectedContract.installments || 12}
+                        />
+                      </div>
+                      <div className="c6-form-group">
+                        <label>Valor Recebido (R$)</label>
+                        <Input
+                          type="number"
+                          placeholder="0.00"
+                          value={newPayment.amount}
+                          onChange={(value) => setNewPayment({...newPayment, amount: value})}
+                        />
+                      </div>
+                      <div className="c6-form-group">
+                        <label>Data do Pagamento</label>
+                        <Input
+                          type="date"
+                          value={newPayment.payment_date}
+                          onChange={(value) => setNewPayment({...newPayment, payment_date: value})}
+                        />
+                      </div>
+                      <div className="c6-form-group">
+                        <label>Forma de Pagamento</label>
+                        <select
+                          value={newPayment.payment_method}
+                          onChange={(e) => setNewPayment({...newPayment, payment_method: e.target.value})}
+                          className="payment-method-select"
+                        >
+                          <option value="pix">PIX</option>
+                          <option value="dinheiro">Dinheiro</option>
+                          <option value="transferencia">Transferência</option>
+                        </select>
+                      </div>
+                      <div className="c6-form-group c6-form-full">
+                        <label>Observações / Anotações</label>
+                        <Input
+                          placeholder="Ex: Pagamento parcial via PIX..."
+                          value={newPayment.notes}
+                          onChange={(value) => setNewPayment({...newPayment, notes: value})}
+                        />
+                      </div>
+                    </div>
+                    <div className="c6-form-actions">
+                      <Button 
+                        variant="primary" 
+                        onClick={handleAddPayment}
+                      >
+                        Confirmar Pagamento
+                      </Button>
+                    </div>
+                  </div>
                 )}
+
+                {/* Lista de Parcelas */}
+                <div className="c6-installments-list">
+                  {getInstallmentsData().map(inst => (
+                    <div 
+                      key={inst.number} 
+                      className={`c6-installment-card ${inst.status === 'paid' ? 'c6-inst-paid' : inst.status === 'partial' ? 'c6-inst-partial' : inst.isOverdue ? 'c6-inst-overdue' : ''}`}
+                    >
+                      {/* Cabeçalho do Card da Parcela */}
+                      <div className="c6-inst-header">
+                        <div className="c6-inst-title-group">
+                          <span className="c6-inst-badge-num">
+                            Parcela {inst.number}/{inst.totalCount}
+                          </span>
+                          <span className="c6-inst-due-date">
+                            Vencimento: <strong>{formatDate(inst.dueDate)}</strong>
+                          </span>
+                        </div>
+                        <span className={`c6-badge ${inst.badgeClass}`}>
+                          {inst.statusLabel}
+                        </span>
+                      </div>
+
+                      {/* Grade de Valores da Parcela (1 Card na Esquerda e 1 Card na Direita) */}
+                      <div className="c6-inst-grid">
+                        <div className="c6-inst-mini-card">
+                          <span className="c6-data-label">Valor Original</span>
+                          <span className="c6-data-value">{formatCurrency(inst.monthlyInstallment)}</span>
+                        </div>
+
+                        <div className={`c6-inst-mini-card ${inst.status === 'paid' ? 'c6-inst-mini-card--paid' : inst.isOverdue ? 'c6-inst-mini-card--overdue' : 'c6-inst-mini-card--due'}`}>
+                          <span className="c6-data-label">
+                            {inst.status === 'paid' 
+                              ? 'Situação' 
+                              : inst.isOverdue 
+                                ? 'Saldo c/ Juros' 
+                                : inst.totalPaid > 0 
+                                  ? 'Saldo Restante' 
+                                  : 'Valor a Pagar'}
+                          </span>
+                          <span className={`c6-data-value ${inst.status === 'paid' ? 'text-green' : inst.isOverdue ? 'text-red' : 'text-gold'}`}>
+                            {inst.status === 'paid' ? 'Quitada' : formatCurrency(inst.totalDue)}
+                          </span>
+                        </div>
+
+                        {inst.totalPaid > 0 && (
+                          <div className="c6-inst-mini-card c6-inst-mini-card--paid c6-inst-mini-card--paid-full-width">
+                            <span className="c6-data-label">Total Já Pago (Amortizado)</span>
+                            <span className="c6-data-value text-green font-bold">{formatCurrency(inst.totalPaid)}</span>
+                          </div>
+                        )}
+                      </div>
+
+                      {/* Nota explicativa de atraso caso incida multa/juros sobre saldo */}
+                      {inst.isOverdue && (
+                        <div className="c6-inst-penalty-alert">
+                          <span>
+                            ⚠️ <strong>{inst.daysOverdue} {inst.daysOverdue === 1 ? 'dia' : 'dias'} de atraso:</strong> Multa (+{formatCurrency(inst.penaltyAmount)}) e Juros (+{formatCurrency(inst.totalDailyInterest)}) calculados estritamente sobre o saldo devedor restante de {formatCurrency(inst.remainingPrincipal)}.
+                          </span>
+                        </div>
+                      )}
+
+                      {/* Histórico de Baixas desta Parcela */}
+                      {inst.payments.length > 0 && (
+                        <div className="c6-inst-payments-mini">
+                          <span className="c6-mini-title">Baixas registradas nesta parcela:</span>
+                          <div className="c6-mini-tags">
+                            {inst.payments.map((p, idx) => (
+                              <span key={p.id || idx} className="c6-mini-tag">
+                                {formatDate(p.payment_date)} — {formatCurrency(p.amount)} ({p.payment_method?.toUpperCase() || 'PIX'})
+                              </span>
+                            ))}
+                          </div>
+                        </div>
+                      )}
+
+                      {/* Ação da Parcela */}
+                      <div className="c6-inst-footer">
+                        {inst.status === 'paid' ? (
+                          <div className="c6-inst-status-done">
+                            <CheckCircle2 size={16} color="#10B981" />
+                            <span>Parcela 100% Paga</span>
+                          </div>
+                        ) : (
+                          <div className="c6-inst-actions-row">
+                            {/* Botão de Cobrança WhatsApp (Lado Esquerdo) */}
+                            <button 
+                              className="c6-btn-wpp-charge"
+                              onClick={() => handleCobrarParcela(selectedClient, inst)}
+                              title="Cobrar Parcela via WhatsApp"
+                            >
+                              <img src="/whatsapp.svg" alt="WhatsApp" width="16" height="16" />
+                              <span>Cobrar</span>
+                            </button>
+
+                            {/* Botão de Pagamento / Baixa (Lado Direito) */}
+                            <button 
+                              className="c6-action-btn c6-action-btn--pay"
+                              onClick={() => handleOpenPayInstallment(inst)}
+                            >
+                              <DollarSign size={16} />
+                              <span>{inst.totalPaid > 0 ? 'Pagar Saldo' : 'Registrar Pagamento'}</span>
+                              <ChevronRight size={16} />
+                            </button>
+                          </div>
+                        )}
+                      </div>
+
+                    </div>
+                  ))}
+                </div>
+
               </div>
+
             </div>
           </div>
         </div>
