@@ -1,6 +1,9 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { UserPlus, Search, Edit, Eye, Phone, MapPin, Calendar, FileText, Plus, Download, ShieldAlert, Ban } from 'lucide-react';
+import { 
+  Users, UserPlus, Search, Edit, Eye, Phone, MapPin, Calendar, 
+  FileText, Plus, Download, ShieldAlert, Ban, MessageCircle 
+} from 'lucide-react';
 import Card from '../components/Card';
 import Button from '../components/Button';
 import Input from '../components/Input';
@@ -167,13 +170,15 @@ const ListaClientes = () => {
 
   return (
     <div className="lista-clientes">
+      {/* Cabeçalho da Lista */}
       <div className="lista-clientes-header">
         <div className="lista-clientes-title">
-          <UserPlus size={24} />
-          <h2>Lista de Clientes</h2>
+          <Users size={24} color="#d4af37" />
+          <h2>LISTA DE CLIENTES</h2>
         </div>
         
-        <div className="lista-clientes-actions-top">
+        {/* Container para os botões principais lado a lado */}
+        <div className="header-action-buttons">
           <Button
             variant="secondary"
             icon={Download}
@@ -183,7 +188,7 @@ const ListaClientes = () => {
           </Button>
           <Button
             variant="primary"
-            icon={UserPlus}
+            icon={Plus}
             onClick={handleAddClient}
           >
             Adicionar Cliente
@@ -274,106 +279,106 @@ const ListaClientes = () => {
           </Card>
         ) : (
           <div className="lista-clientes-grid">
-            {filteredClients.map((client) => (
-              <Card key={client.id} className="lista-clientes-card">
-                <div className="lista-clientes-card-header">
-                  <div 
-                    className="lista-clientes-avatar"
-                    style={{ backgroundColor: stringToColor(client.name) }}
-                  >
-                    {getInitials(client.name)}
-                  </div>
-                  <div className="lista-clientes-info">
-                    <h3 className="lista-clientes-name">{client.name}</h3>
-                    <div className="lista-clientes-meta">
-                      {getStatusBadge(client.status)}
+            {filteredClients.map((client) => {
+              const isBlacklisted = isClientBlacklisted(client.id, blacklist);
+              return (
+                <Card key={client.id} className="cliente-card">
+                  {/* CABEÇALHO DO CARD */}
+                  <div className="cliente-card-header">
+                    <div className="cliente-info-principal">
+                      <div 
+                        className="cliente-avatar"
+                        style={{ backgroundColor: stringToColor(client.name) }}
+                      >
+                        {getInitials(client.name)}
+                      </div>
+                      <div className="cliente-nomes">
+                        <h3>{client.name}</h3>
+                        {getStatusBadge(client.status)}
+                      </div>
                     </div>
-                  </div>
-                </div>
 
-                <div className="lista-clientes-details">
-                  <div className="lista-clientes-detail">
-                    <span className="lista-clientes-cpf">CPF: {formatCPF(client.cpf)}</span>
-                  </div>
-                  <div className="lista-clientes-detail">
-                    <Phone size={16} className="lista-clientes-detail-icon" />
-                    <span className="lista-clientes-detail-text">
-                      {formatPhone(client.phone)}
-                    </span>
-                  </div>
-                  
-                  <div className="lista-clientes-detail">
-                    <Calendar size={16} className="lista-clientes-detail-icon" />
-                    <span className="lista-clientes-detail-text">
-                      {formatDate(client.registrationDate || client.created_at)}
-                    </span>
+                    {/* Ação rápida de WhatsApp no topo (limpo e sem sobrepor dados) */}
+                    <button 
+                      className="btn-quick-whatsapp" 
+                      onClick={() => handleWhatsAppClick(client.phone)}
+                      aria-label="Chamar no WhatsApp"
+                      title="Chamar no WhatsApp"
+                    >
+                      <MessageCircle size={18} color="#25D366" />
+                    </button>
                   </div>
 
-                  {(client.street || client.city) && (
-                    <div className="lista-clientes-detail">
-                      <MapPin size={16} className="lista-clientes-detail-icon" />
-                      <span className="lista-clientes-detail-text">
-                        {formatAddress(client)}
-                      </span>
+                  {/* CORPO DO CARD (Dados) */}
+                  <div className="cliente-card-body">
+                    <p className="cliente-dado">
+                      <span className="dado-label">CPF:</span> {formatCPF(client.cpf)}
+                    </p>
+                    <p className="cliente-dado">
+                      <Phone size={14} color="#d4af37" /> {formatPhone(client.phone)}
+                    </p>
+                    <p className="cliente-dado">
+                      <Calendar size={14} color="#d4af37" /> {formatDate(client.registrationDate || client.created_at)}
+                    </p>
+                    {(client.street || client.city) && (
+                      <p className="cliente-dado">
+                        <MapPin size={14} color="#d4af37" /> {formatAddress(client)}
+                      </p>
+                    )}
+                  </div>
+
+                  {/* AÇÕES (Grid 2x2 + Botão Ver Perfil Completo) */}
+                  <div className="cliente-card-actions">
+                    <div className="actions-grid">
+                      {isBlacklisted ? (
+                        <button 
+                          className="btn-action action-block"
+                          onClick={() => handleRemoveFromBlacklist(client.id)}
+                        >
+                          <ShieldAlert size={15} /> Desbloquear
+                        </button>
+                      ) : (
+                        <button 
+                          className="btn-action action-block"
+                          onClick={() => handleAddToBlacklist(client.id)}
+                        >
+                          <Ban size={15} /> Bloquear
+                        </button>
+                      )}
+
+                      <button 
+                        className="btn-action action-wpp"
+                        onClick={() => handleWhatsAppClick(client.phone)}
+                      >
+                        <MessageCircle size={15} /> WhatsApp
+                      </button>
+
+                      <button 
+                        className="btn-action action-docs"
+                        onClick={() => handleViewContracts(client)}
+                      >
+                        <FileText size={15} /> Contratos
+                      </button>
+
+                      <button 
+                        className="btn-action action-edit"
+                        onClick={() => handleEditClient(client.id)}
+                      >
+                        <Edit size={15} /> Editar
+                      </button>
                     </div>
-                  )}
-                </div>
 
-                <div className="lista-clientes-actions">
-                  {isClientBlacklisted(client.id, blacklist) ? (
-                    <Button
-                      variant="danger"
-                      size="small"
-                      icon={ShieldAlert}
-                      onClick={() => handleRemoveFromBlacklist(client.id)}
+                    {/* Botão VER detalhe largo e fácil de clicar */}
+                    <button 
+                      className="btn-action-full"
+                      onClick={() => handleViewClient(client)}
                     >
-                      Remover Lista Negra
-                    </Button>
-                  ) : (
-                    <Button
-                      variant="warning"
-                      size="small"
-                      icon={Ban}
-                      onClick={() => handleAddToBlacklist(client.id)}
-                    >
-                      Bloquear
-                    </Button>
-                  )}
-                  <Button
-                    variant="success"
-                    size="small"
-                    icon={Phone}
-                    onClick={() => handleWhatsAppClick(client.phone)}
-                  >
-                    WhatsApp
-                  </Button>
-                  <Button
-                    variant="secondary"
-                    size="small"
-                    icon={FileText}
-                    onClick={() => handleViewContracts(client)}
-                  >
-                    Contratos
-                  </Button>
-                  <Button
-                    variant="secondary"
-                    size="small"
-                    icon={Edit}
-                    onClick={() => handleEditClient(client.id)}
-                  >
-                    Editar
-                  </Button>
-                  <Button
-                    variant="ghost"
-                    size="small"
-                    icon={Eye}
-                    onClick={() => handleViewClient(client)}
-                  >
-                    Ver
-                  </Button>
-                </div>
-              </Card>
-            ))}
+                      <Eye size={15} /> Ver Perfil Completo
+                    </button>
+                  </div>
+                </Card>
+              );
+            })}
           </div>
         )}
       </div>
