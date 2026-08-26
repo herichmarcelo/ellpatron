@@ -15,6 +15,7 @@ import DatePicker from '../components/DatePicker';
 import CreditScoreCard from '../components/CreditScoreCard';
 import ModalSaque from '../components/ModalSaque';
 import ModalDepositos from '../components/ModalDepositos';
+import ContractCard from '../components/ContractCard';
 import { useClients, useAddToBlacklist, useRemoveFromBlacklist, isClientBlacklisted } from '../hooks/useClients';
 import { formatPhone, formatDate, formatCPF, getInitials, stringToColor, formatAddress, formatCurrency, getBrasiliaISODate } from '../utils/formatters';
 import { getContracts, getPayments, createPayment, updateContract, getSavingsTransactions } from '../supabase/services.js';
@@ -875,65 +876,13 @@ _Ell Patron • Gestão Financeira Inteligente_`;
                   <p>Nenhum contrato encontrado para este cliente.</p>
                 </div>
               ) : (
-                clientContracts.map(contract => {
-                  const statusLabel = contract.status === 'open' ? 'EM ABERTO' : contract.status === 'paid' ? 'QUITADO' : contract.status === 'overdue' ? 'EM ATRASO' : (contract.status || '').toUpperCase();
-                  const badgeClass = contract.status === 'open' ? 'c6-badge-open' : contract.status === 'paid' ? 'c6-badge-paid' : 'c6-badge-overdue';
-
-                  return (
-                    <div key={contract.id} className="c6-contract-card">
-                      {/* Topo: ID e Status */}
-                      <div className="c6-card-header">
-                        <div className="c6-contract-id">
-                          <FileText size={16} color="#EAB308" />
-                          <span>#{contract.protocol_number}</span>
-                        </div>
-                        <span className={`c6-badge ${badgeClass}`}>{statusLabel}</span>
-                      </div>
-
-                      {/* A NOVA GRADE 2x2 DE INFORMAÇÕES */}
-                      <div className="contract-mini-cards-grid">
-                        {/* Linha 1: Datas (Fundo sutil escuro/azulado) */}
-                        <div className="mini-card card-date">
-                          <span className="mini-card-label">Emissão</span>
-                          <span className="mini-card-value">{formatDate(contract.loan_date || contract.created_at)}</span>
-                        </div>
-                        <div className="mini-card card-date">
-                          <span className="mini-card-label">Vencimento</span>
-                          <span className="mini-card-value">{formatDate(contract.due_date)}</span>
-                        </div>
-
-                        {/* Linha 2: Valores (Fundo sutil dourado/esverdeado) */}
-                        <div className="mini-card card-money">
-                          <span className="mini-card-label">Valor Principal</span>
-                          <span className="mini-card-value">{formatCurrency(contract.principal)}</span>
-                        </div>
-                        <div className="mini-card card-money">
-                          <span className="mini-card-label">Parcelamento</span>
-                          <span className="mini-card-value">
-                            {contract.installments_count || contract.installments || 1}x {formatCurrency(contract.monthly_installment || contract.principal)}
-                          </span>
-                        </div>
-                      </div>
-
-                      {/* VALOR TOTAL EM LINHA ÚNICA */}
-                      <div className="contract-total-inline">
-                        <span className="total-inline-label">Valor Total</span>
-                        <span className="total-inline-value text-gold">
-                          {formatCurrency(contract.total_amount || contract.total_original || contract.principal)}
-                        </span>
-                      </div>
-
-                      {/* Botão de Ação Minimalista */}
-                      <button 
-                        className="c6-action-btn"
-                        onClick={() => handleViewPayments(contract)}
-                      >
-                        <span>Ver Pagamentos</span>
-                        <ChevronRight size={18} />
-                      </button>
-                    </div>
-                  );
-                })
+                clientContracts.map(contract => (
+                  <ContractCard
+                    key={contract.id}
+                    contract={contract}
+                    onViewPayments={handleViewPayments}
+                  />
+                ))
               )}
             </div>
 
