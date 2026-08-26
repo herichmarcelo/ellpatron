@@ -23,6 +23,7 @@ import './Dashboard.css';
 
 const Dashboard = () => {
   const navigate = useNavigate();
+  // 1. Estado para controlar o mês selecionado
   const [selectedMonth, setSelectedMonth] = useState(new Date());
   const [contracts, setContracts] = useState([]);
   const [clients, setClients] = useState([]);
@@ -53,14 +54,42 @@ const Dashboard = () => {
     };
   }, []);
 
-  // Lógica Financeira Aprimorada (Foco em Lucro x Risco)
+  // 2. Função que faz o filtro de meses funcionar de verdade
+  const handleMonthChange = (direction) => {
+    setSelectedMonth((prevDate) => {
+      const newDate = new Date(prevDate);
+      newDate.setMonth(prevDate.getMonth() + direction);
+      return newDate;
+    });
+  };
+
+  // Formata o mês exibido (ex: "agosto de 2026")
+  const formattedMonth = selectedMonth.toLocaleDateString('pt-BR', { 
+    month: 'long', 
+    year: 'numeric' 
+  });
+
+  // Lógica Financeira Conectada ao Mês Selecionado
+  const selectedYear = selectedMonth.getFullYear();
+  const selectedMonthIdx = selectedMonth.getMonth();
+
   const totalInvested = contracts.reduce((sum, contract) => sum + (Number(contract.principal) || 0), 0);
-  const expectedRevenue = contracts.reduce((sum, contract) => sum + (Number(contract.monthly_installment) || 0), 0);
   
-  // Calcula valores e quantidades em atraso
+  // Faturamento Esperado considerando o mês
+  const expectedRevenue = contracts.reduce((sum, contract) => {
+    const d = new Date(contract.due_date || contract.start_date || contract.created_at);
+    const isThisMonth = d.getFullYear() === selectedYear && d.getMonth() === selectedMonthIdx;
+    if (isThisMonth || contract.status === 'open') {
+      return sum + (Number(contract.monthly_installment) || Number(contract.principal) || 0);
+    }
+    return sum;
+  }, 0);
+  
+  // Calcula valores e quantidades em atraso até a data selecionada
   const overdueContractsList = contracts.filter(c => {
     const dueDate = new Date(c.due_date);
-    return dueDate < new Date() && c.status === 'open';
+    const endOfSelectedMonth = new Date(selectedYear, selectedMonthIdx + 1, 0, 23, 59, 59);
+    return dueDate < endOfSelectedMonth && c.status === 'open';
   });
   
   const overdueContractsCount = overdueContractsList.length;
@@ -78,12 +107,6 @@ const Dashboard = () => {
   const healthyPercentage = expectedRevenue > 0 ? Number(((netRevenue / expectedRevenue) * 100).toFixed(1)) : 100;
   const riskPercentage = expectedRevenue > 0 ? Number(((overdueValue / expectedRevenue) * 100).toFixed(1)) : 0;
 
-  const handleMonthChange = (direction) => {
-    const newMonth = new Date(selectedMonth);
-    newMonth.setMonth(newMonth.getMonth() + direction);
-    setSelectedMonth(newMonth);
-  };
-
   const renderValue = (val) => {
     if (isBalanceHidden) return '••••••';
     return formatCurrency(val);
@@ -91,45 +114,50 @@ const Dashboard = () => {
 
   return (
     <div className="c6-dashboard">
-      {/* C6 Top Bar: User Profile, Eye Toggle & Period Selector */}
-      <div className="c6-header">
-        <div className="c6-user-profile">
-          <div className="c6-avatar">EP</div>
-          <div className="c6-user-meta">
-            <span className="c6-greeting">Olá, Ell Patron</span>
-            <span className="c6-account-type">Gestão de Crédito</span>
+      {/* CABEÇALHO REORGANIZADO: Linha de Cima (Perfil + Olho) e Linha de Baixo (Filtro de Meses) */}
+      <div className="dashboard-header-container">
+        {/* LINHA DE CIMA: Perfil na esquerda, Olho na direita */}
+        <div className="dashboard-header-top">
+          <div className="header-profile-section">
+            <div className="header-avatar">EP</div>
+            <div className="header-user-info">
+              <h2 className="header-greeting">Olá, Ell Patron</h2>
+              <span className="header-subtitle">Gestão de Crédito</span>
+            </div>
           </div>
-        </div>
-
-        <div className="c6-header-controls">
-          {/* Eye Hide/Show Balance Toggle */}
+          
+          {/* Olho isolado na direita */}
           <button 
-            className="c6-icon-btn" 
+            className="header-eye-btn" 
             onClick={() => setIsBalanceHidden(!isBalanceHidden)}
             title={isBalanceHidden ? "Mostrar valores" : "Ocultar valores"}
-            aria-label="Toggle balance visibility"
+            aria-label="Ocultar/Mostrar valores"
           >
-            {isBalanceHidden ? <EyeOff size={18} /> : <Eye size={18} />}
+            {isBalanceHidden ? <EyeOff size={20} /> : <Eye size={20} />}
           </button>
+        </div>
 
-          {/* C6 Month Pill */}
-          <div className="c6-month-pill">
+        {/* LINHA DE BAIXO: Filtro de Meses */}
+        <div className="dashboard-header-bottom">
+          <div className="header-date-selector">
             <button 
-              className="c6-month-arrow" 
+              className="date-arrow" 
               onClick={() => handleMonthChange(-1)}
               aria-label="Mês anterior"
             >
-              <ChevronLeft size={16} />
+              <ChevronLeft size={18} />
             </button>
-            <span className="c6-month-text">
-              {selectedMonth.toLocaleDateString('pt-BR', { month: 'short', year: 'numeric' })}
+            
+            <span className="date-text">
+              {formattedMonth}
             </span>
+            
             <button 
-              className="c6-month-arrow" 
+              className="date-arrow" 
               onClick={() => handleMonthChange(1)}
               aria-label="Próximo mês"
             >
-              <ChevronRight size={16} />
+              <ChevronRight size={18} />
             </button>
           </div>
         </div>

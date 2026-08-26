@@ -13,122 +13,136 @@
   box-sizing: border-box;
 }
 
-/* 1. TOP HEADER (User Profile, Eye toggle & Month pill) */
-.c6-header {
+/* 1. TOP HEADER (Container 2 Linhas: Perfil + Olho no Topo / Filtro de Meses na Base) */
+.dashboard-header-container {
   display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: var(--spacing-md);
-  padding: 12px 18px;
-  background: #16171b;
-  border: 1px solid rgba(255, 255, 255, 0.07);
-  border-radius: 18px;
+  flex-direction: column;
+  background-color: #16171b;
+  padding: 16px 18px;
+  border-radius: 16px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  gap: 14px;
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
 }
 
-.c6-user-profile {
+/* Linha de Cima (Perfil + Olho) */
+.dashboard-header-top {
+  display: flex;
+  justify-content: space-between; /* Empurra o perfil pra esquerda e o olho pra direita */
+  align-items: center;
+}
+
+.header-profile-section {
   display: flex;
   align-items: center;
   gap: 12px;
 }
 
-.c6-avatar {
-  width: 38px;
-  height: 38px;
-  border-radius: 50%;
+.header-avatar {
+  width: 42px;
+  height: 42px;
   background: linear-gradient(135deg, #f5d77f 0%, #d4af37 100%);
   color: #0c0d10;
-  font-weight: 800;
-  font-size: 14px;
+  border-radius: 50%;
   display: flex;
   align-items: center;
   justify-content: center;
+  font-weight: 800;
+  font-size: 14px;
   box-shadow: 0 2px 10px rgba(212, 175, 55, 0.3);
   flex-shrink: 0;
 }
 
-.c6-user-meta {
+.header-user-info {
   display: flex;
   flex-direction: column;
 }
 
-.c6-greeting {
+.header-greeting {
   font-size: 15px;
   font-weight: 700;
   color: #ffffff;
+  margin: 0;
   letter-spacing: -0.2px;
 }
 
-.c6-account-type {
+.header-subtitle {
   font-size: 11px;
   color: #8e8e93;
+  font-weight: 600;
   text-transform: uppercase;
   letter-spacing: 0.5px;
 }
 
-.c6-header-controls {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-}
-
-.c6-icon-btn {
-  width: 36px;
-  height: 36px;
-  border-radius: 50%;
-  background: #202227;
+/* Botão do Olho na Direita */
+.header-eye-btn {
+  background-color: #202227;
   border: 1px solid rgba(255, 255, 255, 0.08);
-  color: #d1d1d6;
+  color: #a8a8b3;
+  width: 38px;
+  height: 38px;
+  border-radius: 10px;
   display: flex;
   align-items: center;
   justify-content: center;
   cursor: pointer;
   transition: all 0.2s ease;
+  flex-shrink: 0;
 }
 
-.c6-icon-btn:hover {
-  background: #2a2d34;
+.header-eye-btn:hover {
+  background-color: #2a2d34;
   color: #ffffff;
   border-color: rgba(212, 175, 55, 0.3);
 }
 
-.c6-month-pill {
+/* Linha de Baixo (Filtro de Meses) */
+.dashboard-header-bottom {
   display: flex;
   align-items: center;
-  gap: 4px;
-  background: #202227;
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  border-radius: 20px;
-  padding: 4px 6px;
+  padding-top: 12px;
+  border-top: 1px solid rgba(255, 255, 255, 0.06);
 }
 
-.c6-month-arrow {
-  background: transparent;
+/* Seletor de Data */
+.header-date-selector {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background-color: #202227;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 10px;
+  padding: 0 12px;
+  height: 38px;
+  width: 100%;
+  max-width: 260px;
+}
+
+.date-text {
+  color: #ffffff;
+  font-weight: 600;
+  font-size: 13px;
+  text-transform: capitalize;
+  text-align: center;
+  flex: 1;
+}
+
+.date-arrow {
+  background: none;
   border: none;
-  color: #8e8e93;
-  width: 24px;
-  height: 24px;
-  border-radius: 50%;
+  color: #a8a8b3;
+  cursor: pointer;
+  padding: 4px;
   display: flex;
   align-items: center;
   justify-content: center;
-  cursor: pointer;
-  transition: all 0.2s ease;
+  transition: color 0.2s ease;
+  border-radius: 6px;
 }
 
-.c6-month-arrow:hover {
+.date-arrow:hover {
   color: #ffffff;
-  background: rgba(255, 255, 255, 0.1);
-}
-
-.c6-month-text {
-  font-size: 12px;
-  font-weight: 600;
-  color: #f5f5f7;
-  text-transform: capitalize;
-  padding: 0 4px;
-  min-width: 80px;
-  text-align: center;
+  background: rgba(255, 255, 255, 0.08);
 }
 
 /* SECTION TITLES */
