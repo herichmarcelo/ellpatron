@@ -5,7 +5,6 @@ import { useAuth } from './contexts/useAuth';
 import { QueryProvider } from './contexts/QueryContext';
 import Sidebar from './components/Sidebar';
 import Header from './components/Header';
-import WhatsAppButton from './components/WhatsAppButton';
 import Login from './pages/Login';
 import Dashboard from './pages/Dashboard';
 import Atrasados from './pages/Atrasados';
@@ -92,8 +91,6 @@ function AppLayout() {
             <Route path="*" element={<Navigate to="/" replace />} />
           </Routes>
         </main>
-        
-        <WhatsAppButton />
       </div>
     </div>
   );

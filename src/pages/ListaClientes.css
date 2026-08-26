@@ -195,10 +195,12 @@
   padding-bottom: 12px;
 }
 
+/* 1. Lado Esquerdo do Header (flex: 1) */
 .cliente-info-principal {
   display: flex;
   align-items: center;
   gap: 12px;
+  flex: 1;
   min-width: 0;
 }
 
@@ -219,19 +221,11 @@
 .cliente-nomes {
   display: flex;
   flex-direction: column;
-  gap: 2px;
+  gap: 4px;
   min-width: 0;
 }
 
-/* Alinhamento do Nome com o ícone do WhatsApp */
-.cliente-nome-wrapper {
-  display: flex;
-  align-items: center;
-  gap: 8px; /* Espaçamento entre o nome e o ícone */
-  margin-bottom: 2px;
-}
-
-.cliente-nome-wrapper h3 {
+.cliente-nome-titulo {
   color: #ffffff;
   font-size: 15px;
   font-weight: 700;
@@ -242,21 +236,30 @@
   text-overflow: ellipsis;
 }
 
-/* Botão para o SVG do WhatsApp ao lado do nome */
-.btn-icon-whatsapp {
-  background: none;
-  border: none;
-  padding: 0;
+/* 2. Lado Direito do Header (O Novo Botão WhatsApp Destacado 46x46) */
+.btn-header-whatsapp {
+  width: 46px;
+  height: 46px;
+  background: linear-gradient(135deg, #25d366 0%, #128c7e 100%);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  border-radius: 12px;
   display: flex;
   align-items: center;
   justify-content: center;
   cursor: pointer;
-  transition: transform 0.2s ease;
+  box-shadow: 0 4px 14px rgba(37, 211, 102, 0.4);
+  transition: all 0.2s ease;
   flex-shrink: 0;
+  margin-left: 12px;
 }
 
-.btn-icon-whatsapp:hover {
-  transform: scale(1.15); /* Efeito suave de zoom ao passar mouse/toque */
+.btn-header-whatsapp:hover {
+  transform: translateY(-2px) scale(1.04);
+  box-shadow: 0 6px 20px rgba(37, 211, 102, 0.55);
+}
+
+.btn-header-whatsapp:active {
+  transform: scale(0.95);
 }
 
 /* Corpo do Card (Dados) */
