@@ -89,6 +89,55 @@
   gap: var(--spacing-lg);
 }
 
+/* ÁREA DE SIMULAÇÃO (O botão antes do resumo) */
+.simulation-action-area {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--spacing-sm);
+  padding: var(--spacing-xl) 0;
+}
+
+.btn-simulate {
+  font-size: 16px;
+  padding: 16px 32px;
+  width: 100%;
+  max-width: 400px;
+  box-shadow: 0 8px 24px rgba(212, 175, 55, 0.2);
+  animation: pulse-soft 2.5s infinite;
+  justify-content: center;
+}
+
+.simulation-hint {
+  font-size: 13px;
+  color: var(--text-tertiary);
+  margin: 0;
+  text-align: center;
+}
+
+@keyframes pulse-soft {
+  0% { transform: scale(1); }
+  50% { transform: scale(1.02); box-shadow: 0 10px 28px rgba(212, 175, 55, 0.35); }
+  100% { transform: scale(1); }
+}
+
+/* DESTAQUE DA SIMULAÇÃO (O card que aparece) */
+.highlight-simulation {
+  border: 2px solid var(--gold-primary) !important;
+  background: linear-gradient(135deg, rgba(212, 175, 55, 0.08) 0%, var(--bg-card) 100%) !important;
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.5);
+  animation: fadeIn 0.4s ease-out;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(12px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.text-red {
+  color: var(--status-error, #EF4444);
+}
+
 /* RESUMO DE CÁLCULO ANALÍTICO */
 .calculation-summary {
   display: flex;
@@ -142,27 +191,29 @@
   font-size: 20px;
 }
 
-/* SIMULAÇÃO DE ATRASO */
-.simulation-inputs {
-  margin-bottom: var(--spacing-lg);
-}
-
-.simulation-results {
+.calculation-installment-highlight {
+  margin-top: var(--spacing-md);
+  padding: var(--spacing-md);
+  background: var(--bg-tertiary);
+  border-radius: var(--border-radius-md);
+  border: 1px dashed var(--gold-primary);
   display: flex;
   flex-direction: column;
-  gap: var(--spacing-sm);
-  padding: var(--spacing-lg);
-  background: linear-gradient(135deg, rgba(239, 68, 68, 0.08) 0%, rgba(239, 68, 68, 0.02) 100%);
-  border: 1px solid rgba(239, 68, 68, 0.4);
-  border-radius: var(--border-radius-lg);
+  align-items: center;
+  gap: 4px;
 }
 
-.calculation-row--penalty {
-  color: var(--status-error, #EF4444);
+.installment-text {
+  font-size: 13px;
+  color: var(--text-secondary);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
 }
 
-.calculation-row--penalty .calculation-value {
-  color: var(--status-error, #EF4444);
+.installment-big {
+  font-size: 24px;
+  font-weight: 800;
+  color: var(--gold-primary);
 }
 
 /* BARRA DE AÇÃO INFERIOR */
@@ -306,7 +357,7 @@
   text-align: center;
 }
 
-/* RESPONSIVIDADE MOBILE-FIRST */
+/* RESPONSIVIDADE MOBILE OTIMIZADA */
 @media (max-width: 768px) {
   .gerar-contrato {
     padding: var(--spacing-sm);
@@ -321,17 +372,37 @@
     font-size: 18px;
   }
 
+  /* Faz os inputs ocuparem a tela toda no celular */
   .gerar-contrato-grid {
     grid-template-columns: 1fr;
+    gap: var(--spacing-md);
   }
 
+  /* Barra de ação inferior fixa no celular para fácil acesso ao polegar */
   .gerar-contrato-actions-bottom {
     flex-direction: column;
-    position: static;
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    width: 100%;
+    padding: var(--spacing-md);
+    background: rgba(18, 18, 20, 0.95);
+    backdrop-filter: blur(10px);
+    border-top: 1px solid var(--border-premium);
+    border-radius: 0;
+    z-index: 50;
+    margin: 0;
+    box-shadow: 0 -4px 16px rgba(0, 0, 0, 0.6);
   }
 
   .gerar-contrato-actions-bottom button {
     width: 100%;
+  }
+
+  /* Adiciona espaço extra no fim da página para a barra sticky não cobrir o último card */
+  .gerar-contrato-content {
+    padding-bottom: 140px; 
   }
 
   .contract-signatures {
