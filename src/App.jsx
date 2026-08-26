@@ -30,7 +30,7 @@ function AppLayout() {
     setSidebarOpen(false);
   };
 
-  const rawPath = location.pathname.replace(/^\//, '') || 'dashboard';
+  const rawPath = location.pathname.replace(/^\//, '').split('/')[0] || 'dashboard';
   const currentPage = rawPath === '' ? 'dashboard' : rawPath;
 
   const getPageTitle = (pageId) => {
@@ -38,6 +38,8 @@ function AppLayout() {
       dashboard: 'Dashboard',
       historico: 'Histórico',
       'adicionar-cliente': 'Adicionar Cliente',
+      'editar-cliente': 'Editar Cliente',
+      'detalhes-cliente': 'Detalhes do Cliente',
       'lista-clientes': 'Lista de Clientes',
       'gerar-contrato': 'Gerar Contrato',
       'historico-contratos': 'Histórico de Contratos',
@@ -80,6 +82,8 @@ function AppLayout() {
             <Route path="/dashboard" element={<Dashboard />} />
             <Route path="/historico" element={<Historico />} />
             <Route path="/adicionar-cliente" element={<AdicionarCliente />} />
+            <Route path="/editar-cliente/:id" element={<AdicionarCliente />} />
+            <Route path="/detalhes-cliente/:id" element={<ListaClientes />} />
             <Route path="/lista-clientes" element={<ListaClientes />} />
             <Route path="/gerar-contrato" element={<GerarContrato />} />
             <Route path="/historico-contratos" element={<HistoricoContratos />} />

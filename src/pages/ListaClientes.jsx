@@ -26,6 +26,8 @@ const ListaClientes = () => {
   const [selectedContract, setSelectedContract] = useState(null);
   const [contractPayments, setContractPayments] = useState([]);
   const [showAddPaymentForm, setShowAddPaymentForm] = useState(false);
+  const [showClientDetailsModal, setShowClientDetailsModal] = useState(false);
+  const [selectedClientDetails, setSelectedClientDetails] = useState(null);
   const [newPayment, setNewPayment] = useState({
     installment_number: '',
     amount: '',
@@ -46,17 +48,12 @@ const ListaClientes = () => {
   };
 
   const handleEditClient = (clientId) => {
-    const client = getClientById(clientId);
-    if (client) {
-      navigate(`/editar-cliente/${clientId}`);
-    }
+    navigate(`/editar-cliente/${clientId}`);
   };
 
-  const handleViewClient = (clientId) => {
-    const client = getClientById(clientId);
-    if (client) {
-      navigate(`/detalhes-cliente/${clientId}`);
-    }
+  const handleViewClient = (client) => {
+    setSelectedClientDetails(client);
+    setShowClientDetailsModal(true);
   };
 
   const handleAddToBlacklist = (clientId) => {
@@ -370,7 +367,7 @@ const ListaClientes = () => {
                     variant="ghost"
                     size="small"
                     icon={Eye}
-                    onClick={() => handleViewClient(client.id)}
+                    onClick={() => handleViewClient(client)}
                   >
                     Ver
                   </Button>
@@ -380,6 +377,80 @@ const ListaClientes = () => {
           </div>
         )}
       </div>
+
+      {/* Client Details Modal */}
+      {showClientDetailsModal && selectedClientDetails && (
+        <div className="modal-overlay" onClick={() => setShowClientDetailsModal(false)}>
+          <div className="modal-content" onClick={(e) => e.stopPropagation()}>
+            <div className="modal-header">
+              <h3>Ficha Cadastral do Cliente</h3>
+              <Button variant="ghost" size="small" onClick={() => setShowClientDetailsModal(false)}>
+                ✕
+              </Button>
+            </div>
+            <div className="modal-body">
+              <div style={{ display: 'flex', alignItems: 'center', gap: '14px', marginBottom: '20px', paddingBottom: '16px', borderBottom: '1px solid rgba(255, 255, 255, 0.08)' }}>
+                <div 
+                  className="lista-clientes-avatar"
+                  style={{ backgroundColor: stringToColor(selectedClientDetails.name), width: '52px', height: '52px', fontSize: '18px' }}
+                >
+                  {getInitials(selectedClientDetails.name)}
+                </div>
+                <div>
+                  <h3 style={{ margin: 0, fontSize: '18px', color: '#fff' }}>{selectedClientDetails.name}</h3>
+                  <div style={{ marginTop: '4px' }}>{getStatusBadge(selectedClientDetails.status)}</div>
+                </div>
+              </div>
+
+              <div className="detail-row">
+                <span className="detail-label">CPF:</span>
+                <span className="detail-value">{formatCPF(selectedClientDetails.cpf)}</span>
+              </div>
+              <div className="detail-row">
+                <span className="detail-label">Telefone / WhatsApp:</span>
+                <span className="detail-value">{formatPhone(selectedClientDetails.phone)}</span>
+              </div>
+              {selectedClientDetails.email && (
+                <div className="detail-row">
+                  <span className="detail-label">E-mail:</span>
+                  <span className="detail-value">{selectedClientDetails.email}</span>
+                </div>
+              )}
+              <div className="detail-row">
+                <span className="detail-label">Endereço:</span>
+                <span className="detail-value">{formatAddress(selectedClientDetails)}</span>
+              </div>
+              <div className="detail-row">
+                <span className="detail-label">Data de Cadastro:</span>
+                <span className="detail-value">{formatDate(selectedClientDetails.registrationDate || selectedClientDetails.created_at)}</span>
+              </div>
+            </div>
+
+            <div className="modal-footer">
+              <Button
+                variant="secondary"
+                icon={FileText}
+                onClick={() => {
+                  setShowClientDetailsModal(false);
+                  handleViewContracts(selectedClientDetails);
+                }}
+              >
+                Ver Contratos
+              </Button>
+              <Button
+                variant="primary"
+                icon={Edit}
+                onClick={() => {
+                  setShowClientDetailsModal(false);
+                  navigate(`/editar-cliente/${selectedClientDetails.id}`);
+                }}
+              >
+                Editar Cadastro
+              </Button>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Contracts Modal */}
       {showContractsModal && selectedClient && (
@@ -498,22 +569,31 @@ const ListaClientes = () => {
                         <option value="pix">PIX</option>
                         <option value="dinheiro">Dinheiro</option>
                         <option value="transferencia">Transferência</option>
-                        <option value="cartao">Cartão</option>
-                        <option value="boleto">Boleto</option>
                       </select>
                     </div>
+                    <div>
+                      <label>Observações</label>
+                      <Input
+                        placeholder="Notas sobre o pagamento..."
+                        value={newPayment.notes}
+                        onChange={(value) => setNewPayment({...newPayment, notes: value})}
+                      />
+                    </div>
                   </div>
-                  <div style={{ marginTop: '12px' }}>
-                    <Button variant="primary" onClick={handleAddPayment}>
+                  <div className="payment-form-actions">
+                    <Button 
+                      variant="primary" 
+                      onClick={handleAddPayment}
+                    >
                       Confirmar Pagamento
                     </Button>
                   </div>
                 </Card>
               )}
 
-              <div className="payments-list">
+              <div className="payments-history">
                 {contractPayments.length === 0 ? (
-                  <p>Nenhum pagamento registrado até o momento.</p>
+                  <p>Nenhum pagamento registrado para este contrato.</p>
                 ) : (
                   <table className="payments-table">
                     <thead>

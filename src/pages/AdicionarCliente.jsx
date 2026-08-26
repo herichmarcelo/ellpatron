@@ -1,17 +1,21 @@
-import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { User, MapPin, Save, X } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
+import { useNavigate, useParams } from 'react-router-dom';
+import { User, MapPin, Save, X, Edit3, ArrowLeft } from 'lucide-react';
 import Card from '../components/Card';
 import Button from '../components/Button';
 import Input from '../components/Input';
 import { useAddClient } from '../hooks/useClients';
 import { formatCPF, formatPhone } from '../utils/formatters';
 import { validateCPF, validatePhone, validateEmail, validateRequired } from '../utils/validators';
+import { getClient, updateClient } from '../supabase/services';
 import './AdicionarCliente.css';
 
 const AdicionarCliente = () => {
   const navigate = useNavigate();
-  const { mutate: addClient, isPending } = useAddClient();
+  const { id } = useParams();
+  const isEditing = Boolean(id);
+
+  const { mutate: addClient } = useAddClient();
 
   const [formData, setFormData] = useState({
     nome: '',
@@ -29,16 +33,56 @@ const AdicionarCliente = () => {
 
   const [errors, setErrors] = useState({});
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [loadingClient, setLoadingClient] = useState(isEditing);
+
+  useEffect(() => {
+    let isMounted = true;
+    if (id) {
+      getClient(id)
+        .then((result) => {
+          if (!isMounted) return;
+          if (result.success && result.data) {
+            const c = result.data;
+            setFormData({
+              nome: c.name || c.nome || '',
+              cpf: formatCPF(c.cpf || ''),
+              telefone: formatPhone(c.phone || c.telefone || ''),
+              email: c.email || '',
+              cep: c.zipCode || c.cep || '',
+              endereco: c.street || c.endereco || '',
+              numero: c.number || c.numero || '',
+              complemento: c.complement || c.complemento || '',
+              bairro: c.neighborhood || c.bairro || '',
+              cidade: c.city || c.cidade || '',
+              estado: c.state || c.estado || ''
+            });
+          } else {
+            alert('Cliente não encontrado');
+            navigate('/lista-clientes');
+          }
+          setLoadingClient(false);
+        })
+        .catch((err) => {
+          if (!isMounted) return;
+          console.error('Erro ao carregar cliente:', err);
+          setLoadingClient(false);
+        });
+    }
+
+    return () => {
+      isMounted = false;
+    };
+  }, [id, navigate]);
 
   const handleInputChange = (field, e) => {
     const value = e?.target?.value !== undefined ? e.target.value : e;
-    setFormData(prev => ({
+    setFormData((prev) => ({
       ...prev,
       [field]: value
     }));
-    
+
     if (errors[field]) {
-      setErrors(prev => ({
+      setErrors((prev) => ({
         ...prev,
         [field]: null
       }));
@@ -60,22 +104,22 @@ const AdicionarCliente = () => {
   const handleCEPChange = async (e) => {
     const value = e?.target?.value !== undefined ? e.target.value : e;
     const cleaned = (value || '').replace(/\D/g, '');
-    
+
     let formatted = cleaned;
     if (cleaned.length > 5) {
       formatted = `${cleaned.slice(0, 5)}-${cleaned.slice(5, 8)}`;
     }
-    
+
     handleInputChange('cep', formatted);
-    
+
     // Buscar endereço via ViaCEP quando CEP tiver 8 dígitos
     if (cleaned.length === 8) {
       try {
         const response = await fetch(`https://viacep.com.br/ws/${cleaned}/json/`);
         const data = await response.json();
-        
+
         if (!data.erro) {
-          setFormData(prev => ({
+          setFormData((prev) => ({
             ...prev,
             endereco: data.logradouro || '',
             bairro: data.bairro || '',
@@ -112,7 +156,7 @@ const AdicionarCliente = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    
+
     if (!validateForm()) {
       return;
     }
@@ -120,37 +164,64 @@ const AdicionarCliente = () => {
     setIsSubmitting(true);
 
     try {
-      const clientData = {
-        name: formData.nome,
-        phone: formData.telefone,
-        cpf: formData.cpf,
-        email: formData.email,
-        address: {
-          cep: formData.cep,
+      if (isEditing) {
+        // Modo Edição
+        const updatedData = {
+          name: formData.nome,
+          phone: formData.telefone,
+          cpf: formData.cpf,
+          email: formData.email,
           street: formData.endereco,
           number: formData.numero,
           complement: formData.complemento,
           neighborhood: formData.bairro,
           city: formData.cidade,
-          state: formData.estado
-        }
-      };
+          state: formData.estado,
+          zipCode: formData.cep
+        };
 
-      addClient(clientData, {
-        onSuccess: () => {
-          setFormData({
-            nome: '', cpf: '', telefone: '', email: '',
-            cep: '', endereco: '', numero: '', complemento: '',
-            bairro: '', cidade: '', estado: ''
-          });
-          setIsSubmitting(false);
+        const result = await updateClient(id, updatedData);
+        if (result.success) {
+          alert('Cliente atualizado com sucesso!');
           navigate('/lista-clientes');
-        },
-        onError: (error) => {
-          setErrors({ submit: error.message });
-          setIsSubmitting(false);
+        } else {
+          setErrors({ submit: result.error || 'Erro ao atualizar cliente' });
         }
-      });
+        setIsSubmitting(false);
+      } else {
+        // Modo Adição
+        const clientData = {
+          name: formData.nome,
+          phone: formData.telefone,
+          cpf: formData.cpf,
+          email: formData.email,
+          address: {
+            cep: formData.cep,
+            street: formData.endereco,
+            number: formData.numero,
+            complement: formData.complemento,
+            neighborhood: formData.bairro,
+            city: formData.cidade,
+            state: formData.estado
+          }
+        };
+
+        addClient(clientData, {
+          onSuccess: () => {
+            setFormData({
+              nome: '', cpf: '', telefone: '', email: '',
+              cep: '', endereco: '', numero: '', complemento: '',
+              bairro: '', cidade: '', estado: ''
+            });
+            setIsSubmitting(false);
+            navigate('/lista-clientes');
+          },
+          onError: (error) => {
+            setErrors({ submit: error.message });
+            setIsSubmitting(false);
+          }
+        });
+      }
     } catch (error) {
       setErrors({ submit: error.message });
       setIsSubmitting(false);
@@ -161,12 +232,23 @@ const AdicionarCliente = () => {
     navigate('/lista-clientes');
   };
 
+  if (loadingClient) {
+    return (
+      <div className="adicionar-cliente">
+        <div className="loading-screen">Carregando dados do cliente...</div>
+      </div>
+    );
+  }
+
   return (
     <div className="adicionar-cliente">
       <div className="adicionar-cliente-header">
-        <h2>Adicionar Novo Cliente</h2>
-        <Button variant="ghost" icon={X} onClick={handleCancel}>
-          Cancelar
+        <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+          {isEditing ? <Edit3 size={24} color="#d4af37" /> : <User size={24} color="#d4af37" />}
+          <h2>{isEditing ? 'Editar Cliente' : 'Adicionar Novo Cliente'}</h2>
+        </div>
+        <Button variant="ghost" icon={ArrowLeft} onClick={handleCancel}>
+          Voltar para Lista
         </Button>
       </div>
 
@@ -177,16 +259,15 @@ const AdicionarCliente = () => {
             <User size={20} />
             <h3>Informações Pessoais</h3>
           </div>
-          
+
           <div className="adicionar-cliente-grid">
             <Input
               label="Nome Completo *"
               placeholder="Digite o nome completo"
               value={formData.nome}
-              onChange={(e) => handleInputChange('nome', e.target.value)}
+              onChange={(e) => handleInputChange('nome', e)}
               error={errors.nome}
               fullWidth
-              required
             />
 
             <Input
@@ -195,52 +276,54 @@ const AdicionarCliente = () => {
               value={formData.cpf}
               onChange={handleCPFChange}
               error={errors.cpf}
+              maxLength={14}
               fullWidth
-              required
             />
 
             <Input
-              label="Telefone *"
+              label="Telefone (WhatsApp) *"
               placeholder="(00) 00000-0000"
               value={formData.telefone}
               onChange={handlePhoneChange}
               error={errors.telefone}
+              maxLength={15}
               fullWidth
-              required
             />
 
             <Input
               label="Email"
               type="email"
-              placeholder="email@exemplo.com"
+              placeholder="cliente@email.com"
               value={formData.email}
-              onChange={(e) => handleInputChange('email', e.target.value)}
+              onChange={(e) => handleInputChange('email', e)}
+              error={errors.email}
               fullWidth
             />
           </div>
         </Card>
 
-        {/* Address Information */}
+        {/* Address */}
         <Card className="adicionar-cliente-section">
           <div className="adicionar-cliente-section-header">
             <MapPin size={20} />
             <h3>Endereço</h3>
           </div>
-          
+
           <div className="adicionar-cliente-grid">
             <Input
               label="CEP"
               placeholder="00000-000"
               value={formData.cep}
               onChange={handleCEPChange}
+              maxLength={9}
               fullWidth
             />
 
             <Input
-              label="Rua"
-              placeholder="Nome da rua"
+              label="Endereço"
+              placeholder="Rua, Avenida, etc."
               value={formData.endereco}
-              onChange={(e) => handleInputChange('endereco', e.target.value)}
+              onChange={(e) => handleInputChange('endereco', e)}
               fullWidth
             />
 
@@ -248,15 +331,15 @@ const AdicionarCliente = () => {
               label="Número"
               placeholder="123"
               value={formData.numero}
-              onChange={(e) => handleInputChange('numero', e.target.value)}
+              onChange={(e) => handleInputChange('numero', e)}
               fullWidth
             />
 
             <Input
               label="Complemento"
-              placeholder="Apto, bloco, etc."
+              placeholder="Apto 101, Bloco B"
               value={formData.complemento}
-              onChange={(e) => handleInputChange('complemento', e.target.value)}
+              onChange={(e) => handleInputChange('complemento', e)}
               fullWidth
             />
 
@@ -264,7 +347,7 @@ const AdicionarCliente = () => {
               label="Bairro"
               placeholder="Nome do bairro"
               value={formData.bairro}
-              onChange={(e) => handleInputChange('bairro', e.target.value)}
+              onChange={(e) => handleInputChange('bairro', e)}
               fullWidth
             />
 
@@ -272,45 +355,49 @@ const AdicionarCliente = () => {
               label="Cidade"
               placeholder="Nome da cidade"
               value={formData.cidade}
-              onChange={(e) => handleInputChange('cidade', e.target.value)}
+              onChange={(e) => handleInputChange('cidade', e)}
               fullWidth
             />
 
             <Input
               label="Estado"
-              placeholder="UF"
+              placeholder="UF (ex: SP)"
               value={formData.estado}
-              onChange={(e) => handleInputChange('estado', e.target.value)}
+              onChange={(e) => handleInputChange('estado', e)}
+              maxLength={2}
               fullWidth
             />
           </div>
         </Card>
 
-        {/* Form Actions */}
-        <div className="adicionar-cliente-actions">
-          <Button
-            variant="secondary"
-            onClick={handleCancel}
-            disabled={isSubmitting || isPending}
-          >
-            Cancelar
-          </Button>
-          <Button
-            variant="primary"
-            icon={Save}
-            onClick={handleSubmit}
-            loading={isSubmitting || isPending}
-            disabled={isSubmitting || isPending}
-          >
-            {isSubmitting || isPending ? 'Salvando...' : 'Salvar Cliente'}
-          </Button>
-        </div>
-        
         {errors.submit && (
           <div className="adicionar-cliente-error">
             {errors.submit}
           </div>
         )}
+
+        {/* Actions */}
+        <div className="adicionar-cliente-actions">
+          <Button
+            type="button"
+            variant="secondary"
+            icon={X}
+            onClick={handleCancel}
+            disabled={isSubmitting}
+          >
+            Cancelar
+          </Button>
+
+          <Button
+            type="submit"
+            variant="primary"
+            icon={Save}
+            loading={isSubmitting}
+            disabled={isSubmitting}
+          >
+            {isSubmitting ? (isEditing ? 'Salvando...' : 'Cadastrando...') : (isEditing ? 'Atualizar Cliente' : 'Salvar Cliente')}
+          </Button>
+        </div>
       </form>
     </div>
   );
