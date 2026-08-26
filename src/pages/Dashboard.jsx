@@ -69,35 +69,62 @@ const Dashboard = () => {
     year: 'numeric' 
   });
 
-  // Lógica Financeira Conectada ao Mês Selecionado
+  // Lógica Financeira Conectada Estritamente ao Mês Selecionado
   const selectedYear = selectedMonth.getFullYear();
   const selectedMonthIdx = selectedMonth.getMonth();
-
-  const totalInvested = contracts.reduce((sum, contract) => sum + (Number(contract.principal) || 0), 0);
   
-  // Faturamento Esperado considerando o mês
+  // Limites do mês selecionado
+  const endOfSelectedMonth = new Date(selectedYear, selectedMonthIdx + 1, 0, 23, 59, 59, 999);
+
+  // 1. Contratos que já existiam até o fim do mês selecionado
+  const contractsExistingInMonth = contracts.filter(c => {
+    const createdDate = new Date(c.start_date || c.created_at || c.due_date);
+    return createdDate <= endOfSelectedMonth;
+  });
+
+  // 2. Faturamento Esperado para o mês selecionado:
+  // Somente parcelas/contratos cujo vencimento ocorre exatamente no mês selecionado
   const expectedRevenue = contracts.reduce((sum, contract) => {
-    const d = new Date(contract.due_date || contract.start_date || contract.created_at);
-    const isThisMonth = d.getFullYear() === selectedYear && d.getMonth() === selectedMonthIdx;
-    if (isThisMonth || contract.status === 'open') {
+    const createdDate = new Date(contract.start_date || contract.created_at || contract.due_date);
+    const dueDate = new Date(contract.due_date || contract.start_date || contract.created_at);
+    
+    // Se o contrato foi criado após o mês selecionado, não conta
+    if (createdDate > endOfSelectedMonth) {
+      return sum;
+    }
+    
+    // Vence no mês selecionado?
+    const isDueThisMonth = dueDate.getFullYear() === selectedYear && dueDate.getMonth() === selectedMonthIdx;
+    
+    if (isDueThisMonth) {
       return sum + (Number(contract.monthly_installment) || Number(contract.principal) || 0);
     }
     return sum;
   }, 0);
   
-  // Calcula valores e quantidades em atraso até a data selecionada
-  const overdueContractsList = contracts.filter(c => {
+  // 3. Contratos em atraso no período selecionado:
+  // Contratos que existiam no mês selecionado, cujo vencimento era até o fim daquele mês e não estavam quitados
+  const overdueContractsList = contractsExistingInMonth.filter(c => {
     const dueDate = new Date(c.due_date);
-    const endOfSelectedMonth = new Date(selectedYear, selectedMonthIdx + 1, 0, 23, 59, 59);
-    return dueDate < endOfSelectedMonth && c.status === 'open';
+    const isPastDue = dueDate <= endOfSelectedMonth;
+    return isPastDue && (c.status === 'open' || c.status === 'overdue');
   });
   
   const overdueContractsCount = overdueContractsList.length;
-  const overdueValue = overdueContractsList.reduce((sum, c) => sum + (Number(c.monthly_installment) || Number(c.principal) || 0), 0);
+  const overdueValue = overdueContractsList.reduce((sum, c) => {
+    return sum + (Number(c.monthly_installment) || Number(c.principal) || 0);
+  }, 0);
   
-  // Lucro líquido / Receita Real do mês (Esperado - Atrasado)
+  // 4. Receita Real do mês (Esperado - Atrasado)
   const netRevenue = Math.max(0, expectedRevenue - overdueValue);
-  const activeContracts = contracts.filter(c => c.status === 'open').length;
+  
+  // 5. Total na Rua (Capital Investido até aquele mês):
+  const totalInvested = contractsExistingInMonth
+    .filter(c => c.status === 'open' || c.status === 'overdue')
+    .reduce((sum, c) => sum + (Number(c.principal) || 0), 0);
+
+  // 6. Contratos ativos no mês
+  const activeContracts = contractsExistingInMonth.filter(c => c.status === 'open' || c.status === 'overdue').length;
 
   // Formatação gramatical correta
   const activeContractsLabel = activeContracts === 1 ? '1 contrato ativo' : `${activeContracts} contratos ativos`;
@@ -377,21 +404,21 @@ const Dashboard = () => {
       )}
 
       {/* C6 RECENT TRANSACTIONS / CONTRATOS */}
-      {contracts.length > 0 && (
+      {contractsExistingInMonth.length > 0 ? (
         <div className="c6-recent-section">
           <div className="c6-section-header">
-            <h3 className="c6-section-title">Últimas Atividades</h3>
+            <h3 className="c6-section-title">Últimas Atividades ({formattedMonth})</h3>
             <button 
               className="c6-link-btn" 
               onClick={() => navigate('/historico-contratos')}
             >
-              Ver todos ({contracts.length}) <ArrowUpRight size={14} />
+              Ver todos ({contractsExistingInMonth.length}) <ArrowUpRight size={14} />
             </button>
           </div>
 
           <div className="c6-transactions-list">
-            {contracts.slice(0, 5).map(contract => {
-              const isOverdue = new Date(contract.due_date) < new Date() && contract.status === 'open';
+            {contractsExistingInMonth.slice(0, 5).map(contract => {
+              const isOverdue = new Date(contract.due_date) <= endOfSelectedMonth && contract.status === 'open';
               const installmentsTotal = contract.installments_count || contract.installments || 1;
               const initials = (contract.client_name || 'CL').split(' ').map(n => n[0]).slice(0, 2).join('').toUpperCase();
 
@@ -425,6 +452,17 @@ const Dashboard = () => {
               );
             })}
           </div>
+        </div>
+      ) : (
+        <div className="c6-recent-section">
+          <div className="c6-section-header">
+            <h3 className="c6-section-title">Últimas Atividades ({formattedMonth})</h3>
+          </div>
+          <Card className="c6-empty-state" style={{ padding: '24px 16px' }}>
+            <p style={{ color: '#8e8e93', fontSize: '13px', margin: 0 }}>
+              Nenhum contrato registrado até {formattedMonth}.
+            </p>
+          </Card>
         </div>
       )}
     </div>

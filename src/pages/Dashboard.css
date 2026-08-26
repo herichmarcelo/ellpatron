@@ -96,10 +96,11 @@
   border-color: rgba(212, 175, 55, 0.3);
 }
 
-/* Linha de Baixo (Filtro de Meses) */
+/* Linha de Baixo (Filtro de Meses Centralizado) */
 .dashboard-header-bottom {
   display: flex;
   align-items: center;
+  justify-content: center; /* CENTRALIZA O SELETOR DE MÊS */
   padding-top: 12px;
   border-top: 1px solid rgba(255, 255, 255, 0.06);
 }
@@ -112,10 +113,10 @@
   background-color: #202227;
   border: 1px solid rgba(255, 255, 255, 0.08);
   border-radius: 10px;
-  padding: 0 12px;
+  padding: 0 14px;
   height: 38px;
   width: 100%;
-  max-width: 260px;
+  max-width: 280px;
 }
 
 .date-text {
