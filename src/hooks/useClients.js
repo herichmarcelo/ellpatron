@@ -169,8 +169,30 @@ export const useRemoveFromBlacklist = () => {
   });
 };
 
-export const isClientBlacklisted = (clientId, blacklist) => {
-  return blacklist.some(entry => entry.clientId === clientId);
+export const isClientBlacklisted = (arg1, arg2) => {
+  let list = [];
+  let id = null;
+
+  if (Array.isArray(arg1)) {
+    list = arg1;
+    id = arg2;
+  } else if (Array.isArray(arg2)) {
+    list = arg2;
+    id = arg1;
+  } else {
+    return false;
+  }
+
+  if (!id || !Array.isArray(list)) return false;
+
+  return list.some(entry => {
+    if (!entry) return false;
+    if (typeof entry === 'string' || typeof entry === 'number') {
+      return String(entry) === String(id);
+    }
+    const entryId = entry.clientId || entry.client_id || entry.id;
+    return String(entryId) === String(id);
+  });
 };
 
 export default useClients;

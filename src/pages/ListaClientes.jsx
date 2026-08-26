@@ -25,7 +25,7 @@ const ListaClientes = () => {
   const { mutate: addToBlacklist } = useAddToBlacklist();
   const { mutate: removeFromBlacklist } = useRemoveFromBlacklist();
   
-  const { blacklist, getClientStats, searchClients } = useClients();
+  const { blacklist = [], getClientStats, searchClients } = useClients();
   const [searchQuery, setSearchQuery] = useState('');
   const [statusFilter, setStatusFilter] = useState('all');
   const [showContractsModal, setShowContractsModal] = useState(false);
