@@ -809,7 +809,10 @@ const ListaClientes = () => {
                           type="number"
                           placeholder="1"
                           value={newPayment.installment_number}
-                          onChange={(value) => setNewPayment({...newPayment, installment_number: value})}
+                          onChange={(e) => {
+                            const val = e?.target?.value !== undefined ? e.target.value : e;
+                            setNewPayment(prev => ({ ...prev, installment_number: val }));
+                          }}
                           min="1"
                           max={selectedContract.installments_count || selectedContract.installments || 12}
                         />
@@ -818,9 +821,13 @@ const ListaClientes = () => {
                         <label>Valor Recebido (R$)</label>
                         <Input
                           type="number"
+                          step="0.01"
                           placeholder="0.00"
                           value={newPayment.amount}
-                          onChange={(value) => setNewPayment({...newPayment, amount: value})}
+                          onChange={(e) => {
+                            const val = e?.target?.value !== undefined ? e.target.value : e;
+                            setNewPayment(prev => ({ ...prev, amount: val }));
+                          }}
                         />
                       </div>
                       <div className="c6-form-group">
@@ -828,14 +835,17 @@ const ListaClientes = () => {
                         <Input
                           type="date"
                           value={newPayment.payment_date}
-                          onChange={(value) => setNewPayment({...newPayment, payment_date: value})}
+                          onChange={(e) => {
+                            const val = e?.target?.value !== undefined ? e.target.value : e;
+                            setNewPayment(prev => ({ ...prev, payment_date: val }));
+                          }}
                         />
                       </div>
                       <div className="c6-form-group">
                         <label>Forma de Pagamento</label>
                         <select
                           value={newPayment.payment_method}
-                          onChange={(e) => setNewPayment({...newPayment, payment_method: e.target.value})}
+                          onChange={(e) => setNewPayment(prev => ({ ...prev, payment_method: e.target.value }))}
                           className="payment-method-select"
                         >
                           <option value="pix">PIX</option>
@@ -847,8 +857,11 @@ const ListaClientes = () => {
                         <label>Observações / Anotações</label>
                         <Input
                           placeholder="Ex: Pagamento parcial via PIX..."
-                          value={newPayment.notes}
-                          onChange={(value) => setNewPayment({...newPayment, notes: value})}
+                          value={typeof newPayment.notes === 'string' ? newPayment.notes : ''}
+                          onChange={(e) => {
+                            const val = e?.target?.value !== undefined ? e.target.value : e;
+                            setNewPayment(prev => ({ ...prev, notes: val }));
+                          }}
                         />
                       </div>
                     </div>
