@@ -4,7 +4,7 @@ import Card from '../components/Card';
 import Button from '../components/Button';
 import Input from '../components/Input';
 import DatePicker from '../components/DatePicker';
-import { formatCurrency, formatCPF } from '../utils/formatters';
+import { formatCurrency, formatCPF, getBrasiliaISODate } from '../utils/formatters';
 import { 
   calculateOverduePenalties, 
   calculateUpdatedTotal, 
@@ -152,8 +152,8 @@ const GerarContrato = () => {
         protocol_number: protocol,
         client_name: formData.nome,
         client_cpf: formData.cpf,
-        loan_date: formData.dataEmprestimo instanceof Date ? formData.dataEmprestimo.toISOString().split('T')[0] : formData.dataEmprestimo,
-        due_date: formData.dataVencimento instanceof Date ? formData.dataVencimento.toISOString().split('T')[0] : formData.dataVencimento,
+        loan_date: formData.dataEmprestimo instanceof Date ? getBrasiliaISODate(formData.dataEmprestimo) : (formData.dataEmprestimo || getBrasiliaISODate()),
+        due_date: formData.dataVencimento instanceof Date ? getBrasiliaISODate(formData.dataVencimento) : (formData.dataVencimento || getBrasiliaISODate()),
         principal: principal,
         installments: installments,
         interest_rate_year: interestRateYear,

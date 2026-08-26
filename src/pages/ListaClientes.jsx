@@ -10,8 +10,9 @@ import Button from '../components/Button';
 import Input from '../components/Input';
 import Badge from '../components/Badge';
 import CustomSelect from '../components/CustomSelect';
+import DatePicker from '../components/DatePicker';
 import { useClients, useAddToBlacklist, useRemoveFromBlacklist, isClientBlacklisted } from '../hooks/useClients';
-import { formatPhone, formatDate, formatCPF, getInitials, stringToColor, formatAddress, formatCurrency } from '../utils/formatters';
+import { formatPhone, formatDate, formatCPF, getInitials, stringToColor, formatAddress, formatCurrency, getBrasiliaISODate } from '../utils/formatters';
 import { getContracts, getPayments, createPayment, updateContract } from '../supabase/services.js';
 import { calculateOverduePenalties } from '../utils/calculations';
 import { exportClientsExcel } from '../utils/exportUtils';
@@ -141,7 +142,7 @@ const ListaClientes = () => {
     setNewPayment({
       installment_number: inst.number,
       amount: inst.totalDue > 0 ? inst.totalDue.toFixed(2) : inst.monthlyInstallment.toFixed(2),
-      payment_date: new Date().toISOString().split('T')[0],
+      payment_date: getBrasiliaISODate(),
       payment_method: 'pix',
       notes: ''
     });
@@ -183,12 +184,16 @@ const ListaClientes = () => {
         return;
       }
 
+      const paymentDateFormatted = newPayment.payment_date instanceof Date
+        ? getBrasiliaISODate(newPayment.payment_date)
+        : (newPayment.payment_date || getBrasiliaISODate());
+
       const paymentData = {
         contract_id: selectedContract.id,
         contract_protocol: selectedContract.protocol_number,
         installment_number: parseInt(newPayment.installment_number) || 1,
         amount: paymentAmount,
-        payment_date: newPayment.payment_date || new Date().toISOString().split('T')[0],
+        payment_date: paymentDateFormatted,
         payment_method: newPayment.payment_method || 'pix',
         notes: newPayment.notes || ''
       };
@@ -832,14 +837,14 @@ const ListaClientes = () => {
                         />
                       </div>
                       <div className="c6-form-group">
-                        <label>Data do Pagamento</label>
-                        <Input
-                          type="date"
+                        <DatePicker
+                          label="Data do Pagamento"
                           value={newPayment.payment_date}
-                          onChange={(e) => {
-                            const val = e?.target?.value !== undefined ? e.target.value : e;
-                            setNewPayment(prev => ({ ...prev, payment_date: val }));
+                          onChange={(val) => {
+                            const isoDate = val instanceof Date ? getBrasiliaISODate(val) : val;
+                            setNewPayment(prev => ({ ...prev, payment_date: isoDate }));
                           }}
+                          fullWidth
                         />
                       </div>
                       <div className="c6-form-group">

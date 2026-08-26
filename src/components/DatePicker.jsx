@@ -1,15 +1,16 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { Calendar, ChevronLeft, ChevronRight } from 'lucide-react';
+import { parseDateSafe } from '../utils/formatters';
 import './DatePicker.css';
 
 const formatDateToInput = (date) => {
   if (!date) return '';
-  const dateObj = typeof date === 'string' ? new Date(date) : date;
-  if (isNaN(dateObj.getTime())) return '';
+  const d = parseDateSafe(date);
+  if (!d) return '';
   
-  const day = String(dateObj.getDate()).padStart(2, '0');
-  const month = String(dateObj.getMonth() + 1).padStart(2, '0');
-  const year = dateObj.getFullYear();
+  const day = String(d.getDate()).padStart(2, '0');
+  const month = String(d.getMonth() + 1).padStart(2, '0');
+  const year = d.getFullYear();
   
   return `${day}/${month}/${year}`;
 };
@@ -24,7 +25,7 @@ const parseInputToDate = (input) => {
   const month = parseInt(parts[1], 10) - 1;
   const year = parseInt(parts[2], 10);
   
-  if (isNaN(day) || isNaN(month) || isNaN(year)) return null;
+  if (isNaN(day) || isNaN(month) || isNaN(year) || year < 1900) return null;
   
   const date = new Date(year, month, day);
   if (isNaN(date.getTime())) return null;
@@ -45,7 +46,7 @@ const DatePicker = ({
   maxDate
 }) => {
   const [isOpen, setIsOpen] = useState(false);
-  const [currentMonth, setCurrentMonth] = useState(new Date());
+  const [currentMonth, setCurrentMonth] = useState(() => parseDateSafe(value) || new Date());
   const [prevValue, setPrevValue] = useState(value);
   const [inputValue, setInputValue] = useState(() => formatDateToInput(value));
   const pickerRef = useRef(null);
@@ -53,6 +54,10 @@ const DatePicker = ({
   if (prevValue !== value) {
     setPrevValue(value);
     setInputValue(formatDateToInput(value));
+    const newDate = parseDateSafe(value);
+    if (newDate) {
+      setCurrentMonth(newDate);
+    }
   }
 
   useEffect(() => {
@@ -121,7 +126,8 @@ const DatePicker = ({
 
   const isSelected = (date) => {
     if (!value) return false;
-    const valueDate = typeof value === 'string' ? new Date(value) : value;
+    const valueDate = parseDateSafe(value);
+    if (!valueDate) return false;
     return date.getDate() === valueDate.getDate() &&
            date.getMonth() === valueDate.getMonth() &&
            date.getFullYear() === valueDate.getFullYear();

@@ -38,6 +38,74 @@ export const parseCurrency = (currencyString) => {
 };
 
 /**
+ * Converter de forma segura string ou Date para objeto Date local sem shift de fuso
+ * @param {Date|string} date 
+ * @returns {Date|null}
+ */
+export const parseDateSafe = (date) => {
+  if (!date) return null;
+  if (date instanceof Date) {
+    return isNaN(date.getTime()) ? null : date;
+  }
+  if (typeof date === 'string') {
+    const trimmed = date.trim();
+    if (trimmed.includes('-')) {
+      const datePart = trimmed.split('T')[0];
+      const parts = datePart.split('-');
+      if (parts.length === 3) {
+        const [y, m, d] = parts.map(Number);
+        if (y && m && d) {
+          return new Date(y, m - 1, d);
+        }
+      }
+    }
+    if (trimmed.includes('/')) {
+      const parts = trimmed.split('/');
+      if (parts.length === 3) {
+        const [d, m, y] = parts.map(Number);
+        if (y && m && d) {
+          return new Date(y, m - 1, d);
+        }
+      }
+    }
+  }
+  const parsed = new Date(date);
+  return isNaN(parsed.getTime()) ? null : parsed;
+};
+
+/**
+ * Obter a data no fuso oficial de Brasília (America/Sao_Paulo) no formato YYYY-MM-DD
+ * @param {Date|string} date 
+ * @returns {string} Formato YYYY-MM-DD
+ */
+export const getBrasiliaISODate = (date = new Date()) => {
+  const d = parseDateSafe(date) || new Date();
+  const formatter = new Intl.DateTimeFormat('en-CA', {
+    timeZone: 'America/Sao_Paulo',
+    year: 'numeric',
+    month: '2-digit',
+    day: '2-digit'
+  });
+  return formatter.format(d);
+};
+
+/**
+ * Obter a data no fuso oficial de Brasília (America/Sao_Paulo) no formato DD/MM/YYYY
+ * @param {Date|string} date 
+ * @returns {string} Formato DD/MM/YYYY
+ */
+export const getBrasiliaDateBR = (date = new Date()) => {
+  const d = parseDateSafe(date) || new Date();
+  const formatter = new Intl.DateTimeFormat('pt-BR', {
+    timeZone: 'America/Sao_Paulo',
+    day: '2-digit',
+    month: '2-digit',
+    year: 'numeric'
+  });
+  return formatter.format(d);
+};
+
+/**
  * Format date to Brazilian format
  * @param {Date|string} date - Date object or string
  * @param {boolean} includeTime - Whether to include time
@@ -46,9 +114,8 @@ export const parseCurrency = (currencyString) => {
 export const formatDate = (date, includeTime = false) => {
   if (!date) return '';
   
-  const dateObj = typeof date === 'string' ? new Date(date) : date;
-  
-  if (isNaN(dateObj.getTime())) return '';
+  const dateObj = parseDateSafe(date);
+  if (!dateObj) return '';
 
   const options = {
     day: '2-digit',
