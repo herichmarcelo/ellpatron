@@ -9,6 +9,7 @@ import Card from '../components/Card';
 import Button from '../components/Button';
 import Input from '../components/Input';
 import Badge from '../components/Badge';
+import CustomSelect from '../components/CustomSelect';
 import { useClients, useAddToBlacklist, useRemoveFromBlacklist, isClientBlacklisted } from '../hooks/useClients';
 import { formatPhone, formatDate, formatCPF, getInitials, stringToColor, formatAddress, formatCurrency } from '../utils/formatters';
 import { getContracts, getPayments, createPayment, updateContract } from '../supabase/services.js';
@@ -842,16 +843,16 @@ const ListaClientes = () => {
                         />
                       </div>
                       <div className="c6-form-group">
-                        <label>Forma de Pagamento</label>
-                        <select
+                        <CustomSelect
+                          label="Forma de Pagamento"
+                          options={[
+                            { value: 'pix', label: 'PIX' },
+                            { value: 'dinheiro', label: 'Dinheiro' },
+                            { value: 'transferencia', label: 'Transferência' }
+                          ]}
                           value={newPayment.payment_method}
-                          onChange={(e) => setNewPayment(prev => ({ ...prev, payment_method: e.target.value }))}
-                          className="payment-method-select"
-                        >
-                          <option value="pix">PIX</option>
-                          <option value="dinheiro">Dinheiro</option>
-                          <option value="transferencia">Transferência</option>
-                        </select>
+                          onChange={(val) => setNewPayment(prev => ({ ...prev, payment_method: val }))}
+                        />
                       </div>
                       <div className="c6-form-group c6-form-full">
                         <label>Observações / Anotações</label>

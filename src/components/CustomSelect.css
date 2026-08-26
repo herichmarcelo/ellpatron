@@ -1,0 +1,114 @@
+/* Container Principal */
+.custom-select-wrapper {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  position: relative;
+  width: 100%;
+}
+
+.custom-select-label {
+  font-size: 12px;
+  font-weight: 500;
+  color: #a8a8b3;
+}
+
+/* O "Botão" principal (gatilho) */
+.custom-select-trigger {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background-color: #121214;
+  border: 1px solid #29292e;
+  border-radius: 8px;
+  padding: 12px 16px;
+  min-height: 44px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  user-select: none;
+  outline: none;
+}
+
+/* Efeito ao focar ou abrir */
+.custom-select-trigger:hover, 
+.custom-select-trigger.is-open,
+.custom-select-trigger:focus {
+  border-color: #eab308;
+  box-shadow: 0 0 0 2px rgba(234, 179, 8, 0.15);
+}
+
+.text-selected {
+  color: #ffffff;
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.text-placeholder {
+  color: #737380;
+  font-size: 14px;
+}
+
+/* Ícone da seta girando */
+.custom-select-icon {
+  color: #a8a8b3;
+  transition: transform 0.3s ease;
+  flex-shrink: 0;
+}
+
+.custom-select-icon.rotate {
+  transform: rotate(180deg);
+}
+
+/* O Menu Suspenso (Dropdown) */
+.custom-select-dropdown {
+  position: absolute;
+  top: calc(100% + 6px);
+  left: 0;
+  width: 100%;
+  background-color: #1e1e22;
+  border: 1px solid #29292e;
+  border-radius: 8px;
+  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.6);
+  z-index: 100;
+  overflow: hidden;
+  animation: slideDown 0.2s ease forwards;
+}
+
+/* Itens da Lista */
+.custom-select-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 16px;
+  color: #e1e1e6;
+  font-size: 14px;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+
+.custom-select-item:hover {
+  background-color: #29292e;
+}
+
+/* Estilo do item que está selecionado */
+.custom-select-item.is-selected {
+  background-color: rgba(234, 179, 8, 0.08);
+  color: #eab308;
+  font-weight: 700;
+}
+
+.check-icon {
+  color: #eab308;
+}
+
+/* Animação suave de entrada */
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    transform: translateY(-6px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
