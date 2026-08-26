@@ -43,18 +43,31 @@ const AdicionarCliente = () => {
           if (!isMounted) return;
           if (result.success && result.data) {
             const c = result.data;
+            
+            // Extrai dados de endereço se estiver em c.address ou nos campos diretos
+            let addr = {};
+            if (typeof c.address === 'object' && c.address !== null) {
+              addr = c.address;
+            } else if (typeof c.address === 'string') {
+              try {
+                addr = JSON.parse(c.address);
+              } catch {
+                addr = {};
+              }
+            }
+
             setFormData({
               nome: c.name || c.nome || '',
               cpf: formatCPF(c.cpf || ''),
               telefone: formatPhone(c.phone || c.telefone || ''),
               email: c.email || '',
-              cep: c.zipCode || c.cep || '',
-              endereco: c.street || c.endereco || '',
-              numero: c.number || c.numero || '',
-              complemento: c.complement || c.complemento || '',
-              bairro: c.neighborhood || c.bairro || '',
-              cidade: c.city || c.cidade || '',
-              estado: c.state || c.estado || ''
+              cep: addr.cep || c.zip_code || c.zipCode || c.cep || '',
+              endereco: addr.street || c.street || c.endereco || '',
+              numero: addr.number || c.number || c.numero || '',
+              complemento: addr.complement || c.complement || c.complemento || '',
+              bairro: addr.neighborhood || c.neighborhood || c.bairro || '',
+              cidade: addr.city || c.city || c.cidade || '',
+              estado: addr.state || c.state || c.estado || ''
             });
           } else {
             alert('Cliente não encontrado');
@@ -164,23 +177,26 @@ const AdicionarCliente = () => {
     setIsSubmitting(true);
 
     try {
-      if (isEditing) {
-        // Modo Edição
-        const updatedData = {
-          name: formData.nome,
-          phone: formData.telefone,
-          cpf: formData.cpf,
-          email: formData.email,
+      // Objeto de dados compatível com o schema do Supabase (address como objeto/JSON)
+      const clientPayload = {
+        name: formData.nome,
+        phone: formData.telefone,
+        cpf: formData.cpf,
+        email: formData.email,
+        address: {
+          cep: formData.cep,
           street: formData.endereco,
           number: formData.numero,
           complement: formData.complemento,
           neighborhood: formData.bairro,
           city: formData.cidade,
-          state: formData.estado,
-          zipCode: formData.cep
-        };
+          state: formData.estado
+        }
+      };
 
-        const result = await updateClient(id, updatedData);
+      if (isEditing) {
+        // Modo Edição
+        const result = await updateClient(id, clientPayload);
         if (result.success) {
           alert('Cliente atualizado com sucesso!');
           navigate('/lista-clientes');
@@ -190,23 +206,7 @@ const AdicionarCliente = () => {
         setIsSubmitting(false);
       } else {
         // Modo Adição
-        const clientData = {
-          name: formData.nome,
-          phone: formData.telefone,
-          cpf: formData.cpf,
-          email: formData.email,
-          address: {
-            cep: formData.cep,
-            street: formData.endereco,
-            number: formData.numero,
-            complement: formData.complemento,
-            neighborhood: formData.bairro,
-            city: formData.cidade,
-            state: formData.estado
-          }
-        };
-
-        addClient(clientData, {
+        addClient(clientPayload, {
           onSuccess: () => {
             setFormData({
               nome: '', cpf: '', telefone: '', email: '',

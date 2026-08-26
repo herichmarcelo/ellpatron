@@ -213,22 +213,28 @@ export const truncateText = (text, maxLength = 50) => {
   return `${text.slice(0, maxLength)}...`;
 };
 
-/**
- * Format address
- * @param {object} address - Address object
- * @returns {string} Formatted address string
- */
-export const formatAddress = (address) => {
-  if (!address) return '';
+export const formatAddress = (data) => {
+  if (!data) return '';
   
-  // Handle different address structures
+  // Suporta tanto o objeto client quanto o objeto address aninhado
+  let address = data;
+  if (typeof data.address === 'object' && data.address !== null) {
+    address = data.address;
+  } else if (typeof data.address === 'string' && data.address.startsWith('{')) {
+    try {
+      address = JSON.parse(data.address);
+    } catch {
+      address = data;
+    }
+  }
+
   const street = address.street || address.endereco || address.logradouro || '';
   const number = address.number || address.numero || '';
   const complement = address.complement || address.complemento || '';
   const neighborhood = address.neighborhood || address.bairro || '';
   const city = address.city || address.cidade || address.localidade || '';
   const state = address.state || address.estado || address.uf || '';
-  const cep = address.cep || '';
+  const cep = address.cep || address.zipCode || address.zip_code || '';
 
   const parts = [
     street,
