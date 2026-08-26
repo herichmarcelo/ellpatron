@@ -4,7 +4,7 @@ import {
   Users, UserPlus, Search, Edit, Eye, Phone, MapPin, Calendar, 
   FileText, Plus, Download, ShieldAlert, Ban, X, ChevronRight,
   CheckCircle2, DollarSign, ArrowLeft, AlertCircle, ChevronDown, ChevronUp, Check,
-  PiggyBank, ArrowDownLeft, ArrowUpRight, Wallet
+  PiggyBank, ArrowDownLeft, ArrowUpRight, Wallet, MessageCircle
 } from 'lucide-react';
 import Card from '../components/Card';
 import Button from '../components/Button';
@@ -322,7 +322,8 @@ const ListaClientes = () => {
           payment_date: paymentDateFormatted,
           payment_method: paymentData.payment_method,
           protocol_number: selectedContract.protocol_number,
-          client_name: selectedClient?.name || selectedContract.client_name || ''
+          client_name: selectedClient?.name || selectedContract.client_name || '',
+          client_phone: selectedClient?.phone || selectedContract.client_phone || ''
         });
         setShowSuccessModal(true);
 
@@ -340,6 +341,52 @@ const ListaClientes = () => {
       console.error('Error adding payment:', error);
       alert('Erro ao registrar pagamento: ' + error.message);
     }
+  };
+
+  const handleShareReceipt = () => {
+    if (!successModalData) return;
+    
+    const clientName = successModalData.client_name || 'Cliente';
+    const phoneClean = (successModalData.client_phone || selectedClient?.phone || selectedContract?.client_phone || '').replace(/\D/g, '');
+    const contractNum = successModalData.protocol_number || selectedContract?.protocol_number || '-';
+    const installmentStr = `${successModalData.installment_number} de ${successModalData.total_installments}`;
+    const amountStr = formatCurrency(successModalData.amount);
+    const methodStr = (successModalData.payment_method || 'PIX').toUpperCase();
+    const dateStr = formatDate(successModalData.payment_date);
+
+    const E_REC = '\u{1F9FE}'; // 🧾
+    const E_DOC = '\u{1F4C4}'; // 📄
+    const E_NUM = '\u{1F522}'; // 🔢
+    const E_MONEY = '\u{1F4B0}'; // 💰
+    const E_CARD = '\u{1F4B3}'; // 💳
+    const E_CAL = '\u{1F4C5}'; // 📅
+    const E_CHECK = '\u2705'; // ✅
+    const DIVIDER = '━━━━━━━━━━━━━━━━━━━━';
+
+    const msg = 
+`${E_REC} *RECIBO DE PAGAMENTO*
+*Ell Patron • Gestão Financeira*
+${DIVIDER}
+
+Olá, *${clientName}*!
+Confirmamos o recebimento do seu pagamento:
+
+${E_DOC} *Contrato:* ${contractNum}
+${E_NUM} *Parcela:* ${installmentStr}
+${E_MONEY} *Valor Pago:* *${amountStr}*
+${E_CARD} *Forma:* ${methodStr}
+${E_CAL} *Data da Baixa:* ${dateStr}
+
+${DIVIDER}
+${E_CHECK} _Pagamento processado e baixado no sistema com sucesso._
+_Agradecemos a preferência!_
+_Ell Patron • Gestão Financeira Inteligente_`;
+
+    const url = phoneClean 
+      ? `https://wa.me/55${phoneClean}?text=${encodeURIComponent(msg)}`
+      : `https://wa.me/?text=${encodeURIComponent(msg)}`;
+
+    window.open(url, '_blank');
   };
 
   const handleCloseSuccessModal = () => {
@@ -1310,14 +1357,26 @@ const ListaClientes = () => {
               )}
             </div>
 
-            <button 
-              type="button" 
-              className="c6-success-btn-ok"
-              onClick={handleCloseSuccessModal}
-              autoFocus
-            >
-              Concluído
-            </button>
+            <div className="c6-success-modal-actions">
+              <button 
+                type="button" 
+                className="c6-success-btn-wpp"
+                onClick={handleShareReceipt}
+                title="Compartilhar Recibo / Ticket de Pagamento via WhatsApp"
+              >
+                <MessageCircle size={18} />
+                <span>Enviar Recibo via WhatsApp</span>
+              </button>
+
+              <button 
+                type="button" 
+                className="c6-success-btn-ok"
+                onClick={handleCloseSuccessModal}
+                autoFocus
+              >
+                Concluído
+              </button>
+            </div>
           </div>
         </div>
       )}

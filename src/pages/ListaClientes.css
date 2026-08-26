@@ -1815,6 +1815,42 @@
   color: #ffffff;
 }
 
+.c6-success-modal-actions {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.c6-success-btn-wpp {
+  width: 100%;
+  background: rgba(16, 185, 129, 0.12);
+  border: 1px solid rgba(16, 185, 129, 0.4);
+  color: #10b981;
+  border-radius: 10px;
+  padding: 13px;
+  font-size: 14px;
+  font-weight: 700;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  transition: all 0.2s ease;
+}
+
+.c6-success-btn-wpp:hover {
+  background: #10b981;
+  color: #050608;
+  border-color: #10b981;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 16px rgba(16, 185, 129, 0.35);
+}
+
+.c6-success-btn-wpp:active {
+  transform: scale(0.98);
+}
+
 .c6-success-btn-ok {
   width: 100%;
   background: linear-gradient(135deg, #10b981 0%, #059669 100%);
