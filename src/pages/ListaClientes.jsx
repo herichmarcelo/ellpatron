@@ -75,9 +75,26 @@ const ListaClientes = () => {
     }
   };
 
-  const handleWhatsAppClick = (phone) => {
-    const message = encodeURIComponent('Olá! Como posso ajudar?');
-    window.open(`https://wa.me/55${phone.replace(/\D/g, '')}?text=${message}`, '_blank');
+  const handleWhatsAppClick = (phone, clientName) => {
+    if (!phone) {
+      alert('Telefone do cliente não cadastrado.');
+      return;
+    }
+    // 1. Remove parênteses, espaços e traços do telefone (deixa só os números)
+    const numeroLimpo = phone.replace(/\D/g, '');
+    
+    // 2. Mensagem profissional personalizada com o nome do cliente
+    const nomeCliente = clientName ? clientName.trim() : 'Cliente';
+    const mensagem = `Olá, ${nomeCliente}! Tudo bem por aí? Entramos em contato para alinhar algumas informações referentes ao seu cadastro e aos seus repasses. Assim que tiver um momento livre, me dê um retorno por favor!`;
+    
+    // 3. Converte o texto para o formato de URL seguro
+    const textoCodificado = encodeURIComponent(mensagem);
+    
+    // 4. Monta o link final com o código do país (+55)
+    const urlWhatsApp = `https://wa.me/55${numeroLimpo}?text=${textoCodificado}`;
+    
+    // 5. Abre o WhatsApp em nova aba
+    window.open(urlWhatsApp, '_blank');
   };
 
   const handleViewContracts = async (client) => {
@@ -303,7 +320,7 @@ const ListaClientes = () => {
                     {/* 2. LADO DIREITO: Botão de Destaque do WhatsApp */}
                     <button 
                       className="btn-header-whatsapp" 
-                      onClick={() => handleWhatsAppClick(client.phone)}
+                      onClick={() => handleWhatsAppClick(client.phone, client.name)}
                       title="Chamar no WhatsApp"
                       aria-label="Chamar no WhatsApp"
                     >
@@ -409,7 +426,17 @@ const ListaClientes = () => {
               </div>
               <div className="detail-row">
                 <span className="detail-label">Telefone / WhatsApp:</span>
-                <span className="detail-value">{formatPhone(selectedClientDetails.phone)}</span>
+                <span 
+                  className="detail-value"
+                  style={{ color: '#25d366', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '6px' }}
+                  onClick={() => handleWhatsAppClick(selectedClientDetails.phone, selectedClientDetails.name)}
+                  title="Clique para abrir WhatsApp com mensagem personalizada"
+                >
+                  {formatPhone(selectedClientDetails.phone)}
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor">
+                    <path fill="#25d366" d="M12.04 2c-5.46 0-9.91 4.45-9.91 9.91 0 1.75.46 3.45 1.32 4.95L2.05 22l5.25-1.38c1.45.79 3.08 1.21 4.74 1.21 5.46 0 9.91-4.45 9.91-9.91 0-2.65-1.03-5.14-2.9-7.01A9.816 9.816 0 0 0 12.04 2zm0 18.15c-1.48 0-2.93-.4-4.2-1.15l-.3-.18-3.12.82.83-3.04-.2-.31a8.216 8.216 0 0 1-1.26-4.38c0-4.54 3.7-8.24 8.24-8.24 2.2 0 4.27.86 5.82 2.42a8.18 8.18 0 0 1 2.41 5.83c.01 4.54-3.68 8.23-8.22 8.23zm4.52-6.16c-.25-.12-1.47-.72-1.7-.81-.23-.08-.39-.12-.56.12-.17.25-.64.81-.79.97-.14.17-.29.19-.54.06-.25-.12-1.05-.39-2-1.23-.74-.66-1.23-1.47-1.38-1.72-.14-.25-.02-.38.11-.5.11-.11.25-.29.37-.43.12-.14.17-.25.25-.41.08-.17.04-.31-.02-.43s-.56-1.34-.76-1.84c-.2-.48-.41-.42-.56-.43h-.48c-.17 0-.43.06-.66.31-.22.25-.86.84-.86 2.05s.88 2.37 1 2.54c.12.17 1.73 2.65 4.2 3.71.59.25 1.05.41 1.41.52.59.19 1.13.16 1.56.1.48-.07 1.47-.6 1.67-1.18.21-.58.21-1.07.14-1.18-.06-.11-.22-.18-.47-.3z"/>
+                  </svg>
+                </span>
               </div>
               {selectedClientDetails.email && (
                 <div className="detail-row">
