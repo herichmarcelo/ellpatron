@@ -948,6 +948,137 @@
   margin-top: 8px;
 }
 
+/* ==========================================================
+   TELA DEDICADA DE BAIXA / PAGAMENTO (PÁGINA POR CIMA)
+   ========================================================== */
+.c6-payment-page-view {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  height: 100%;
+  animation: pageFadeIn 0.25s ease-out;
+}
+
+@keyframes pageFadeIn {
+  from { opacity: 0; transform: translateY(6px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.c6-payment-page-header {
+  background-color: #141414;
+  border-bottom: 1px solid #29292e;
+}
+
+.c6-back-page-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: none;
+  border: none;
+  color: #eab308;
+  font-size: 12px;
+  font-weight: 700;
+  cursor: pointer;
+  padding: 0;
+  margin-bottom: 6px;
+  transition: color 0.2s, transform 0.2s;
+  width: fit-content;
+}
+
+.c6-back-page-btn:hover {
+  color: #facc15;
+  transform: translateX(-2px);
+}
+
+.c6-payment-page-body {
+  padding: 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  overflow-y: auto;
+  max-height: 75vh;
+}
+
+/* Banner de Resumo da Parcela Selecionada */
+.c6-selected-inst-banner {
+  background: linear-gradient(135deg, #1e1e22 0%, #161619 100%);
+  border: 1px solid #29292e;
+  border-radius: 12px;
+  padding: 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.c6-inst-banner-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.c6-banner-parcela-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 14px;
+  font-weight: 700;
+  color: #ffffff;
+}
+
+.c6-banner-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+
+.c6-banner-item {
+  background-color: #141414;
+  border: 1px solid #29292e;
+  border-radius: 8px;
+  padding: 10px 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.c6-banner-item.highlight-gold {
+  border-color: rgba(234, 179, 8, 0.4);
+  background: rgba(234, 179, 8, 0.05);
+}
+
+.c6-banner-item .banner-label {
+  font-size: 10px;
+  font-weight: 700;
+  color: #737380;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.c6-banner-item .banner-val {
+  font-size: 15px;
+  font-weight: 700;
+  color: #ffffff;
+}
+
+.c6-banner-alert-overdue {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 12px;
+  color: #f87171;
+  background-color: rgba(239, 68, 68, 0.1);
+  border: 1px solid rgba(239, 68, 68, 0.25);
+  border-radius: 8px;
+  padding: 10px 14px;
+}
+
+.c6-payment-page-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+  margin-top: 8px;
+}
+
 /* Empty State */
 .c6-empty-state {
   display: flex;
@@ -1360,7 +1491,8 @@
   }
 
   /* O corpo do modal de pagamentos também ocupa a tela inteira */
-  .c6-modal-body {
+  .c6-modal-body,
+  .c6-payment-page-body {
     flex: 1 !important;
     max-height: none !important;
     padding: 18px 16px !important;
