@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { 
   Users, UserPlus, Search, Edit, Eye, Phone, MapPin, Calendar, 
-  FileText, Plus, Download, ShieldAlert, Ban, MessageCircle 
+  FileText, Plus, Download, ShieldAlert, Ban 
 } from 'lucide-react';
 import Card from '../components/Card';
 import Button from '../components/Button';
@@ -292,21 +292,26 @@ const ListaClientes = () => {
                       >
                         {getInitials(client.name)}
                       </div>
+                      
                       <div className="cliente-nomes">
-                        <h3>{client.name}</h3>
-                        {getStatusBadge(client.status)}
+                        {/* Container para alinhar Nome + WhatsApp */}
+                        <div className="cliente-nome-wrapper">
+                          <h3>{client.name}</h3>
+                          
+                          {/* Botão com SVG da pasta public */}
+                          <button 
+                            className="btn-icon-whatsapp" 
+                            onClick={() => handleWhatsAppClick(client.phone)}
+                            title="Chamar no WhatsApp"
+                            aria-label="Chamar no WhatsApp"
+                          >
+                            <img src="/whatsapp.svg" alt="WhatsApp" width="20" height="20" />
+                          </button>
+                        </div>
+                        
+                        <div>{getStatusBadge(client.status)}</div>
                       </div>
                     </div>
-
-                    {/* Ação rápida de WhatsApp no topo (limpo e sem sobrepor dados) */}
-                    <button 
-                      className="btn-quick-whatsapp" 
-                      onClick={() => handleWhatsAppClick(client.phone)}
-                      aria-label="Chamar no WhatsApp"
-                      title="Chamar no WhatsApp"
-                    >
-                      <MessageCircle size={18} color="#25D366" />
-                    </button>
                   </div>
 
                   {/* CORPO DO CARD (Dados) */}
@@ -327,54 +332,46 @@ const ListaClientes = () => {
                     )}
                   </div>
 
-                  {/* AÇÕES (Grid 2x2 + Botão Ver Perfil Completo) */}
+                  {/* AÇÕES (Grade 2x2 Exata com 4 Botões) */}
                   <div className="cliente-card-actions">
                     <div className="actions-grid">
+                      <button 
+                        className="btn-action action-view"
+                        onClick={() => handleViewClient(client)}
+                      >
+                        <Eye size={15}/> Ver Perfil
+                      </button>
+                      
+                      <button 
+                        className="btn-action action-docs"
+                        onClick={() => handleViewContracts(client)}
+                      >
+                        <FileText size={15}/> Contratos
+                      </button>
+                      
+                      <button 
+                        className="btn-action action-edit"
+                        onClick={() => handleEditClient(client.id)}
+                      >
+                        <Edit size={15}/> Editar
+                      </button>
+                      
                       {isBlacklisted ? (
                         <button 
                           className="btn-action action-block"
                           onClick={() => handleRemoveFromBlacklist(client.id)}
                         >
-                          <ShieldAlert size={15} /> Desbloquear
+                          <ShieldAlert size={15}/> Desbloquear
                         </button>
                       ) : (
                         <button 
                           className="btn-action action-block"
                           onClick={() => handleAddToBlacklist(client.id)}
                         >
-                          <Ban size={15} /> Bloquear
+                          <Ban size={15}/> Bloquear
                         </button>
                       )}
-
-                      <button 
-                        className="btn-action action-wpp"
-                        onClick={() => handleWhatsAppClick(client.phone)}
-                      >
-                        <MessageCircle size={15} /> WhatsApp
-                      </button>
-
-                      <button 
-                        className="btn-action action-docs"
-                        onClick={() => handleViewContracts(client)}
-                      >
-                        <FileText size={15} /> Contratos
-                      </button>
-
-                      <button 
-                        className="btn-action action-edit"
-                        onClick={() => handleEditClient(client.id)}
-                      >
-                        <Edit size={15} /> Editar
-                      </button>
                     </div>
-
-                    {/* Botão VER detalhe largo e fácil de clicar */}
-                    <button 
-                      className="btn-action-full"
-                      onClick={() => handleViewClient(client)}
-                    >
-                      <Eye size={15} /> Ver Perfil Completo
-                    </button>
                   </div>
                 </Card>
               );
