@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { 
   Users, UserPlus, Search, Edit, Eye, Phone, MapPin, Calendar, 
   FileText, Plus, Download, ShieldAlert, Ban, X, ChevronRight,
-  CheckCircle2, DollarSign, ArrowLeft, AlertCircle
+  CheckCircle2, DollarSign, ArrowLeft, AlertCircle, ChevronDown, ChevronUp, Check
 } from 'lucide-react';
 import Card from '../components/Card';
 import Button from '../components/Button';
@@ -47,6 +47,16 @@ const ListaClientes = () => {
   });
   const [allContracts, setAllContracts] = useState([]);
   const [allPayments, setAllPayments] = useState([]);
+  const [showSuccessModal, setShowSuccessModal] = useState(false);
+  const [successModalData, setSuccessModalData] = useState(null);
+  const [expandedPaidInstallments, setExpandedPaidInstallments] = useState({});
+
+  const toggleExpandInstallment = (instNumber) => {
+    setExpandedPaidInstallments(prev => ({
+      ...prev,
+      [instNumber]: !prev[instNumber]
+    }));
+  };
 
   // Carrega contratos e pagamentos para cálculo de Score em tempo real
   useEffect(() => {
@@ -231,10 +241,12 @@ const ListaClientes = () => {
       const result = await createPayment(paymentData);
       
       if (result.success) {
-        alert('Pagamento registrado com sucesso!');
         const paymentsResult = await getPayments({ contractProtocol: selectedContract.protocol_number });
         const updatedPayments = paymentsResult.success ? (paymentsResult.data || []) : [];
         setContractPayments(updatedPayments);
+
+        // Atualiza pagamentos gerais para reflexo imediato no Score
+        setAllPayments(prev => [...prev, result.data || paymentData]);
 
         // Verificar se todas as parcelas foram quitadas
         const totalInstallments = parseInt(selectedContract.installments || selectedContract.installments_count || 1);
@@ -257,15 +269,25 @@ const ListaClientes = () => {
           }
         }
 
+        // Abre o Modal de Sucesso Customizado C6 Carbon
+        setSuccessModalData({
+          amount: paymentAmount,
+          installment_number: paymentData.installment_number,
+          total_installments: totalInstallments,
+          payment_date: paymentDateFormatted,
+          payment_method: paymentData.payment_method,
+          protocol_number: selectedContract.protocol_number,
+          client_name: selectedClient?.name || selectedContract.client_name || ''
+        });
+        setShowSuccessModal(true);
+
         setNewPayment({
           installment_number: '',
           amount: '',
-          payment_date: new Date().toISOString().split('T')[0],
+          payment_date: getBrasiliaISODate(),
           payment_method: 'pix',
           notes: ''
         });
-        setShowAddPaymentForm(false);
-        setSelectedInstallment(null);
       } else {
         alert('Erro ao registrar pagamento: ' + result.error);
       }
@@ -273,6 +295,13 @@ const ListaClientes = () => {
       console.error('Error adding payment:', error);
       alert('Erro ao registrar pagamento: ' + error.message);
     }
+  };
+
+  const handleCloseSuccessModal = () => {
+    setShowSuccessModal(false);
+    setSuccessModalData(null);
+    setShowAddPaymentForm(false);
+    setSelectedInstallment(null);
   };
 
   const getInstallmentsData = () => {
@@ -992,113 +1021,157 @@ const ListaClientes = () => {
 
                 {/* Lista de Parcelas */}
                 <div className="c6-installments-list">
-                  {getInstallmentsData().map(inst => (
-                    <div 
-                      key={inst.number} 
-                      className={`c6-installment-card ${inst.status === 'paid' ? 'c6-inst-paid' : inst.status === 'partial' ? 'c6-inst-partial' : inst.isOverdue ? 'c6-inst-overdue' : ''}`}
-                    >
-                      {/* Cabeçalho do Card da Parcela */}
-                      <div className="c6-inst-header">
-                        <div className="c6-inst-title-group">
-                          <span className="c6-inst-badge-num">
-                            Parcela {inst.number}/{inst.totalCount}
-                          </span>
-                          <span className="c6-inst-due-date">
-                            Vencimento: <strong>{formatDate(inst.dueDate)}</strong>
-                          </span>
-                        </div>
-                        <span className={`c6-badge ${inst.badgeClass}`}>
-                          {inst.statusLabel}
-                        </span>
-                      </div>
+                  {getInstallmentsData().map(inst => {
+                    const isPaid = inst.status === 'paid';
+                    const isExpanded = isPaid ? !!expandedPaidInstallments[inst.number] : true;
 
-                      {/* Grade de Valores da Parcela (1 Card na Esquerda e 1 Card na Direita) */}
-                      <div className="c6-inst-grid">
-                        <div className="c6-inst-mini-card">
-                          <span className="c6-data-label">Valor Original</span>
-                          <span className="c6-data-value">{formatCurrency(inst.monthlyInstallment)}</span>
+                    // Se estiver PAGA e RECOLHIDA (Default): renderiza a linha compacta
+                    if (isPaid && !isExpanded) {
+                      return (
+                        <div 
+                          key={inst.number} 
+                          className="c6-installment-card c6-inst-paid c6-inst-collapsed"
+                          onClick={() => toggleExpandInstallment(inst.number)}
+                          role="button"
+                          tabIndex={0}
+                          title="Clique para ver os detalhes da parcela quitada"
+                        >
+                          <div className="c6-inst-collapsed-left">
+                            <span className="c6-inst-badge-num">
+                              Parcela {inst.number}/{inst.totalCount}
+                            </span>
+                            <span className="c6-inst-due-date">
+                              Vencimento: <strong>{formatDate(inst.dueDate)}</strong>
+                            </span>
+                          </div>
+                          <div className="c6-inst-collapsed-right">
+                            <span className="c6-badge c6-badge-paga">
+                              PAGA
+                            </span>
+                            <ChevronDown size={16} className="c6-inst-chevron" />
+                          </div>
+                        </div>
+                      );
+                    }
+
+                    // Card Expandido (Parcelas Pendentes, Atrasadas ou Parcelas Pagas Abertas)
+                    return (
+                      <div 
+                        key={inst.number} 
+                        className={`c6-installment-card ${isPaid ? 'c6-inst-paid' : inst.status === 'partial' ? 'c6-inst-partial' : inst.isOverdue ? 'c6-inst-overdue' : ''}`}
+                      >
+                        {/* Cabeçalho do Card da Parcela */}
+                        <div 
+                          className={`c6-inst-header ${isPaid ? 'c6-inst-header-clickable' : ''}`}
+                          onClick={isPaid ? () => toggleExpandInstallment(inst.number) : undefined}
+                          title={isPaid ? "Clique para recolher" : undefined}
+                        >
+                          <div className="c6-inst-title-group">
+                            <span className="c6-inst-badge-num">
+                              Parcela {inst.number}/{inst.totalCount}
+                            </span>
+                            <span className="c6-inst-due-date">
+                              Vencimento: <strong>{formatDate(inst.dueDate)}</strong>
+                            </span>
+                          </div>
+                          <div className="c6-inst-header-right">
+                            <span className={`c6-badge ${inst.badgeClass}`}>
+                              {inst.statusLabel}
+                            </span>
+                            {isPaid && (
+                              <ChevronUp size={16} className="c6-inst-chevron" />
+                            )}
+                          </div>
                         </div>
 
-                        <div className={`c6-inst-mini-card ${inst.status === 'paid' ? 'c6-inst-mini-card--paid' : inst.isOverdue ? 'c6-inst-mini-card--overdue' : 'c6-inst-mini-card--due'}`}>
-                          <span className="c6-data-label">
-                            {inst.status === 'paid' 
-                              ? 'Situação' 
-                              : inst.isOverdue 
-                                ? 'Saldo c/ Juros' 
-                                : inst.totalPaid > 0 
-                                  ? 'Saldo Restante' 
-                                  : 'Valor a Pagar'}
-                          </span>
-                          <span className={`c6-data-value ${inst.status === 'paid' ? 'text-green' : inst.isOverdue ? 'text-red' : 'text-gold'}`}>
-                            {inst.status === 'paid' ? 'Quitada' : formatCurrency(inst.totalDue)}
-                          </span>
+                        {/* Grade de Valores da Parcela */}
+                        <div className="c6-inst-grid">
+                          <div className="c6-inst-mini-card">
+                            <span className="c6-data-label">Valor Original</span>
+                            <span className="c6-data-value">{formatCurrency(inst.monthlyInstallment)}</span>
+                          </div>
+
+                          <div className={`c6-inst-mini-card ${isPaid ? 'c6-inst-mini-card--paid' : inst.isOverdue ? 'c6-inst-mini-card--overdue' : 'c6-inst-mini-card--due'}`}>
+                            <span className="c6-data-label">
+                              {isPaid 
+                                ? 'Situação' 
+                                : inst.isOverdue 
+                                  ? 'Saldo c/ Juros' 
+                                  : inst.totalPaid > 0 
+                                    ? 'Saldo Restante' 
+                                    : 'Valor a Pagar'}
+                            </span>
+                            <span className={`c6-data-value ${isPaid ? 'text-green' : inst.isOverdue ? 'text-red' : 'text-gold'}`}>
+                              {isPaid ? 'Quitada' : formatCurrency(inst.totalDue)}
+                            </span>
+                          </div>
+
+                          {inst.totalPaid > 0 && (
+                            <div className="c6-inst-mini-card c6-inst-mini-card--paid c6-inst-mini-card--paid-full-width">
+                              <span className="c6-data-label">Total Já Pago (Amortizado)</span>
+                              <span className="c6-data-value text-green font-bold">{formatCurrency(inst.totalPaid)}</span>
+                            </div>
+                          )}
                         </div>
 
-                        {inst.totalPaid > 0 && (
-                          <div className="c6-inst-mini-card c6-inst-mini-card--paid c6-inst-mini-card--paid-full-width">
-                            <span className="c6-data-label">Total Já Pago (Amortizado)</span>
-                            <span className="c6-data-value text-green font-bold">{formatCurrency(inst.totalPaid)}</span>
+                        {/* Nota explicativa de atraso caso incida multa/juros sobre saldo */}
+                        {inst.isOverdue && (
+                          <div className="c6-inst-penalty-alert">
+                            <span>
+                              ⚠️ <strong>{inst.daysOverdue} {inst.daysOverdue === 1 ? 'dia' : 'dias'} de atraso:</strong> Multa (+{formatCurrency(inst.penaltyAmount)}) e Juros (+{formatCurrency(inst.totalDailyInterest)}) calculados estritamente sobre o saldo devedor restante de {formatCurrency(inst.remainingPrincipal)}.
+                            </span>
                           </div>
                         )}
-                      </div>
 
-                      {/* Nota explicativa de atraso caso incida multa/juros sobre saldo */}
-                      {inst.isOverdue && (
-                        <div className="c6-inst-penalty-alert">
-                          <span>
-                            ⚠️ <strong>{inst.daysOverdue} {inst.daysOverdue === 1 ? 'dia' : 'dias'} de atraso:</strong> Multa (+{formatCurrency(inst.penaltyAmount)}) e Juros (+{formatCurrency(inst.totalDailyInterest)}) calculados estritamente sobre o saldo devedor restante de {formatCurrency(inst.remainingPrincipal)}.
-                          </span>
-                        </div>
-                      )}
-
-                      {/* Histórico de Baixas desta Parcela */}
-                      {inst.payments.length > 0 && (
-                        <div className="c6-inst-payments-mini">
-                          <span className="c6-mini-title">Baixas registradas nesta parcela:</span>
-                          <div className="c6-mini-tags">
-                            {inst.payments.map((p, idx) => (
-                              <span key={p.id || idx} className="c6-mini-tag">
-                                {formatDate(p.payment_date)} — {formatCurrency(p.amount)} ({p.payment_method?.toUpperCase() || 'PIX'})
-                              </span>
-                            ))}
-                          </div>
-                        </div>
-                      )}
-
-                      {/* Ação da Parcela */}
-                      <div className="c6-inst-footer">
-                        {inst.status === 'paid' ? (
-                          <div className="c6-inst-status-done">
-                            <CheckCircle2 size={16} color="#10B981" />
-                            <span>Parcela 100% Paga</span>
-                          </div>
-                        ) : (
-                          <div className="c6-inst-actions-row">
-                            {/* Botão de Cobrança WhatsApp (Lado Esquerdo) */}
-                            <button 
-                              className="c6-btn-wpp-charge"
-                              onClick={() => handleCobrarParcela(selectedClient, inst)}
-                              title="Cobrar Parcela via WhatsApp"
-                            >
-                              <img src="/whatsapp.svg" alt="WhatsApp" width="16" height="16" />
-                              <span>Cobrar</span>
-                            </button>
-
-                            {/* Botão de Pagamento / Baixa (Lado Direito) */}
-                            <button 
-                              className="c6-action-btn c6-action-btn--pay"
-                              onClick={() => handleOpenPayInstallment(inst)}
-                            >
-                              <DollarSign size={16} />
-                              <span>{inst.totalPaid > 0 ? 'Pagar Saldo' : 'Registrar Pagamento'}</span>
-                              <ChevronRight size={16} />
-                            </button>
+                        {/* Histórico de Baixas desta Parcela */}
+                        {inst.payments.length > 0 && (
+                          <div className="c6-inst-payments-mini">
+                            <span className="c6-mini-title">Baixas registradas nesta parcela:</span>
+                            <div className="c6-mini-tags">
+                              {inst.payments.map((p, idx) => (
+                                <span key={p.id || idx} className="c6-mini-tag">
+                                  {formatDate(p.payment_date)} — {formatCurrency(p.amount)} ({p.payment_method?.toUpperCase() || 'PIX'})
+                                </span>
+                              ))}
+                            </div>
                           </div>
                         )}
-                      </div>
 
-                    </div>
-                  ))}
+                        {/* Ação da Parcela */}
+                        <div className="c6-inst-footer">
+                          {isPaid ? (
+                            <div className="c6-inst-status-done">
+                              <CheckCircle2 size={16} color="#10B981" />
+                              <span>Parcela 100% Paga</span>
+                            </div>
+                          ) : (
+                            <div className="c6-inst-actions-row">
+                              {/* Botão de Cobrança WhatsApp (Lado Esquerdo) */}
+                              <button 
+                                className="c6-btn-wpp-charge"
+                                onClick={() => handleCobrarParcela(selectedClient, inst)}
+                                title="Cobrar Parcela via WhatsApp"
+                              >
+                                <img src="/whatsapp.svg" alt="WhatsApp" width="16" height="16" />
+                                <span>Cobrar</span>
+                              </button>
+
+                              {/* Botão de Pagamento / Baixa (Lado Direito) */}
+                              <button 
+                                className="c6-action-btn c6-action-btn--pay"
+                                onClick={() => handleOpenPayInstallment(inst)}
+                              >
+                                <DollarSign size={16} />
+                                <span>{inst.totalPaid > 0 ? 'Pagar Saldo' : 'Registrar Pagamento'}</span>
+                                <ChevronRight size={16} />
+                              </button>
+                            </div>
+                          )}
+                        </div>
+
+                      </div>
+                    );
+                  })}
                   </div>
                 </div>
               </div>
@@ -1107,6 +1180,56 @@ const ListaClientes = () => {
         </div>
       </div>
     )}
+
+      {/* Modal de Sucesso Customizado C6 Carbon */}
+      {showSuccessModal && successModalData && (
+        <div className="c6-success-modal-overlay" onClick={handleCloseSuccessModal}>
+          <div className="c6-success-modal-card" onClick={(e) => e.stopPropagation()}>
+            <div className="c6-success-icon-badge">
+              <Check size={38} color="#10B981" strokeWidth={3} />
+            </div>
+
+            <h3 className="c6-success-title">Pagamento Registrado!</h3>
+            <p className="c6-success-subtitle">
+              A baixa da parcela foi processada e salva no sistema com sucesso.
+            </p>
+
+            <div className="c6-success-summary-box">
+              <div className="c6-success-summary-row">
+                <span className="label">Valor Recebido</span>
+                <span className="value text-green font-bold">{formatCurrency(successModalData.amount)}</span>
+              </div>
+              <div className="c6-success-summary-row">
+                <span className="label">Parcela</span>
+                <span className="value font-bold">{successModalData.installment_number} de {successModalData.total_installments}</span>
+              </div>
+              <div className="c6-success-summary-row">
+                <span className="label">Forma de Pagamento</span>
+                <span className="value">{successModalData.payment_method?.toUpperCase()}</span>
+              </div>
+              <div className="c6-success-summary-row">
+                <span className="label">Data da Baixa</span>
+                <span className="value">{formatDate(successModalData.payment_date)}</span>
+              </div>
+              {successModalData.client_name && (
+                <div className="c6-success-summary-row">
+                  <span className="label">Cliente</span>
+                  <span className="value font-bold">{successModalData.client_name}</span>
+                </div>
+              )}
+            </div>
+
+            <button 
+              type="button" 
+              className="c6-success-btn-ok"
+              onClick={handleCloseSuccessModal}
+              autoFocus
+            >
+              Concluído
+            </button>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

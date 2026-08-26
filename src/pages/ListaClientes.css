@@ -1219,6 +1219,21 @@
   border-bottom: 1px solid rgba(255, 255, 255, 0.05);
 }
 
+.c6-inst-header-clickable {
+  cursor: pointer;
+  transition: opacity 0.2s ease;
+}
+
+.c6-inst-header-clickable:hover {
+  opacity: 0.85;
+}
+
+.c6-inst-header-right {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
 .c6-inst-title-group {
   display: flex;
   align-items: center;
@@ -1240,7 +1255,58 @@
   color: #e1e1e6;
 }
 
+/* --- PARCELA PAGA RECOLHIDA (COMPACT / COLLAPSED) --- */
+.c6-inst-collapsed {
+  display: flex !important;
+  flex-direction: row !important;
+  justify-content: space-between !important;
+  align-items: center !important;
+  padding: 14px 18px !important;
+  cursor: pointer !important;
+  transition: all 0.2s ease !important;
+  gap: 12px !important;
+}
+
+.c6-inst-collapsed:hover {
+  background-color: #1c1c20 !important;
+  transform: translateX(2px);
+  border-color: rgba(16, 185, 129, 0.4) !important;
+}
+
+.c6-inst-collapsed-left {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+.c6-inst-collapsed-right {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.c6-inst-chevron {
+  color: #737380;
+  transition: transform 0.2s ease;
+}
+
+.c6-inst-collapsed:hover .c6-inst-chevron {
+  color: #10b981;
+}
+
 /* Badges de Parcela */
+.c6-badge-paga {
+  background-color: rgba(16, 185, 129, 0.14) !important;
+  color: #10b981 !important;
+  border: 1px solid rgba(16, 185, 129, 0.35) !important;
+  font-size: 11px !important;
+  font-weight: 800 !important;
+  padding: 4px 10px !important;
+  border-radius: 12px !important;
+  letter-spacing: 0.5px !important;
+}
+
 .c6-badge-partial {
   background-color: rgba(234, 179, 8, 0.12);
   color: #eab308;
@@ -1531,4 +1597,126 @@
     justify-content: center;
     padding: 12px;
   }
+}
+
+/* ==========================================================
+   MODAL DE SUCESSO CUSTOMIZADO C6 CARBON
+   ========================================================== */
+.c6-success-modal-overlay {
+  position: fixed;
+  inset: 0;
+  background-color: rgba(0, 0, 0, 0.75);
+  backdrop-filter: blur(8px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 10000;
+  padding: 16px;
+  animation: successFadeIn 0.2s ease-out;
+}
+
+.c6-success-modal-card {
+  background: linear-gradient(135deg, #1e1e22 0%, #141416 100%);
+  border: 1px solid #29292e;
+  border-top: 3px solid #10b981;
+  border-radius: 16px;
+  width: 100%;
+  max-width: 400px;
+  padding: 28px 24px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  box-shadow: 0 24px 48px rgba(0, 0, 0, 0.7);
+  animation: successScaleUp 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@keyframes successFadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes successScaleUp {
+  from { opacity: 0; transform: scale(0.92); }
+  to { opacity: 1; transform: scale(1); }
+}
+
+.c6-success-icon-badge {
+  width: 68px;
+  height: 68px;
+  border-radius: 50%;
+  background: rgba(16, 185, 129, 0.12);
+  border: 2px solid rgba(16, 185, 129, 0.4);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 16px;
+  box-shadow: 0 0 24px rgba(16, 185, 129, 0.25);
+}
+
+.c6-success-title {
+  color: #ffffff;
+  font-size: 20px;
+  font-weight: 800;
+  margin: 0 0 6px 0;
+  letter-spacing: -0.3px;
+}
+
+.c6-success-subtitle {
+  color: #a8a8b3;
+  font-size: 13px;
+  margin: 0 0 20px 0;
+  line-height: 1.4;
+}
+
+.c6-success-summary-box {
+  width: 100%;
+  background-color: #141414;
+  border: 1px solid #29292e;
+  border-radius: 10px;
+  padding: 14px 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-bottom: 22px;
+}
+
+.c6-success-summary-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 13px;
+}
+
+.c6-success-summary-row .label {
+  color: #737380;
+  font-size: 12px;
+}
+
+.c6-success-summary-row .value {
+  color: #ffffff;
+}
+
+.c6-success-btn-ok {
+  width: 100%;
+  background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+  color: #ffffff;
+  border: none;
+  border-radius: 10px;
+  padding: 14px;
+  font-size: 15px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  box-shadow: 0 4px 14px rgba(16, 185, 129, 0.3);
+}
+
+.c6-success-btn-ok:hover {
+  background: linear-gradient(135deg, #059669 0%, #047857 100%);
+  transform: translateY(-1px);
+  box-shadow: 0 6px 18px rgba(16, 185, 129, 0.4);
+}
+
+.c6-success-btn-ok:active {
+  transform: scale(0.98);
 }
