@@ -549,6 +549,13 @@ export const updateContract = async (contractId, data) => {
 
 export const deleteContract = async (contractId) => {
   try {
+    // 1. Limpa pagamentos vinculados ao contrato
+    await supabase
+      .from('payments')
+      .delete()
+      .eq('contract_id', contractId);
+
+    // 2. Remove o contrato
     const { error } = await supabase
       .from('contracts')
       .delete()
