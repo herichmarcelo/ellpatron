@@ -6,7 +6,7 @@ import Button from '../components/Button';
 import Input from '../components/Input';
 import { useAddClient } from '../hooks/useClients';
 import { formatCPF, formatPhone } from '../utils/formatters';
-import { validateCPF, validatePhone, validateEmail, validateRequired } from '../utils/validators';
+import { validateCPF, validatePhone, validateEmail } from '../utils/validators';
 import { getClient, updateClient } from '../supabase/services';
 import './AdicionarCliente.css';
 
@@ -149,14 +149,16 @@ const AdicionarCliente = () => {
   const validateForm = () => {
     const newErrors = {};
 
-    const nomeValidation = validateRequired(formData.nome, 'Nome');
-    if (!nomeValidation.isValid) newErrors.nome = nomeValidation.message;
+    // Todos os campos são opcionais — validar formato apenas se preenchidos
+    if (formData.cpf) {
+      const cpfValidation = validateCPF(formData.cpf);
+      if (!cpfValidation.isValid) newErrors.cpf = cpfValidation.message;
+    }
 
-    const telefoneValidation = validatePhone(formData.telefone);
-    if (!telefoneValidation.isValid) newErrors.telefone = telefoneValidation.message;
-
-    const cpfValidation = validateCPF(formData.cpf);
-    if (!cpfValidation.isValid) newErrors.cpf = cpfValidation.message;
+    if (formData.telefone) {
+      const telefoneValidation = validatePhone(formData.telefone);
+      if (!telefoneValidation.isValid) newErrors.telefone = telefoneValidation.message;
+    }
 
     if (formData.email) {
       const emailValidation = validateEmail(formData.email);
@@ -262,7 +264,7 @@ const AdicionarCliente = () => {
 
           <div className="adicionar-cliente-grid">
             <Input
-              label="Nome Completo *"
+              label="Nome Completo"
               placeholder="Digite o nome completo"
               value={formData.nome}
               onChange={(e) => handleInputChange('nome', e)}
@@ -271,7 +273,7 @@ const AdicionarCliente = () => {
             />
 
             <Input
-              label="CPF *"
+              label="CPF"
               placeholder="000.000.000-00"
               value={formData.cpf}
               onChange={handleCPFChange}
@@ -281,7 +283,7 @@ const AdicionarCliente = () => {
             />
 
             <Input
-              label="Telefone (WhatsApp) *"
+              label="Telefone (WhatsApp)"
               placeholder="(00) 00000-0000"
               value={formData.telefone}
               onChange={handlePhoneChange}
